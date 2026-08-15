@@ -1,0 +1,22 @@
+name = "traveler-trip-planner-backend"
+main = "worker/index.ts"
+compatibility_date = "2024-01-01"
+
+# Cloudflare D1 Database Binding
+[[d1_databases]]
+binding = "DB"
+database_name = "traveler_trips_db"
+database_id = "your-d1-database-id-here"
+
+# Cloudflare KV Binding for ultra-fast caching & session state
+[[kv_namespaces]]
+binding = "CACHE_KV"
+id = "your-kv-namespace-id-here"
+
+[vars]
+ENVIRONMENT = "production"
+ENABLE_CORS = "true"
+
+# Single Page Application assets configuration for Pages / Workers
+[site]
+bucket = "./dist"

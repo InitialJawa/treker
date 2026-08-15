@@ -6,6 +6,7 @@ import {
 import { 
   Trip, ItineraryDay, ItineraryItem, Place, Expense, Booking, PackingItem, TransportLeg, Note 
 } from '../types/travel';
+import { saveTripToCloudflare, deleteTripFromCloudflare } from './cloudflareDbService';
 
 // Helper to remove undefined values, which Firestore doesn't accept
 function cleanData(obj) {
@@ -36,9 +37,13 @@ const TRANSPORTS_COL = 'transports';
 const NOTES_COL = 'notes';
 
 /**
- * Save or update a trip in Firestore
+ * Save or update a trip in Firestore & Cloudflare D1
  */
 export async function saveTripToFirestore(trip: Trip) {
+  const currentUid = auth.currentUser?.uid;
+  // Background sync to Cloudflare D1
+  saveTripToCloudflare(trip, currentUid).catch(e => console.warn('Cloudflare trip sync notice:', e));
+
   try {
     const ref = doc(db, TRIPS_COL, trip.id);
     await setDoc(ref, cleanData({
@@ -51,9 +56,12 @@ export async function saveTripToFirestore(trip: Trip) {
 }
 
 /**
- * Delete trip and its associated items from Firestore
+ * Delete trip and its associated items from Firestore & Cloudflare D1
  */
 export async function deleteTripFromFirestore(tripId: string) {
+  const currentUid = auth.currentUser?.uid;
+  deleteTripFromCloudflare(tripId, currentUid).catch(e => console.warn('Cloudflare trip delete notice:', e));
+
   try {
     await deleteDoc(doc(db, TRIPS_COL, tripId));
     const deleteByTripId = async (colName: string) => {
