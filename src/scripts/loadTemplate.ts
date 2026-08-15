@@ -1,19 +1,19 @@
 import { banyuwangiTrip, banyuwangiDays, banyuwangiItems } from '../data/banyuwangiTemplate';
-import { saveTripToFirestore, saveItemToFirestore } from '../services/firestoreService';
+import { saveTripToSupabase, saveItemToSupabase } from '../services/supabaseService';
 
-export const loadBanyuwangiTemplateToFirestore = async (userId: string) => {
-  const newTripId = banyuwangiTrip.id + '-' + userId.substring(0,6);
+export const loadBanyuwangiTemplateToSupabase = async (userId: string) => {
+  const newTripId = banyuwangiTrip.id + '-' + userId.substring(0, 6);
   
   const trip = {
     ...banyuwangiTrip,
     id: newTripId,
     userId: userId,
   };
-  await saveTripToFirestore(trip);
+  await saveTripToSupabase(trip);
   
   for (const day of banyuwangiDays) {
-    const newDayId = day.id + '-' + userId.substring(0,6);
-    await saveItemToFirestore('itineraryDays', newDayId, {
+    const newDayId = day.id + '-' + userId.substring(0, 6);
+    await saveItemToSupabase('itineraryDays', newDayId, {
       ...day,
       id: newDayId,
       tripId: newTripId,
@@ -21,9 +21,9 @@ export const loadBanyuwangiTemplateToFirestore = async (userId: string) => {
   }
   
   for (const item of banyuwangiItems) {
-    const newItemId = item.id + '-' + userId.substring(0,6);
-    const newDayId = item.dayId ? item.dayId + '-' + userId.substring(0,6) : item.dayId;
-    await saveItemToFirestore('itineraryItems', newItemId, {
+    const newItemId = item.id + '-' + userId.substring(0, 6);
+    const newDayId = item.dayId ? item.dayId + '-' + userId.substring(0, 6) : item.dayId;
+    await saveItemToSupabase('itineraryItems', newItemId, {
       ...item,
       id: newItemId,
       tripId: newTripId,

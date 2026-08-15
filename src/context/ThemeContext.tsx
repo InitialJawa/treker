@@ -1,9 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { ThemeColors, THEME_PRESETS, DEFAULT_THEME } from '../types/theme';
 import { useAuth } from './AuthContext';
-import { db } from '../services/firebase';
-import { doc, getDoc, setDoc } from 'firebase/firestore';
-import { isFirestoreQuotaExhausted, handleFirestoreError } from '../services/firestoreService';
+import { supabase, isSupabaseConfigured } from '../services/supabase';
 
 interface ThemeContextType {
   presetId: string;
@@ -57,17 +55,20 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     }
   }, []);
 
-  // 2. Load theme settings from Firestore when user changes
+  // 2. Load theme settings from Supabase when user changes
   useEffect(() => {
-    if (!user) return;
+    if (!user || !isSupabaseConfigured) return;
 
     const fetchUserTheme = async () => {
       try {
-        const userDocRef = doc(db, 'userSettings', user.uid);
-        const docSnap = await getDoc(userDocRef);
+        const { data, error } = await supabase
+          .from('user_settings')
+          .select('theme')
+          .eq('user_id', user.uid)
+          .single();
 
-        if (docSnap.exists() && docSnap.data().theme) {
-          const userTheme = docSnap.data().theme;
+        if (!error && data?.theme) {
+          const userTheme = data.theme;
           const mergedColors: ThemeColors = {
             ...DEFAULT_THEME,
             ...(userTheme.colors || {})
@@ -85,14 +86,14 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           }));
         }
       } catch (error) {
-        console.warn('Notice fetching user theme settings from Firestore:', error);
+        console.warn('Notice fetching user theme settings from Supabase:', error);
       }
     };
 
     fetchUserTheme();
   }, [user]);
 
-  // Save helper to Firestore + LocalStorage
+  // Save helper to Supabase + LocalStorage
   const saveThemeSettings = async (newPresetId: string, newColors: ThemeColors) => {
     setIsSaving(true);
     setColors(newColors);
@@ -109,21 +110,20 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       console.warn('LocalStorage save error:', err);
     }
 
-    // Save to Firestore if logged in and quota is available
-    if (user && !isFirestoreQuotaExhausted()) {
+    // Save to Supabase if logged in & configured
+    if (user && isSupabaseConfigured) {
       try {
-        const userDocRef = doc(db, 'userSettings', user.uid);
-        await setDoc(userDocRef, {
-          updatedAt: new Date().toISOString(),
-          userEmail: user.email,
-          userId: user.uid,
+        await supabase.from('user_settings').upsert({
+          user_id: user.uid,
+          user_email: user.email,
+          updated_at: new Date().toISOString(),
           theme: {
             presetId: newPresetId,
             colors: newColors
           }
-        }, { merge: true });
+        });
       } catch (err) {
-        handleFirestoreError(err, 'saveThemeSettings');
+        console.warn('Supabase theme save notice:', err);
       }
     }
 
@@ -141,7 +141,6 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
     const updatedColors = {
       ...colors,
       [key]: value,
-      // Automatically derive selection colors if primary is changed
       ...(key === 'primary' ? {
         selection: `${value}33`,
         selectionText: value

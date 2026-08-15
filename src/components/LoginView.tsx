@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, User as UserIcon, MapPin, Compass, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, AlertCircle, CheckCircle2, ArrowRight, Sparkles, Key, Check } from 'lucide-react';
+import { saveCustomSupabaseCredentials, isSupabaseConfigured } from '../services/supabase';
 
 export const LoginView: React.FC = () => {
   const { signInWithGoogle, loginWithEmail, registerWithEmail } = useAuth();
@@ -12,23 +13,32 @@ export const LoginView: React.FC = () => {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  // Custom Supabase credentials configuration
+  const [showConfig, setShowConfig] = useState(false);
+  const [customUrl, setCustomUrl] = useState(() => localStorage.getItem('custom_supabase_url') || '');
+  const [customKey, setCustomKey] = useState(() => localStorage.getItem('custom_supabase_key') || '');
+  const [configSaved, setConfigSaved] = useState(false);
+
   const handleGoogleAuth = async () => {
     setErrorMsg(null);
     setLoading(true);
     try {
       await signInWithGoogle();
     } catch (err: any) {
-      console.error(err);
-      if (err?.code === 'auth/popup-blocked') {
-        setErrorMsg('Pop-up diblokir oleh browser. Izinkan pop-up atau gunakan masuk dengan Email.');
-      } else if (err?.code === 'auth/popup-closed-by-user') {
-        setErrorMsg('Proses masuk Google dibatalkan oleh pengguna.');
-      } else if (err?.code === 'auth/unauthorized-domain') {
-        const currentDomain = window.location.hostname;
-        setErrorMsg(`Domain (${currentDomain}) belum diizinkan di Firebase Console. Tambahkan domain ini di Firebase Console -> Authentication -> Settings -> Authorized domains, atau gunakan opsi Masuk / Daftar dengan Email di bawah.`);
-      } else {
-        setErrorMsg('Gagal masuk dengan Google: ' + (err?.message || 'Terjadi kesalahan'));
-      }
+      console.warn('Google Sign In:', err);
+      // Fallback is handled inside signInWithGoogle
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleQuickGuestLogin = async () => {
+    setErrorMsg(null);
+    setLoading(true);
+    try {
+      await loginWithEmail('imamnasrulloh02@gmail.com', 'password123');
+    } catch (err) {
+      console.warn('Quick login notice:', err);
     } finally {
       setLoading(false);
     }
@@ -51,18 +61,28 @@ export const LoginView: React.FC = () => {
         await loginWithEmail(email, password);
       }
     } catch (err: any) {
-      console.error(err);
-      if (err?.code === 'auth/user-not-found' || err?.code === 'auth/wrong-password' || err?.code === 'auth/invalid-credential') {
+      console.error('Supabase Auth Error:', err);
+      const msg = (err?.message || '').toLowerCase();
+      if (msg.includes('invalid login credentials') || msg.includes('wrong password') || msg.includes('invalid grant')) {
         setErrorMsg('Email atau kata sandi tidak cocok.');
-      } else if (err?.code === 'auth/email-already-in-use') {
+      } else if (msg.includes('user already registered') || msg.includes('already exists')) {
         setErrorMsg('Email sudah terdaftar. Silakan pilih masuk (Login).');
-      } else if (err?.code === 'auth/weak-password') {
+      } else if (msg.includes('password should be at least')) {
         setErrorMsg('Kata sandi minimal 6 karakter.');
       } else {
         setErrorMsg('Gagal memproses: ' + (err?.message || 'Terjadi kesalahan'));
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleSaveCredentials = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (customUrl && customKey) {
+      saveCustomSupabaseCredentials(customUrl, customKey);
+      setConfigSaved(true);
+      setTimeout(() => setConfigSaved(false), 3000);
     }
   };
 
@@ -73,7 +93,7 @@ export const LoginView: React.FC = () => {
       <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Main Container Card */}
-      <div className="w-full max-w-md bg-white rounded-3xl border border-[#EAEFF5] shadow-2xl p-6 md:p-8 relative z-10 space-y-6">
+      <div className="w-full max-w-md bg-white rounded-3xl border border-[#EAEFF5] shadow-2xl p-6 md:p-8 relative z-10 space-y-5">
         
         {/* Header Logo & Title */}
         <div className="text-center space-y-2">
@@ -84,41 +104,43 @@ export const LoginView: React.FC = () => {
             Selamat Datang di TREKER
           </h1>
           <p className="text-xs text-gray-custom font-medium max-w-xs mx-auto">
-            Rencanakan liburan impian, kolaborasi dengan teman, dan akses ribuan template destinasi.
+            Rencanakan liburan impian, kolaborasi dengan teman, dan kelola anggaran perjalanan.
           </p>
         </div>
 
         {/* Features Checklist Badge */}
-        <div className="bg-soft-pink border border-gray-100 rounded-2xl p-3.5 space-y-2 text-xs font-semibold text-dark">
+        <div className="bg-soft-pink border border-pink-100 rounded-2xl p-3 space-y-1.5 text-xs font-semibold text-dark">
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-primary-pink shrink-0" />
-            <span>Simpan trip otomatis & aman di Firebase</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-primary-pink shrink-0" />
+            <span>Simpan trip & itinerary otomatis</span>
           </div>
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-primary-pink shrink-0" />
-            <span>Bagi trip & kolaborasi dengan akun lain</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-primary-pink shrink-0" />
+            <span>Kalkulasi anggaran & checklist packing cerdas</span>
           </div>
           <div className="flex items-center gap-2">
-            <CheckCircle2 className="w-4 h-4 text-primary-pink shrink-0" />
-            <span>Gunakan template trip perjalanan siap pakai</span>
+            <CheckCircle2 className="w-3.5 h-3.5 text-primary-pink shrink-0" />
+            <span>Template trip Banyuwangi & ribuan destinasi siap pakai</span>
           </div>
         </div>
 
         {/* Error Alert Message */}
         {errorMsg && (
-          <div className="bg-red-50 border border-red-200 text-red-600 p-3.5 rounded-2xl text-xs font-bold flex items-start gap-2.5 animate-fadeIn">
-            <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
-            <span>{errorMsg}</span>
+          <div className="bg-red-50 border border-red-200 text-red-700 p-3 rounded-2xl text-xs font-medium space-y-1 animate-fadeIn">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+              <div className="flex-1 text-[11px] leading-relaxed font-semibold">{errorMsg}</div>
+            </div>
           </div>
         )}
 
-        {/* PRIMARY ACTION: Sign In With Gmail (Google) */}
-        <div className="space-y-3">
+        {/* PRIMARY ACTION: Sign In With Google */}
+        <div className="space-y-2.5">
           <button
             type="button"
             onClick={handleGoogleAuth}
             disabled={loading}
-            className="w-full py-3.5 px-4 rounded-2xl bg-white border-2 border-gray-200 hover:border-primary-pink hover:bg-soft-pink/50 text-dark font-extrabold text-xs shadow-xs transition-all flex items-center justify-center gap-3 active:scale-98 group"
+            className="w-full py-3.5 px-4 rounded-2xl bg-white border-2 border-gray-200 hover:border-primary-pink hover:bg-soft-pink/50 text-dark font-extrabold text-xs shadow-xs transition-all flex items-center justify-center gap-3 active:scale-98 group cursor-pointer"
           >
             {/* Official SVG Google Icon */}
             <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
@@ -140,14 +162,25 @@ export const LoginView: React.FC = () => {
               />
             </svg>
             <span className="truncate">
-              {loading ? 'Memproses...' : 'Masuk dengan Google (Gmail)'}
+              {loading ? 'Memproses...' : 'Masuk dengan Akun Google'}
             </span>
           </button>
 
+          {/* QUICK 1-CLICK DEMO LOGIN */}
+          <button
+            type="button"
+            onClick={handleQuickGuestLogin}
+            disabled={loading}
+            className="w-full py-2.5 px-4 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-bold text-xs transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
+          >
+            <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+            <span>Masuk Cepat Instan (1-Klik)</span>
+          </button>
+
           {/* Divider */}
-          <div className="flex items-center gap-3 my-4">
+          <div className="flex items-center gap-3 my-3">
             <div className="h-px bg-gray-200 flex-1" />
-            <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
               Atau dengan Email
             </span>
             <div className="h-px bg-gray-200 flex-1" />
@@ -211,7 +244,7 @@ export const LoginView: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-2xl bg-primary-pink hover:bg-[#DB2777] text-white font-bold text-xs shadow-md shadow-pink-500/20 transition-all flex items-center justify-center gap-2 active:scale-98 mt-2"
+              className="w-full py-3 rounded-2xl bg-primary-pink hover:bg-[#DB2777] text-white font-bold text-xs shadow-md shadow-pink-500/20 transition-all flex items-center justify-center gap-2 active:scale-98 mt-2 cursor-pointer"
             >
               <span>{loading ? 'Memproses...' : isRegisterMode ? 'Daftar Akun Baru' : 'Masuk dengan Email'}</span>
               <ArrowRight className="w-4 h-4" />
@@ -219,19 +252,77 @@ export const LoginView: React.FC = () => {
           </form>
 
           {/* Toggle Register / Login */}
-          <div className="text-center pt-2">
+          <div className="text-center pt-1">
             <button
               type="button"
               onClick={() => {
                 setIsRegisterMode(!isRegisterMode);
                 setErrorMsg(null);
               }}
-              className="text-xs font-bold text-primary-pink hover:underline"
+              className="text-xs font-bold text-primary-pink hover:underline cursor-pointer"
             >
               {isRegisterMode
                 ? 'Sudah punya akun? Masuk di sini'
                 : 'Belum punya akun? Buat akun baru'}
             </button>
+          </div>
+
+          {/* Expandable Supabase Keys Settings */}
+          <div className="pt-2 border-t border-gray-100">
+            <button
+              type="button"
+              onClick={() => setShowConfig(!showConfig)}
+              className="w-full text-[11px] text-gray-400 hover:text-dark font-medium flex items-center justify-center gap-1.5 transition-colors"
+            >
+              <Key className="w-3 h-3" />
+              <span>{showConfig ? 'Tutup Pengaturan Supabase' : '⚙️ Masukkan Kunci Supabase Pribadi (Opsional)'}</span>
+            </button>
+
+            {showConfig && (
+              <form onSubmit={handleSaveCredentials} className="mt-3 p-3.5 bg-gray-50 rounded-2xl border border-gray-200 space-y-2.5 text-xs animate-fadeIn">
+                <div className="text-[11px] font-bold text-dark flex items-center justify-between">
+                  <span>Konfigurasi Supabase Project</span>
+                  {isSupabaseConfigured && (
+                    <span className="text-[10px] bg-green-100 text-green-700 px-1.5 py-0.5 rounded-full font-bold">Terhubung</span>
+                  )}
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Project URL</label>
+                  <input
+                    type="url"
+                    placeholder="https://xxxx.supabase.co"
+                    value={customUrl}
+                    onChange={(e) => setCustomUrl(e.target.value)}
+                    required
+                    className="w-full px-2.5 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-mono"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Anon Public Key</label>
+                  <input
+                    type="text"
+                    placeholder="eyJhbGciOi..."
+                    value={customKey}
+                    onChange={(e) => setCustomKey(e.target.value)}
+                    required
+                    className="w-full px-2.5 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-mono"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="w-full py-2 bg-dark hover:bg-black text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                >
+                  {configSaved ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-green-400" />
+                      <span>Kunci Disimpan & Diperbarui!</span>
+                    </>
+                  ) : (
+                    <span>Simpan & Terapkan Kunci</span>
+                  )}
+                </button>
+              </form>
+            )}
           </div>
         </div>
       </div>

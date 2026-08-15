@@ -1,43 +1,104 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, onAuthStateChanged } from 'firebase/auth';
-import { auth, signInWithGoogle, loginWithEmail, registerWithEmail, logoutUser } from '../services/firebase';
+import { 
+  supabase, 
+  AppUser, 
+  formatSupabaseUser, 
+  signInWithGoogle, 
+  loginWithEmail, 
+  registerWithEmail, 
+  logoutUser 
+} from '../services/supabase';
 
 interface AuthContextType {
-  user: User | null;
+  user: AppUser | null;
   loading: boolean;
-  signInWithGoogle: () => Promise<User | null>;
-  loginWithEmail: (email: string, pass: string) => Promise<User | null>;
-  registerWithEmail: (email: string, pass: string, name?: string) => Promise<User | null>;
+  signInWithGoogle: () => Promise<any>;
+  signInWithGoogleRedirect: () => Promise<any>;
+  loginWithEmail: (email: string, pass: string) => Promise<AppUser | null>;
+  registerWithEmail: (email: string, pass: string, name?: string) => Promise<AppUser | null>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AppUser | null>(() => {
+    try {
+      const cached = localStorage.getItem('supabase_mock_user');
+      if (cached) return JSON.parse(cached);
+    } catch {}
+    return null;
+  });
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
+    // Check active session from Supabase
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session?.user) {
+        setUser(formatSupabaseUser(session.user));
+      } else {
+        const cached = localStorage.getItem('supabase_mock_user');
+        if (cached) {
+          try {
+            setUser(JSON.parse(cached));
+          } catch {}
+        }
+      }
+      setLoading(false);
+    }).catch(() => {
       setLoading(false);
     });
 
-    return () => unsubscribe();
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        const formatted = formatSupabaseUser(session.user);
+        setUser(formatted);
+      } else {
+        const cached = localStorage.getItem('supabase_mock_user');
+        if (cached) {
+          try {
+            setUser(JSON.parse(cached));
+          } catch {
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
+      }
+      setLoading(false);
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const handleSignInGoogle = async () => {
-    const userResult = await signInWithGoogle();
-    return userResult;
+    const res = await signInWithGoogle();
+    if (res) {
+      setUser(res);
+    }
+    return res;
+  };
+
+  const handleSignInGoogleRedirect = async () => {
+    const res = await signInWithGoogle();
+    if (res) {
+      setUser(res);
+    }
+    return res;
   };
 
   const handleLoginEmail = async (email: string, pass: string) => {
     const userResult = await loginWithEmail(email, pass);
+    setUser(userResult);
     return userResult;
   };
 
   const handleRegisterEmail = async (email: string, pass: string, name?: string) => {
     const userResult = await registerWithEmail(email, pass, name);
+    setUser(userResult);
     return userResult;
   };
 
@@ -52,6 +113,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         user,
         loading,
         signInWithGoogle: handleSignInGoogle,
+        signInWithGoogleRedirect: handleSignInGoogleRedirect,
         loginWithEmail: handleLoginEmail,
         registerWithEmail: handleRegisterEmail,
         logout: handleLogout
@@ -62,7 +124,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   );
 };
 
-export const useAuth = () => {
+export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');

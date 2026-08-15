@@ -10,14 +10,15 @@ import { banyuwangiTrip, banyuwangiDays, banyuwangiItems, banyuwangiPlaces } fro
 import { generateItineraryWithAI, generatePackingListWithAI } from '../services/aiService';
 import { syncItineraryDaysDates } from '../utils/formatters';
 import { useAuth } from './AuthContext';
-import { db } from '../services/firebase';
 import { 
-  collection, doc, setDoc, getDocs, deleteDoc, query, where, onSnapshot 
-} from 'firebase/firestore';
-import { initializeUserTemplates } from '../services/onboardingService';
-import { 
-  saveTripToFirestore, deleteTripFromFirestore, addCollaboratorToTrip, removeCollaboratorFromTrip, saveItemToFirestore, deleteItemFromFirestore 
-} from '../services/firestoreService';
+  saveTripToSupabase, 
+  deleteTripFromSupabase, 
+  addCollaboratorToTrip, 
+  removeCollaboratorFromTrip, 
+  saveItemToSupabase, 
+  deleteItemFromSupabase 
+} from '../services/supabaseService';
+import { supabase, isSupabaseConfigured } from '../services/supabase';
 import { fetchAllDataFromSql, seedBanyuwangiToSql } from '../services/sqlService';
 
 interface TripContextType {
@@ -163,7 +164,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currency, setCurrency] = useState<CurrencyCode>('IDR');
   const [activeTab, setActiveTab] = useState<string>('Overview');
 
-  // Cloud SQL & Firestore Realtime Synchronization
+  // Synchronization with Supabase / Cloud SQL / Local
   useEffect(() => {
     // 1. Hydrate from Cloud SQL (PostgreSQL)
     fetchAllDataFromSql(user ? user.uid : 'guest').then(sqlData => {
@@ -189,179 +190,46 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       console.warn('Cloud SQL initial fetch notice:', err);
     });
 
+    // 2. Fetch from Supabase if configured
+    if (user && isSupabaseConfigured) {
+      supabase
+        .from('trips')
+        .select('*')
+        .or(`user_id.eq.${user.uid},collaborators.cs.{"${user.email || ''}"}`)
+        .then(({ data, error }) => {
+          if (!error && data && data.length > 0) {
+            const mappedTrips: Trip[] = data.map((t: any) => ({
+              id: t.id,
+              name: t.name,
+              destination: t.destination,
+              startDate: t.start_date,
+              endDate: t.end_date,
+              travelersCount: t.travelers_count,
+              currency: t.currency,
+              budget: t.budget,
+              actualSpent: t.actual_spent,
+              description: t.description,
+              coverImage: t.cover_image,
+              status: t.status,
+              isTemplate: t.is_template,
+              isFavorite: t.is_favorite,
+              userId: t.user_id,
+              collaborators: t.collaborators || [],
+              memberIds: t.member_ids || [],
+              createdAt: t.created_at || t.start_date,
+            }));
+            setTrips(mappedTrips);
+          }
+        });
+    }
+
     if (!user) {
-      // Guest mode: ensure Banyuwangi trip is active
       setTrips([banyuwangiTrip]);
       setItineraryDays(banyuwangiDays);
       setItineraryItems(banyuwangiItems);
       setPlaces(banyuwangiPlaces);
       setActiveTripId(banyuwangiTrip.id);
-      return;
     }
-
-    const userEmail = user.email ? user.email.toLowerCase() : '';
-
-    // Realtime listener for trips where userId == uid OR collaborators contains email OR isTemplate == true
-    initializeUserTemplates(user.uid);
-
-    const tripsCol = collection(db, 'trips');
-    const qTrips = query(collection(db, 'trips'), where('memberIds', 'array-contains', user.uid));
-    const unsubTrips = onSnapshot(
-      qTrips,
-      (snapshot) => {
-        const fetchedTrips: Trip[] = [];
-        snapshot.forEach(docSnap => {
-          fetchedTrips.push({ ...docSnap.data(), id: docSnap.id } as Trip);
-        });
-
-        if (fetchedTrips.length > 0) {
-          setTrips(fetchedTrips);
-          try { localStorage.setItem('traveler_trips', JSON.stringify(fetchedTrips)); } catch (e) {}
-          if (!activeTripId || !fetchedTrips.some(t => t.id === activeTripId)) {
-            setActiveTripId(fetchedTrips[0].id);
-          }
-        } else {
-          // If 0 trips exist in firestore yet, seed the default Banyuwangi trip
-          setTrips([banyuwangiTrip]);
-          setItineraryDays(banyuwangiDays);
-          setItineraryItems(banyuwangiItems);
-          setPlaces(banyuwangiPlaces);
-          setActiveTripId(banyuwangiTrip.id);
-        }
-      },
-      (err) => {
-        console.warn('Trips snapshot notice (using local fallback):', err);
-        setTrips([banyuwangiTrip]);
-        setItineraryDays(banyuwangiDays);
-        setItineraryItems(banyuwangiItems);
-        setPlaces(banyuwangiPlaces);
-        setActiveTripId(banyuwangiTrip.id);
-      }
-    );
-
-
-    // Filtered listeners for user's sub-collections to prevent data leaks across users
-    const userFilter = (colName: string) => query(collection(db, colName), where('userId', '==', user.uid));
-
-    const unsubDays = onSnapshot(
-      userFilter('itineraryDays'),
-      (snap) => {
-        const list: ItineraryDay[] = [];
-        snap.forEach(d => list.push({ ...d.data(), id: d.id } as ItineraryDay));
-        if (list.length > 0) {
-          setItineraryDays(list);
-          try { localStorage.setItem('traveler_days', JSON.stringify(list)); } catch (e) {}
-        } else {
-          setItineraryDays(banyuwangiDays);
-        }
-      },
-      (err) => {
-        console.warn('ItineraryDays snapshot error:', err);
-        setItineraryDays(banyuwangiDays);
-      }
-    );
-
-    const unsubItems = onSnapshot(
-      userFilter('itineraryItems'),
-      (snap) => {
-        const list: ItineraryItem[] = [];
-        snap.forEach(d => list.push({ ...d.data(), id: d.id } as ItineraryItem));
-        if (list.length > 0) {
-          setItineraryItems(list);
-          try { localStorage.setItem('traveler_items', JSON.stringify(list)); } catch (e) {}
-        } else {
-          setItineraryItems(banyuwangiItems);
-        }
-      },
-      (err) => {
-        console.warn('ItineraryItems snapshot error:', err);
-        setItineraryItems(banyuwangiItems);
-      }
-    );
-
-    const unsubExpenses = onSnapshot(
-      userFilter('expenses'),
-      (snap) => {
-        const list: Expense[] = [];
-        snap.forEach(d => list.push({ ...d.data(), id: d.id } as Expense));
-        setExpenses(list);
-      },
-      (err) => console.warn('Expenses snapshot error:', err)
-    );
-
-    const unsubBookings = onSnapshot(
-      userFilter('bookings'),
-      (snap) => {
-        const list: Booking[] = [];
-        snap.forEach(d => list.push({ ...d.data(), id: d.id } as Booking));
-        setBookings(list);
-      },
-      (err) => console.warn('Bookings snapshot error:', err)
-    );
-
-    const unsubPacking = onSnapshot(
-      userFilter('packingItems'),
-      (snap) => {
-        const list: PackingItem[] = [];
-        snap.forEach(d => list.push({ ...d.data(), id: d.id } as PackingItem));
-        setPackingItems(list);
-      },
-      (err) => console.warn('PackingItems snapshot error:', err)
-    );
-
-    const unsubTransports = onSnapshot(
-      userFilter('transports'),
-      (snap) => {
-        const list: TransportLeg[] = [];
-        snap.forEach(d => list.push({ ...d.data(), id: d.id } as TransportLeg));
-        setTransports(list);
-      },
-      (err) => console.warn('Transports snapshot error:', err)
-    );
-
-    const unsubNotes = onSnapshot(
-      userFilter('notes'),
-      (snap) => {
-        const list: Note[] = [];
-        snap.forEach(d => list.push({ ...d.data(), id: d.id } as Note));
-        setNotes(list);
-      },
-      (err) => console.warn('Notes snapshot error:', err)
-    );
-
-    const unsubMoodboards = onSnapshot(
-      userFilter('moodboards'),
-      (snap) => {
-        const list: MoodboardItem[] = [];
-        snap.forEach(d => list.push({ ...d.data(), id: d.id } as MoodboardItem));
-        setMoodboardItems(list);
-      },
-      (err) => console.warn('Moodboards snapshot error:', err)
-    );
-
-    const unsubPlaces = onSnapshot(
-      userFilter('places'),
-      (snap) => {
-        const list: Place[] = [];
-        snap.forEach(d => list.push({ ...d.data(), id: d.id } as Place));
-        setPlaces(list);
-        try { localStorage.setItem('traveler_places', JSON.stringify(list)); } catch (e) {}
-      },
-      (err) => console.warn('Places snapshot error:', err)
-    );
-
-    return () => {
-      unsubTrips();
-      unsubDays();
-      unsubItems();
-      unsubExpenses();
-      unsubBookings();
-      unsubPacking();
-      unsubTransports();
-      unsubNotes();
-      unsubMoodboards();
-      unsubPlaces();
-    };
   }, [user]);
 
   // Recalculate actual spent for trips whenever expenses change
@@ -377,19 +245,19 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     tripData: Omit<Trip, 'id' | 'actualSpent' | 'status' | 'isFavorite' | 'createdAt'>,
     generateAI = true
   ): Promise<string> => {
-    if (!user) throw new Error('User harus login terlebih dahulu.');
+    const currentUserId = user?.uid || 'guest';
 
     // Prevent double / duplicate trip creation with identical name for this user
     let finalTripName = tripData.name.trim();
     let isDuplicateName = trips.some(
-      t => t.name.trim().toLowerCase() === finalTripName.toLowerCase() && t.userId === user.uid
+      t => t.name.trim().toLowerCase() === finalTripName.toLowerCase() && t.userId === currentUserId
     );
     let counter = 1;
     while (isDuplicateName) {
       finalTripName = `${tripData.name.trim()} (${counter})`;
       // eslint-disable-next-line no-loop-func
       isDuplicateName = trips.some(
-        t => t.name.trim().toLowerCase() === finalTripName.toLowerCase() && t.userId === user.uid
+        t => t.name.trim().toLowerCase() === finalTripName.toLowerCase() && t.userId === currentUserId
       );
       counter++;
     }
@@ -399,18 +267,24 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       ...tripData,
       name: finalTripName,
       id: newId,
-      userId: user.uid,
-      tenantId: user.uid,
-      memberIds: [user.uid],
+      userId: currentUserId,
+      tenantId: currentUserId,
+      memberIds: [currentUserId],
       collaborators: [],
       allowPublicView: false,
-              actualSpent: 0,
+      actualSpent: 0,
       status: 'upcoming',
       isFavorite: false,
       createdAt: new Date().toISOString().split('T')[0]
     };
 
-    await saveTripToFirestore(newTrip);
+    setTrips(prev => {
+      const list = [...prev, newTrip];
+      try { localStorage.setItem('traveler_trips', JSON.stringify(list)); } catch (e) {}
+      return list;
+    });
+
+    await saveTripToSupabase(newTrip);
 
     // Calculate number of days
     const start = new Date(tripData.startDate);
@@ -431,8 +305,9 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         title: `Hari ${i + 1}: Perjalanan ${tripData.destination}`
       };
       createdDays.push(dayObj);
-      await saveItemToFirestore('itineraryDays', dayObj.id, dayObj);
+      await saveItemToSupabase('itineraryDays', dayObj.id, dayObj);
     }
+    setItineraryDays(prev => [...prev, ...createdDays]);
 
     if (generateAI) {
       try {
@@ -446,6 +321,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         );
 
         if (aiResult && aiResult.activities) {
+          const generatedItems: ItineraryItem[] = [];
           for (let index = 0; index < aiResult.activities.length; index++) {
             const act = aiResult.activities[index];
             const dayTarget = createdDays[act.dayNumber - 1] || createdDays[0];
@@ -464,8 +340,10 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
               transportType: act.transportType,
               sortOrder: index + 1
             };
-            await saveItemToFirestore('itineraryItems', itemObj.id, itemObj);
+            generatedItems.push(itemObj);
+            await saveItemToSupabase('itineraryItems', itemObj.id, itemObj);
           }
+          setItineraryItems(prev => [...prev, ...generatedItems]);
         }
       } catch (err) {
         console.error('Failed to generate AI itinerary:', err);
@@ -474,6 +352,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       // Generate default packing items
       try {
         const packingRes = await generatePackingListWithAI(tripData.destination, dayCount);
+        const generatedPacks: PackingItem[] = [];
         for (let idx = 0; idx < packingRes.length; idx++) {
           const p = packingRes[idx];
           const packObj: PackingItem = {
@@ -484,8 +363,10 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             quantity: p.quantity,
             isPacked: false
           };
-          await saveItemToFirestore('packingItems', packObj.id, packObj);
+          generatedPacks.push(packObj);
+          await saveItemToSupabase('packingItems', packObj.id, packObj);
         }
+        setPackingItems(prev => [...prev, ...generatedPacks]);
       } catch (e) {
         console.error('Failed packing list AI:', e);
       }
@@ -501,7 +382,8 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       updatedAt: new Date().toISOString().split('T')[0],
       color: '#E0F2FE'
     };
-    await saveItemToFirestore('notes', welcomeNote.id, welcomeNote);
+    await saveItemToSupabase('notes', welcomeNote.id, welcomeNote);
+    setNotes(prev => [...prev, welcomeNote]);
 
     setActiveTripId(newId);
     return newId;
@@ -511,10 +393,9 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const existing = trips.find(t => t.id === id);
     if (existing) {
       const updated = { ...existing, ...updates };
-      await saveTripToFirestore(updated);
+      setTrips(prev => prev.map(t => t.id === id ? updated : t));
+      await saveTripToSupabase(updated);
       
-      // Always ensure days are synced to the correct dates and length,
-      // because they might be out of sync from a previous failed update.
       const existingDays = itineraryDays.filter(d => d.tripId === id);
       await syncItineraryDaysDates(
         id, 
@@ -522,14 +403,15 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updated.endDate, 
         existingDays, 
         updated.destination, 
-        saveItemToFirestore, 
-        deleteItemFromFirestore
+        saveItemToSupabase, 
+        deleteItemFromSupabase
       );
     }
   };
 
   const deleteTrip = async (id: string) => {
-    await deleteTripFromFirestore(id);
+    setTrips(prev => prev.filter(t => t.id !== id));
+    await deleteTripFromSupabase(id);
     if (activeTripId === id) {
       const remainingTrips = trips.filter(t => t.id !== id);
       setActiveTripId(remainingTrips[0]?.id || null);
@@ -537,7 +419,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const duplicateTrip = async (origTripId: string, customName?: string, newStartDate?: string, newEndDate?: string): Promise<string> => {
-    if (!user) throw new Error("User belum login.");
+    const currentUserId = user?.uid || 'guest';
     const origTrip = trips.find(t => t.id === origTripId) || INITIAL_TRIPS.find(t => t.id === origTripId);
     if (!origTrip) throw new Error("Trip tidak ditemukan.");
 
@@ -545,9 +427,9 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const duplicatedTrip: Trip = {
       ...origTrip,
       id: newId,
-      userId: user.uid,
-      tenantId: user.uid,
-      memberIds: [user.uid],
+      userId: currentUserId,
+      tenantId: currentUserId,
+      memberIds: [currentUserId],
       collaborators: [],
       allowPublicView: false,
       isTemplate: false,
@@ -557,7 +439,8 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       createdAt: new Date().toISOString().split('T')[0]
     };
 
-    await saveTripToFirestore(duplicatedTrip);
+    setTrips(prev => [...prev, duplicatedTrip]);
+    await saveTripToSupabase(duplicatedTrip);
 
     let dayOffset = 0;
     if (newStartDate && origTrip.startDate) {
@@ -567,12 +450,14 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       dayOffset = Math.round(diffTime / (1000 * 3600 * 24));
     }
 
-    // Duplicate days (from state or mockData fallback)
+    // Duplicate days
     let oldDays = itineraryDays.filter(d => d.tripId === origTripId);
     if (oldDays.length === 0) {
       oldDays = INITIAL_ITINERARY_DAYS.filter(d => d.tripId === origTripId);
     }
     const dayMap = new Map<string, string>();
+    const newDaysList: ItineraryDay[] = [];
+
     for (const d of oldDays) {
       const newDayId = `day-${newId}-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
       dayMap.set(d.id, newDayId);
@@ -584,15 +469,18 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         newDateStr = oldDateObj.toISOString().split('T')[0];
       }
 
-      const newDay: ItineraryDay = { ...d, id: newDayId, tripId: newId, date: newDateStr, userId: user.uid };
-      await saveItemToFirestore('itineraryDays', newDayId, newDay);
+      const newDay: ItineraryDay = { ...d, id: newDayId, tripId: newId, date: newDateStr, userId: currentUserId };
+      newDaysList.push(newDay);
+      await saveItemToSupabase('itineraryDays', newDayId, newDay);
     }
+    setItineraryDays(prev => [...prev, ...newDaysList]);
 
     // Duplicate items
     let oldItems = itineraryItems.filter(i => i.tripId === origTripId);
     if (oldItems.length === 0) {
       oldItems = INITIAL_ITINERARY_ITEMS.filter(i => i.tripId === origTripId);
     }
+    const newItemsList: ItineraryItem[] = [];
     for (let idx = 0; idx < oldItems.length; idx++) {
       const item = oldItems[idx];
       const newItem: ItineraryItem = {
@@ -600,42 +488,12 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         id: `item-${newId}-${idx + 1}`,
         tripId: newId,
         dayId: dayMap.get(item.dayId) || item.dayId,
-        userId: user.uid
+        userId: currentUserId
       };
-      await saveItemToFirestore('itineraryItems', newItem.id, newItem);
+      newItemsList.push(newItem);
+      await saveItemToSupabase('itineraryItems', newItem.id, newItem);
     }
-
-    // Duplicate expenses
-    const oldExpenses = expenses.filter(e => e.tripId === origTripId);
-    for (let idx = 0; idx < oldExpenses.length; idx++) {
-      const exp = oldExpenses[idx];
-      const newExp: Expense = { ...exp, id: `exp-${newId}-${idx + 1}`, tripId: newId };
-      await saveItemToFirestore('expenses', newExp.id, newExp);
-    }
-
-    // Duplicate bookings
-    const oldBookings = bookings.filter(b => b.tripId === origTripId);
-    for (let idx = 0; idx < oldBookings.length; idx++) {
-      const b = oldBookings[idx];
-      const newBook: Booking = { ...b, id: `book-${newId}-${idx + 1}`, tripId: newId };
-      await saveItemToFirestore('bookings', newBook.id, newBook);
-    }
-
-    // Duplicate packing items
-    const oldPacking = packingItems.filter(p => p.tripId === origTripId);
-    for (let idx = 0; idx < oldPacking.length; idx++) {
-      const p = oldPacking[idx];
-      const newPack: PackingItem = { ...p, id: `pack-${newId}-${idx + 1}`, tripId: newId };
-      await saveItemToFirestore('packingItems', newPack.id, newPack);
-    }
-
-    // Duplicate notes
-    const oldNotes = notes.filter(n => n.tripId === origTripId);
-    for (let idx = 0; idx < oldNotes.length; idx++) {
-      const n = oldNotes[idx];
-      const newNote: Note = { ...n, id: `note-${newId}-${idx + 1}`, tripId: newId };
-      await saveItemToFirestore('notes', newNote.id, newNote);
-    }
+    setItineraryItems(prev => [...prev, ...newItemsList]);
 
     setActiveTripId(newId);
     return newId;
@@ -647,23 +505,40 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const shareTripWithCollaborator = async (tripId: string, email: string) => {
     await addCollaboratorToTrip(tripId, email);
+    setTrips(prev => prev.map(t => {
+      if (t.id === tripId) {
+        const collabs = t.collaborators || [];
+        return { ...t, collaborators: [...collabs, email] };
+      }
+      return t;
+    }));
   };
 
   const removeCollaborator = async (tripId: string, email: string) => {
     await removeCollaboratorFromTrip(tripId, email);
+    setTrips(prev => prev.map(t => {
+      if (t.id === tripId) {
+        return { ...t, collaborators: (t.collaborators || []).filter(c => c !== email) };
+      }
+      return t;
+    }));
   };
 
   const toggleTripTemplate = async (tripId: string) => {
     const target = trips.find(t => t.id === tripId);
     if (target) {
-      await saveTripToFirestore({ ...target, isTemplate: !target.isTemplate });
+      const updated = { ...target, isTemplate: !target.isTemplate };
+      setTrips(prev => prev.map(t => t.id === tripId ? updated : t));
+      await saveTripToSupabase(updated);
     }
   };
 
   const toggleTripFavorite = async (id: string) => {
     const target = trips.find(t => t.id === id);
     if (target) {
-      await saveTripToFirestore({ ...target, isFavorite: !target.isFavorite });
+      const updated = { ...target, isFavorite: !target.isFavorite };
+      setTrips(prev => prev.map(t => t.id === id ? updated : t));
+      await saveTripToSupabase(updated);
     }
   };
 
@@ -673,24 +548,30 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       id: `item-${Date.now()}`,
       sortOrder: itineraryItems.filter(i => i.dayId === item.dayId).length + 1
     };
-    await saveItemToFirestore('itineraryItems', newItem.id, newItem);
+    setItineraryItems(prev => [...prev, newItem]);
+    await saveItemToSupabase('itineraryItems', newItem.id, newItem);
   };
 
   const updateItineraryItem = async (id: string, updates: Partial<ItineraryItem>) => {
     const existing = itineraryItems.find(i => i.id === id);
     if (existing) {
-      await saveItemToFirestore('itineraryItems', id, { ...existing, ...updates });
+      const updated = { ...existing, ...updates };
+      setItineraryItems(prev => prev.map(i => i.id === id ? updated : i));
+      await saveItemToSupabase('itineraryItems', id, updated);
     }
   };
 
   const deleteItineraryItem = async (id: string) => {
-    await deleteItemFromFirestore('itineraryItems', id);
+    setItineraryItems(prev => prev.filter(i => i.id !== id));
+    await deleteItemFromSupabase('itineraryItems', id);
   };
 
   const updateItineraryDay = async (id: string, title: string) => {
     const existing = itineraryDays.find(d => d.id === id);
     if (existing) {
-      await saveItemToFirestore('itineraryDays', id, { ...existing, title });
+      const updated = { ...existing, title };
+      setItineraryDays(prev => prev.map(d => d.id === id ? updated : d));
+      await saveItemToSupabase('itineraryDays', id, updated);
     }
   };
 
@@ -702,16 +583,17 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const dayToDelete = tripDays.find(d => d.id === id);
     if (!dayToDelete) return;
 
-    // Delete the day
-    await deleteItemFromFirestore('itineraryDays', id);
+    // Delete day & items in state
+    setItineraryDays(prev => prev.filter(d => d.id !== id));
+    setItineraryItems(prev => prev.filter(i => i.dayId !== id));
 
-    // Delete all items in that day
+    await deleteItemFromSupabase('itineraryDays', id);
     const itemsInDay = itineraryItems.filter(i => i.dayId === id);
     for (const item of itemsInDay) {
-      await deleteItemFromFirestore('itineraryItems', item.id);
+      await deleteItemFromSupabase('itineraryItems', item.id);
     }
 
-    // Re-index remaining days absolutely
+    // Re-index remaining days
     const remainingDays = tripDays.filter(d => d.id !== id);
     const start = new Date(trip.startDate);
     
@@ -723,17 +605,17 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const newDateStr = newDate.toISOString().split('T')[0];
 
       if (day.dayNumber !== newDayNum || day.date !== newDateStr) {
-        await saveItemToFirestore('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
+        await saveItemToSupabase('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
       }
     }
 
-    // Update trip endDate
     const currentEnd = new Date(trip.startDate);
     currentEnd.setDate(currentEnd.getDate() + Math.max(0, remainingDays.length - 1));
-    await saveTripToFirestore({ ...trip, endDate: currentEnd.toISOString().split('T')[0] });
+    const updatedTrip = { ...trip, endDate: currentEnd.toISOString().split('T')[0] };
+    setTrips(prev => prev.map(t => t.id === tripId ? updatedTrip : t));
+    await saveTripToSupabase(updatedTrip);
   };
 
-  
   const reorderItineraryDays = async (tripId: string, dayId: string, newIndex: number) => {
     const trip = trips.find(t => t.id === tripId);
     if (!trip) return;
@@ -742,22 +624,20 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const draggedDayIndex = tripDays.findIndex(d => d.id === dayId);
     if (draggedDayIndex === -1 || draggedDayIndex === newIndex) return;
 
-    // Create a new array with the dragged day moved
     const newOrder = [...tripDays];
     const [draggedDay] = newOrder.splice(draggedDayIndex, 1);
     newOrder.splice(newIndex, 0, draggedDay);
 
-    // Re-assign dayNumber and date based on new order
     const start = new Date(trip.startDate);
     for (let i = 0; i < newOrder.length; i++) {
       const day = newOrder[i];
       const newDayNum = i + 1;
       const newDate = new Date(start);
       newDate.setDate(start.getDate() + i);
-      
       const newDateStr = newDate.toISOString().split('T')[0];
+      
       if (day.dayNumber !== newDayNum || day.date !== newDateStr) {
-        await saveItemToFirestore('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
+        await saveItemToSupabase('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
       }
     }
   };
@@ -769,26 +649,22 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const start = new Date(trip.startDate);
     const tripDays = itineraryDays.filter(d => d.tripId === tripId).sort((a, b) => a.dayNumber - b.dayNumber);
     
-    // If insertIndex is not provided or is invalid, append to the end
     const indexToInsert = (insertIndex !== undefined && insertIndex >= 0 && insertIndex <= tripDays.length) 
          ? insertIndex 
          : tripDays.length;
 
-    // Create new day object
     const newDayId = `day-${tripId}-${Date.now()}`;
-    const newDayObj = {
+    const newDayObj: ItineraryDay = {
       id: newDayId,
       tripId,
-      dayNumber: -1, // temporary
-      date: '', // temporary
-      title: title || 'Hari Baru'
+      dayNumber: indexToInsert + 1,
+      date: '',
+      title: title || `Hari ${indexToInsert + 1}`
     };
 
-    // Insert into the array
     const newOrder = [...tripDays];
-    newOrder.splice(indexToInsert, 0, newDayObj as any);
+    newOrder.splice(indexToInsert, 0, newDayObj);
 
-    // Re-index all days absolutely
     for (let i = 0; i < newOrder.length; i++) {
       const day = newOrder[i];
       const newDayNum = i + 1;
@@ -798,16 +674,19 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       
       if (day.id === newDayId) {
          if (!title) day.title = `Hari ${newDayNum}`;
-         await saveItemToFirestore('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
+         await saveItemToSupabase('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
       } else if (day.dayNumber !== newDayNum || day.date !== newDateStr) {
-         await saveItemToFirestore('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
+         await saveItemToSupabase('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
       }
     }
 
-    // Update trip endDate
+    setItineraryDays(newOrder);
+
     const currentEnd = new Date(trip.startDate);
     currentEnd.setDate(currentEnd.getDate() + Math.max(0, newOrder.length - 1));
-    await saveTripToFirestore({ ...trip, endDate: currentEnd.toISOString().split('T')[0] });
+    const updatedTrip = { ...trip, endDate: currentEnd.toISOString().split('T')[0] };
+    setTrips(prev => prev.map(t => t.id === tripId ? updatedTrip : t));
+    await saveTripToSupabase(updatedTrip);
   };
 
   const addPlace = async (place: Omit<Place, 'id'>) => {
@@ -817,24 +696,24 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       tripId: place.tripId || activeTripId || '',
       userId: user?.uid
     };
-    await saveItemToFirestore('places', newPlace.id, newPlace);
     setPlaces(prev => {
       const updated = [...prev, newPlace];
       try { localStorage.setItem('traveler_places', JSON.stringify(updated)); } catch (e) {}
       return updated;
     });
+    await saveItemToSupabase('places', newPlace.id, newPlace);
   };
 
   const updatePlaceStatus = async (id: string, status: PlaceStatus) => {
     const existing = places.find(p => p.id === id);
     if (existing) {
       const updatedItem = { ...existing, status };
-      await saveItemToFirestore('places', id, updatedItem);
       setPlaces(prev => {
         const updated = prev.map(p => p.id === id ? updatedItem : p);
         try { localStorage.setItem('traveler_places', JSON.stringify(updated)); } catch (e) {}
         return updated;
       });
+      await saveItemToSupabase('places', id, updatedItem);
     }
   };
 
@@ -842,12 +721,12 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const existing = places.find(p => p.id === id);
     if (existing) {
       const updated = { ...existing, isFavorite: !existing.isFavorite };
-      await saveItemToFirestore('places', id, updated);
       setPlaces(prev => {
         const list = prev.map(p => p.id === id ? updated : p);
         try { localStorage.setItem('traveler_places', JSON.stringify(list)); } catch (e) {}
         return list;
       });
+      await saveItemToSupabase('places', id, updated);
     }
   };
 
@@ -855,22 +734,22 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const existing = places.find(p => p.id === id);
     if (existing) {
       const updated = { ...existing, ...updates };
-      await saveItemToFirestore('places', id, updated);
       setPlaces(prev => {
         const list = prev.map(p => p.id === id ? updated : p);
         try { localStorage.setItem('traveler_places', JSON.stringify(list)); } catch (e) {}
         return list;
       });
+      await saveItemToSupabase('places', id, updated);
     }
   };
 
   const deletePlace = async (id: string) => {
-    await deleteItemFromFirestore('places', id);
     setPlaces(prev => {
       const list = prev.filter(p => p.id !== id);
       try { localStorage.setItem('traveler_places', JSON.stringify(list)); } catch (e) {}
       return list;
     });
+    await deleteItemFromSupabase('places', id);
   };
 
   const addPlaceToTripItinerary = async (place: Place, tripId: string, dayId: string) => {
@@ -888,7 +767,8 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       notes: place.notes,
       sortOrder: itineraryItems.filter(i => i.dayId === dayId).length + 1
     };
-    await saveItemToFirestore('itineraryItems', newItem.id, newItem);
+    setItineraryItems(prev => [...prev, newItem]);
+    await saveItemToSupabase('itineraryItems', newItem.id, newItem);
   };
 
   const addExpense = async (expense: Omit<Expense, 'id'>) => {
@@ -896,18 +776,22 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       ...expense,
       id: `exp-${Date.now()}`
     };
-    await saveItemToFirestore('expenses', newExpense.id, newExpense);
+    setExpenses(prev => [...prev, newExpense]);
+    await saveItemToSupabase('expenses', newExpense.id, newExpense);
   };
 
   const updateExpense = async (id: string, updates: Partial<Expense>) => {
     const existing = expenses.find(e => e.id === id);
     if (existing) {
-      await saveItemToFirestore('expenses', id, { ...existing, ...updates });
+      const updated = { ...existing, ...updates };
+      setExpenses(prev => prev.map(e => e.id === id ? updated : e));
+      await saveItemToSupabase('expenses', id, updated);
     }
   };
 
   const deleteExpense = async (id: string) => {
-    await deleteItemFromFirestore('expenses', id);
+    setExpenses(prev => prev.filter(e => e.id !== id));
+    await deleteItemFromSupabase('expenses', id);
   };
 
   const addBooking = async (booking: Omit<Booking, 'id'>) => {
@@ -915,18 +799,22 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       ...booking,
       id: `book-${Date.now()}`
     };
-    await saveItemToFirestore('bookings', newBooking.id, newBooking);
+    setBookings(prev => [...prev, newBooking]);
+    await saveItemToSupabase('bookings', newBooking.id, newBooking);
   };
 
   const updateBooking = async (id: string, updates: Partial<Booking>) => {
     const existing = bookings.find(b => b.id === id);
     if (existing) {
-      await saveItemToFirestore('bookings', id, { ...existing, ...updates });
+      const updated = { ...existing, ...updates };
+      setBookings(prev => prev.map(b => b.id === id ? updated : b));
+      await saveItemToSupabase('bookings', id, updated);
     }
   };
 
   const deleteBooking = async (id: string) => {
-    await deleteItemFromFirestore('bookings', id);
+    setBookings(prev => prev.filter(b => b.id !== id));
+    await deleteItemFromSupabase('bookings', id);
   };
 
   const addPackingItem = async (item: Omit<PackingItem, 'id' | 'isPacked'>) => {
@@ -935,24 +823,29 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       id: `pack-${Date.now()}`,
       isPacked: false
     };
-    await saveItemToFirestore('packingItems', newItem.id, newItem);
+    setPackingItems(prev => [...prev, newItem]);
+    await saveItemToSupabase('packingItems', newItem.id, newItem);
   };
 
   const togglePackingItem = async (id: string) => {
     const existing = packingItems.find(p => p.id === id);
     if (existing) {
-      await saveItemToFirestore('packingItems', id, { ...existing, isPacked: !existing.isPacked });
+      const updated = { ...existing, isPacked: !existing.isPacked };
+      setPackingItems(prev => prev.map(p => p.id === id ? updated : p));
+      await saveItemToSupabase('packingItems', id, updated);
     }
   };
 
   const deletePackingItem = async (id: string) => {
-    await deleteItemFromFirestore('packingItems', id);
+    setPackingItems(prev => prev.filter(p => p.id !== id));
+    await deleteItemFromSupabase('packingItems', id);
   };
 
   const generateAIPackingListForTrip = async (tripId: string) => {
     const targetTrip = trips.find(t => t.id === tripId);
     if (!targetTrip) return;
     const items = await generatePackingListWithAI(targetTrip.destination, 3);
+    const newPacks: PackingItem[] = [];
     for (let idx = 0; idx < items.length; idx++) {
       const item = items[idx];
       const packObj: PackingItem = {
@@ -963,8 +856,10 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         quantity: item.quantity,
         isPacked: false
       };
-      await saveItemToFirestore('packingItems', packObj.id, packObj);
+      newPacks.push(packObj);
+      await saveItemToSupabase('packingItems', packObj.id, packObj);
     }
+    setPackingItems(prev => [...prev, ...newPacks]);
   };
 
   const addTransport = async (transport: Omit<TransportLeg, 'id'>) => {
@@ -972,11 +867,13 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       ...transport,
       id: `tr-${Date.now()}`
     };
-    await saveItemToFirestore('transports', newTr.id, newTr);
+    setTransports(prev => [...prev, newTr]);
+    await saveItemToSupabase('transports', newTr.id, newTr);
   };
 
   const deleteTransport = async (id: string) => {
-    await deleteItemFromFirestore('transports', id);
+    setTransports(prev => prev.filter(t => t.id !== id));
+    await deleteItemFromSupabase('transports', id);
   };
 
   const addNote = async (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => {
@@ -987,18 +884,25 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       createdAt: now,
       updatedAt: now
     };
-    await saveItemToFirestore('notes', newNote.id, newNote);
+    setNotes(prev => [...prev, newNote]);
+    await saveItemToSupabase('notes', newNote.id, newNote);
   };
 
   const updateNote = async (id: string, updates: Partial<Note>) => {
     const now = new Date().toISOString().split('T')[0];
     const existing = notes.find(n => n.id === id);
     if (existing) {
-      await saveItemToFirestore('notes', id, { ...existing, ...updates, updatedAt: now });
+      const updated = { ...existing, ...updates, updatedAt: now };
+      setNotes(prev => prev.map(n => n.id === id ? updated : n));
+      await saveItemToSupabase('notes', id, updated);
     }
   };
 
-  
+  const deleteNote = async (id: string) => {
+    setNotes(prev => prev.filter(n => n.id !== id));
+    await deleteItemFromSupabase('notes', id);
+  };
+
   const addMoodboardItem = async (tripId: string, imageUrl: string, title?: string, caption?: string) => {
     const newItem: MoodboardItem = {
       id: 'mb-' + Date.now(),
@@ -1013,27 +917,22 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       zIndex: Date.now() % 100000,
       createdAt: new Date().toISOString()
     };
-    await saveItemToFirestore('moodboards', newItem.id, newItem);
     setMoodboardItems(prev => [...prev, newItem]);
+    await saveItemToSupabase('moodboards', newItem.id, newItem);
   };
 
   const deleteMoodboardItem = async (id: string) => {
-    await deleteItemFromFirestore('moodboards', id);
     setMoodboardItems(prev => prev.filter(m => m.id !== id));
+    await deleteItemFromSupabase('moodboards', id);
   };
 
   const updateMoodboardItem = async (id: string, updates: Partial<MoodboardItem>) => {
     const existing = moodboardItems.find(m => m.id === id);
     if (existing) {
       const updated = { ...existing, ...updates };
-      await saveItemToFirestore('moodboards', id, updated);
       setMoodboardItems(prev => prev.map(m => m.id === id ? updated : m));
+      await saveItemToSupabase('moodboards', id, updated);
     }
-  };
-
-
-  const deleteNote = async (id: string) => {
-    await deleteItemFromFirestore('notes', id);
   };
 
   const resetToDefaults = () => {
