@@ -1,0 +1,832 @@
+import React, { useState, useRef } from 'react';
+import { ArrowLeft, Share2, Printer, Edit3, Calendar, MapPin, Users, DollarSign, Heart, Sparkles, Trash2, Copy, AlertTriangle, Check, UserPlus, X, Globe, Shield, Upload } from 'lucide-react';
+import { Trip } from '../types/travel';
+import { useTripContext } from '../context/TripContext';
+import { useAuth } from '../context/AuthContext';
+import { formatDateRange, formatCurrency } from '../utils/formatters';
+import { resizeImage } from '../utils/imageUtils';
+
+// Tabs
+import { TabOverview } from './workspace/TabOverview';
+import { TabItinerary } from './workspace/TabItinerary';
+import { TabBudget } from './workspace/TabBudget';
+import { TabBookings } from './workspace/TabBookings';
+import { TabPlaces } from './workspace/TabPlaces';
+import { TabTransport } from './workspace/TabTransport';
+import { TabPacking } from './workspace/TabPacking';
+import { TabNotes } from './workspace/TabNotes';
+import { ExportPdfModal } from './ExportPdfModal';
+
+interface TripWorkspaceViewProps {
+  trip: Trip;
+  onBackToDashboard: () => void;
+}
+
+export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
+  trip,
+  onBackToDashboard,
+}) => {
+  const { user } = useAuth();
+  const {
+    itineraryDays,
+    itineraryItems,
+    bookings,
+    packingItems,
+    expenses,
+    places,
+    transports,
+    notes,
+    toggleTripFavorite,
+    deleteTrip,
+    duplicateTrip,
+    shareTripWithCollaborator,
+    removeCollaborator,
+    updateTrip,
+    toggleTripTemplate
+  } = useTripContext();
+
+  const isOwner = user?.uid === trip.userId;
+  const isCollaborator = trip.collaborators?.includes(user?.email || '');
+  const hasEditAccess = isOwner || isCollaborator;
+  const isTemplateViewOnly = !hasEditAccess && trip.isTemplate;
+
+  const [isEditTripModalOpen, setIsEditTripModalOpen] = useState(false);
+  const [editName, setEditName] = useState('');
+  const [editDest, setEditDest] = useState('');
+  const [editStart, setEditStart] = useState('');
+  const [editEnd, setEditEnd] = useState('');
+  const [editTravelers, setEditTravelers] = useState(1);
+  const [editBudget, setEditBudget] = useState(0);
+
+  const openEditTripModal = () => {
+    setEditName(trip.name);
+    setEditDest(trip.destination);
+    setEditStart(trip.startDate);
+    setEditEnd(trip.endDate);
+    setEditTravelers(trip.travelersCount || 1);
+    setEditBudget(trip.budget || 0);
+    setIsEditTripModalOpen(true);
+  };
+
+  const handleEditTripSave = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!hasEditAccess) return;
+    try {
+      await updateTrip(trip.id, {
+        name: editName,
+        destination: editDest,
+        startDate: editStart,
+        endDate: editEnd,
+        travelersCount: editTravelers,
+        budget: editBudget
+      });
+      setIsEditTripModalOpen(false);
+      setToastMessage('✓ Detail trip berhasil diperbarui!');
+      setTimeout(() => setToastMessage(null), 3000);
+    } catch (e) {
+      console.error(e);
+      alert('Gagal menyimpan perubahan.');
+    }
+  };
+
+  // Import Template Modal State
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+  const [importName, setImportName] = useState('');
+  const [importStartDate, setImportStartDate] = useState('');
+  const [importEndDate, setImportEndDate] = useState('');
+  const [isImporting, setIsImporting] = useState(false);
+
+  const openImportModal = () => {
+    setImportName(`${trip.name} (Salin)`);
+    setImportStartDate(trip.startDate);
+    setImportEndDate(trip.endDate);
+    setIsImportModalOpen(true);
+  };
+
+  const handleStartDateChange = (newStart: string) => {
+    setImportStartDate(newStart);
+    if (trip.startDate && trip.endDate) {
+      const oldStart = new Date(trip.startDate);
+      const oldEnd = new Date(trip.endDate);
+      const diffMs = oldEnd.getTime() - oldStart.getTime();
+      
+      const newStartObj = new Date(newStart);
+      const newEndObj = new Date(newStartObj.getTime() + diffMs);
+      setImportEndDate(newEndObj.toISOString().split('T')[0]);
+    }
+  };
+
+  const handleImportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsImporting(true);
+    try {
+      await duplicateTrip(trip.id, importName, importStartDate, importEndDate);
+      setToastMessage('✓ Template berhasil diimpor! Silakan kembali ke Dashboard.');
+      setIsImportModalOpen(false);
+      setTimeout(() => {
+        setToastMessage(null);
+        onBackToDashboard();
+      }, 2500);
+    } catch (err: any) {
+      console.error(err);
+      alert('Gagal mengimpor template: ' + (err?.message || 'Terjadi kesalahan'));
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const [activeTab, setActiveTab] = useState('Overview');
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
+  const [isEditingCover, setIsEditingCover] = useState(false);
+  const [newCoverUrl, setNewCoverUrl] = useState(trip.coverImage);
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isUploading, setIsUploading] = useState(false);
+
+  const handleSaveCover = async () => {
+    if (newCoverUrl && newCoverUrl !== trip.coverImage) {
+      await updateTrip(trip.id, { coverImage: newCoverUrl });
+    }
+    setIsEditingCover(false);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploading(true);
+    try {
+      const dataUrl = await resizeImage(file, 1200); // 1200px max width for cover
+      await updateTrip(trip.id, { coverImage: dataUrl });
+      setIsEditingCover(false);
+    } catch (error) {
+      console.error('Failed to upload image:', error);
+      alert('Gagal mengunggah gambar. Pastikan format file sesuai.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+  
+  const [collaboratorEmail, setCollaboratorEmail] = useState('');
+  const [shareLoading, setShareLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const handleDuplicate = async () => {
+    try {
+      await duplicateTrip(trip.id);
+      setToastMessage(`✓ Trip "${trip.name}" telah berhasil diduplikat!`);
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleAddCollaborator = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!collaboratorEmail.trim()) return;
+
+    setShareLoading(true);
+    try {
+      await shareTripWithCollaborator(trip.id, collaboratorEmail.trim());
+      setToastMessage(`✓ Akses trip berhasil dibagikan ke ${collaboratorEmail.trim()}`);
+      setCollaboratorEmail('');
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (err: any) {
+      console.error(err);
+      alert('Gagal membagikan trip: ' + (err?.message || 'Terjadi kesalahan'));
+    } finally {
+      setShareLoading(false);
+    }
+  };
+
+  const handleRemoveCollab = async (email: string) => {
+    try {
+      await removeCollaborator(trip.id, email);
+      setToastMessage(`Collab ${email} dihapus.`);
+      setTimeout(() => setToastMessage(null), 3000);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleToggleTemplate = async () => {
+    try {
+      await toggleTripTemplate(trip.id);
+      setToastMessage(trip.isTemplate ? 'Status template dinonaktifkan.' : '✓ Trip dijadikan template untuk dikopi user lain!');
+      setTimeout(() => setToastMessage(null), 3500);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  const handleDeleteConfirm = () => {
+    deleteTrip(trip.id);
+    setIsDeleteModalOpen(false);
+    onBackToDashboard();
+  };
+
+  // Filter trip-specific items
+  const tripDays = itineraryDays.filter(d => d.tripId === trip.id);
+  const tripItems = itineraryItems.filter(i => i.tripId === trip.id);
+  const tripBookings = bookings.filter(b => b.tripId === trip.id);
+  const tripPacking = packingItems.filter(p => p.tripId === trip.id);
+  const tripExpenses = expenses.filter(e => e.tripId === trip.id);
+
+  const tabs = [
+    'Overview',
+    'Itinerary',
+    'Budget',
+    'Bookings',
+    'Places',
+    'Transport',
+    'Packing',
+    'Notes'
+  ];
+
+  return (
+    <div className="space-y-6 pb-12 relative">
+      {/* Toast Notification Banner */}
+      {toastMessage && (
+        <div className="fixed top-6 right-6 bg-primary-pink text-white px-5 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-2 font-bold text-xs animate-bounce">
+          <Check className="w-4 h-4 stroke-[3]" />
+          <span>{toastMessage}</span>
+        </div>
+      )}
+
+      {/* Top Navigation Bar */}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <button
+          onClick={onBackToDashboard}
+          className="flex items-center gap-2 text-xs font-bold text-dark bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full hover:bg-white transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+          <span>← Kembali ke Dashboard</span>
+        </button>
+
+        <div className="flex items-center gap-2 flex-wrap">
+          <button
+            onClick={() => toggleTripFavorite(trip.id)}
+            title="Sukai Trip Ini"
+            className="p-2.5 rounded-full bg-white hover:bg-soft-pink text-primary-pink shadow-sm transition-colors"
+          >
+            <Heart className={`w-4 h-4 ${trip.isFavorite ? 'fill-primary-pink' : ''}`} />
+          </button>
+
+          {isTemplateViewOnly ? (
+            <button
+              onClick={openImportModal}
+              className="bg-primary-pink text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+            >
+              <Copy className="w-4 h-4" />
+              <span>Gunakan Template Ini</span>
+            </button>
+          ) : (
+            <>
+              {hasEditAccess && (
+                <button
+                  onClick={() => setIsShareModalOpen(true)}
+                  className="bg-white hover:bg-soft-pink text-primary-pink px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Kolaborasi</span>
+                  {trip.collaborators && trip.collaborators.length > 0 && (
+                    <span className="bg-primary-pink text-white text-[10px] px-1.5 py-0.5 rounded-full font-black ml-0.5">
+                      {trip.collaborators.length}
+                    </span>
+                  )}
+                </button>
+              )}
+
+              <button
+                onClick={handleDuplicate}
+                className="bg-white hover:bg-soft-pink text-primary-pink px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+              >
+                <Copy className="w-4 h-4" />
+                <span>Duplikat</span>
+              </button>
+
+              <button
+                onClick={() => setIsExportModalOpen(true)}
+                className="bg-primary-pink text-white px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
+              >
+                <Printer className="w-4 h-4" />
+                <span>Cetak PDF</span>
+              </button>
+
+              {isOwner && (
+                <button
+                  onClick={() => setIsDeleteModalOpen(true)}
+                  className="bg-white hover:bg-red-50 text-red-500 px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                >
+                  <Trash2 className="w-4 h-4" />
+                  <span>Hapus</span>
+                </button>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+
+      {/* Hero Image Banner Card */}
+      <div className="relative rounded-[32px] overflow-hidden shadow-lg h-64 md:h-80 group border-[6px] border-white">
+        <img
+          src={trip.coverImage}
+          alt={trip.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+
+        {hasEditAccess && (
+          <button 
+            onClick={() => { setIsEditingCover(true); setNewCoverUrl(trip.coverImage); }}
+            className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition-all shadow-md border border-card-pink/30"
+          >
+            <Edit3 className="w-5 h-5" />
+          </button>
+        )}
+
+        {isEditingCover && (
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-20">
+            <h3 className="text-white font-bold mb-4">Ubah Foto Cover Trip</h3>
+            
+            <div className="flex flex-col gap-3 w-full max-w-md">
+              <div className="flex gap-2 w-full">
+                <input
+                  type="text"
+                  value={newCoverUrl}
+                  onChange={(e) => setNewCoverUrl(e.target.value)}
+                  placeholder="Paste Image URL here..."
+                  className="flex-1 px-4 py-2 rounded-xl text-xs font-semibold text-dark focus:outline-none"
+                />
+                <button 
+                  onClick={handleSaveCover}
+                  className="bg-primary-pink text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-opacity-90"
+                >
+                  Save URL
+                </button>
+              </div>
+
+              <div className="flex items-center gap-4 my-2">
+                <div className="flex-1 h-px bg-white/30"></div>
+                <span className="text-white/70 text-xs font-bold uppercase tracking-wider">ATAU</span>
+                <div className="flex-1 h-px bg-white/30"></div>
+              </div>
+
+              <div className="flex gap-2 w-full">
+                <input 
+                  type="file" 
+                  accept="image/*" 
+                  ref={fileInputRef} 
+                  className="hidden" 
+                  onChange={handleFileUpload} 
+                />
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={isUploading}
+                  className="w-full bg-white text-dark px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-100 disabled:opacity-70 transition-colors"
+                >
+                  <Upload className="w-4 h-4" />
+                  {isUploading ? 'Mengunggah...' : 'Unggah Foto dari Perangkat (Maks 5MB)'}
+                </button>
+              </div>
+
+              <button 
+                onClick={() => setIsEditingCover(false)}
+                className="mt-2 text-white/80 hover:text-white px-4 py-2 text-xs font-bold transition-colors text-center w-full"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        )}
+
+        <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-bold bg-primary-pink px-3 py-1 rounded-full w-fit">
+              ● {trip.status.toUpperCase()} WORKSPACE
+            </span>
+            {trip.isTemplate && (
+              <span className="text-xs font-bold bg-amber-500 text-white px-3 py-1 rounded-full flex items-center gap-1">
+                <Globe className="w-3.5 h-3.5" /> TEMPLATE PUBLIK
+              </span>
+            )}
+          </div>
+          <h1 className="text-2xl md:text-4xl font-black tracking-tight flex items-center gap-3">
+            {trip.name}
+            {hasEditAccess && (
+              <button onClick={openEditTripModal} className="text-white hover:text-primary-pink transition-colors bg-white/20 hover:bg-white p-2 rounded-full backdrop-blur-sm shadow-sm" title="Edit Trip Details">
+                <Edit3 className="w-5 h-5" />
+              </button>
+            )}
+          </h1>
+          <p className="text-xs md:text-sm font-semibold opacity-90 flex items-center gap-3 flex-wrap">
+            <span className="flex items-center gap-1">
+              <MapPin className="w-4 h-4 text-primary-pink" />
+              {trip.destination}
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <Calendar className="w-4 h-4 text-primary-pink" />
+              {formatDateRange(trip.startDate, trip.endDate)}
+            </span>
+            <span>•</span>
+            <span className="flex items-center gap-1">
+              <Users className="w-4 h-4 text-primary-pink" />
+              {trip.travelersCount} Peserta
+            </span>
+          </p>
+        </div>
+      </div>
+
+      {/* Horizontal Workspace Nav Tabs */}
+      <div className="bg-offwhite rounded-[24px] border border-card-pink p-1.5 shadow-sm overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1 min-w-max">
+          {tabs.map((tab) => {
+            const isActive = activeTab === tab;
+            return (
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`px-6 py-3 rounded-full text-xs font-extrabold transition-all ${
+                  isActive
+                    ? 'bg-primary-pink text-white shadow-md'
+                    : 'text-gray-custom hover:bg-soft-pink hover:text-primary-pink'
+                }`}
+              >
+                {tab}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Active Tab View */}
+      {activeTab === 'Overview' && (
+        <TabOverview
+          trip={trip}
+          days={tripDays}
+          items={tripItems}
+          bookings={tripBookings}
+          packing={tripPacking}
+          expenses={tripExpenses}
+          onNavigateTab={setActiveTab}
+        />
+      )}
+
+      {activeTab === 'Itinerary' && (
+        <TabItinerary
+          trip={trip}
+          days={tripDays}
+          items={tripItems}
+        />
+      )}
+
+      {activeTab === 'Budget' && (
+        <TabBudget
+          trip={trip}
+          expenses={tripExpenses}
+          itineraryItems={tripItems}
+          bookings={tripBookings}
+          transports={transports}
+        />
+      )}
+
+      {activeTab === 'Bookings' && (
+        <TabBookings
+          trip={trip}
+          bookings={tripBookings}
+        />
+      )}
+
+      {activeTab === 'Places' && (
+        <TabPlaces
+          trip={trip}
+          places={places}
+          days={tripDays}
+        />
+      )}
+
+      {activeTab === 'Transport' && (
+        <TabTransport
+          trip={trip}
+          transports={transports}
+        />
+      )}
+
+      {activeTab === 'Packing' && (
+        <TabPacking
+          trip={trip}
+          packing={tripPacking}
+        />
+      )}
+
+      {activeTab === 'Notes' && (
+        <TabNotes
+          trip={trip}
+          notes={notes}
+        />
+      )}
+
+      {/* Export Modal */}
+      <ExportPdfModal
+        isOpen={isExportModalOpen}
+        onClose={() => setIsExportModalOpen(false)}
+        trip={trip}
+        days={tripDays}
+        items={tripItems}
+        bookings={tripBookings}
+        expenses={tripExpenses}
+        packing={tripPacking}
+      />
+
+      {/* Share / Collaboration Modal */}
+      {isShareModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 space-y-5 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-5 h-5 text-primary-pink" />
+                <h3 className="font-extrabold text-base text-dark">Bagikan Trip ke Akun Lain</h3>
+              </div>
+              <button
+                onClick={() => setIsShareModalOpen(false)}
+                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-gray-500 font-medium">
+              Masukkan alamat email akun lain dalam project ini agar mereka dapat melihat dan mengedit trip <span className="font-bold text-dark">"{trip.name}"</span> secara real-time.
+            </p>
+
+            <form onSubmit={handleAddCollaborator} className="space-y-3">
+              <div className="flex items-center gap-2">
+                <input
+                  type="email"
+                  value={collaboratorEmail}
+                  onChange={(e) => setCollaboratorEmail(e.target.value)}
+                  placeholder="email.teman@gmail.com"
+                  required
+                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold focus:outline-none focus:border-primary-pink bg-soft-pink"
+                />
+                <button
+                  type="submit"
+                  disabled={shareLoading}
+                  className="bg-primary-pink hover:bg-[#DB2777] text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-pink-500/20 active:scale-95 shrink-0"
+                >
+                  {shareLoading ? 'Menambahkan...' : 'Undang'}
+                </button>
+              </div>
+            </form>
+
+            {/* List of current collaborators */}
+            <div className="space-y-2 pt-2">
+              <h4 className="text-xs font-bold text-dark uppercase tracking-wider">
+                Kolaborator Terdaftar ({trip.collaborators?.length || 0})
+              </h4>
+              {!trip.collaborators || trip.collaborators.length === 0 ? (
+                <p className="text-xs text-gray-400 italic">Belum ada kolaborator yang diundang.</p>
+              ) : (
+                <div className="space-y-1.5 max-h-32 overflow-y-auto">
+                  {trip.collaborators.map((cEmail) => (
+                    <div key={cEmail} className="flex items-center justify-between bg-gray-50 p-2.5 rounded-xl text-xs font-medium">
+                      <span className="text-dark truncate">{cEmail}</span>
+                      <button
+                        onClick={() => handleRemoveCollab(cEmail)}
+                        className="text-red-500 hover:text-red-700 text-[11px] font-bold"
+                      >
+                        Hapus
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Toggle Template Public */}
+            <div className="border-t border-gray-100 pt-3 flex items-center justify-between">
+              <div>
+                <p className="text-xs font-bold text-dark">Jadikan Template Publik</p>
+                <p className="text-[10px] text-gray-400">Izinkan user lain mengkopi seluruh agenda trip ini</p>
+              </div>
+              <button
+                type="button"
+                onClick={handleToggleTemplate}
+                className={`w-11 h-6 rounded-full transition-colors relative ${
+                  trip.isTemplate ? 'bg-primary-pink' : 'bg-gray-300'
+                }`}
+              >
+                <span
+                  className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${
+                    trip.isTemplate ? 'left-6' : 'left-1'
+                  }`}
+                />
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      
+      {/* Edit Trip Modal */}
+      {isEditTripModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+              <h3 className="font-extrabold text-sm text-dark">
+                Edit Detail Trip
+              </h3>
+              <button 
+                onClick={() => setIsEditTripModalOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleEditTripSave} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-custom mb-1">Nama Trip</label>
+                <input
+                  type="text"
+                  required
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  className="w-full bg-offwhite border border-card-pink rounded-xl px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-gray-custom mb-1">Destinasi</label>
+                <input
+                  type="text"
+                  required
+                  value={editDest}
+                  onChange={(e) => setEditDest(e.target.value)}
+                  className="w-full bg-offwhite border border-card-pink rounded-xl px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-custom mb-1">Tanggal Mulai</label>
+                  <input
+                    type="date"
+                    required
+                    value={editStart}
+                    onChange={(e) => setEditStart(e.target.value)}
+                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-custom mb-1">Tanggal Selesai</label>
+                  <input
+                    type="date"
+                    required
+                    value={editEnd}
+                    onChange={(e) => setEditEnd(e.target.value)}
+                    min={editStart}
+                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  />
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-custom mb-1">Jumlah Peserta</label>
+                  <input
+                    type="number"
+                    required
+                    min={1}
+                    value={editTravelers}
+                    onChange={(e) => setEditTravelers(parseInt(e.target.value))}
+                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-custom mb-1">Total Budget</label>
+                  <input
+                    type="number"
+                    required
+                    min={0}
+                    value={editBudget}
+                    onChange={(e) => setEditBudget(parseInt(e.target.value))}
+                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full bg-primary-pink text-white rounded-xl py-3 text-sm font-extrabold shadow-md hover:shadow-lg active:scale-[0.98] transition-all flex justify-center items-center gap-2"
+                >
+                  Simpan Perubahan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Import Template Modal */}
+      {isImportModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+              <h3 className="font-extrabold text-sm text-dark">
+                Gunakan Template Ini
+              </h3>
+              <button 
+                onClick={() => setIsImportModalOpen(false)}
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <form onSubmit={handleImportSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-gray-custom mb-1">Nama Trip Baru</label>
+                <input
+                  type="text"
+                  required
+                  value={importName}
+                  onChange={(e) => setImportName(e.target.value)}
+                  className="w-full bg-offwhite border border-card-pink rounded-xl px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-gray-custom mb-1">Tanggal Mulai</label>
+                  <input
+                    type="date"
+                    required
+                    value={importStartDate}
+                    onChange={(e) => handleStartDateChange(e.target.value)}
+                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-custom mb-1">Tanggal Selesai</label>
+                  <input
+                    type="date"
+                    required
+                    value={importEndDate}
+                    onChange={(e) => setImportEndDate(e.target.value)}
+                    min={importStartDate}
+                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isImporting}
+                  className="w-full bg-primary-pink text-white rounded-xl py-3 text-sm font-extrabold shadow-md hover:shadow-lg active:scale-[0.98] transition-all disabled:opacity-70 flex justify-center items-center gap-2"
+                >
+                  {isImporting ? 'Menyalin Template...' : 'Gunakan Sekarang'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+
+      {/* Delete Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
+            <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mx-auto">
+              <AlertTriangle className="w-6 h-6" />
+            </div>
+
+            <div className="text-center space-y-2">
+              <h3 className="font-extrabold text-base text-dark">Hapus Trip "{trip.name}"?</h3>
+              <p className="text-xs font-semibold text-gray-500 leading-relaxed">
+                Apakah Anda yakin ingin menghapus trip ini? Seluruh data itinerary, budget, booking, dan catatan akan dihapus secara permanen dari Firestore.
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2 pt-2">
+              <button
+                onClick={() => setIsDeleteModalOpen(false)}
+                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50"
+              >
+                Batal
+              </button>
+              <button
+                onClick={handleDeleteConfirm}
+                className="flex-1 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-bold shadow-md shadow-red-500/20"
+              >
+                Ya, Hapus Trip
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

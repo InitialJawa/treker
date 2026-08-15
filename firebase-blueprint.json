@@ -1,0 +1,135 @@
+{
+  "entities": {
+    "users": {
+      "title": "User Profiles",
+      "description": "User profile data and preferences",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "photoURL": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["uid", "email"]
+    },
+    "trips": {
+      "title": "Trips",
+      "description": "Trip details, itineraries, and sharing configurations",
+      "properties": {
+        "userId": { "type": "string" },
+        "collaborators": {
+          "type": "array",
+          "items": { "type": "string" }
+        },
+        "isTemplate": { "type": "boolean" },
+        "name": { "type": "string" },
+        "destination": { "type": "string" },
+        "startDate": { "type": "string" },
+        "endDate": { "type": "string" },
+        "travelersCount": { "type": "number" },
+        "currency": { "type": "string" },
+        "budget": { "type": "number" },
+        "actualSpent": { "type": "number" },
+        "status": { "type": "string" },
+        "coverImage": { "type": "string" },
+        "description": { "type": "string" },
+        "isFavorite": { "type": "boolean" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["userId", "name"]
+    },
+    "itineraryDays": {
+      "title": "Itinerary Days",
+      "description": "Days scheduled inside a trip",
+      "properties": {
+        "tripId": { "type": "string" },
+        "dayNumber": { "type": "number" },
+        "date": { "type": "string" },
+        "title": { "type": "string" }
+      },
+      "required": ["tripId", "dayNumber"]
+    },
+    "itineraryItems": {
+      "title": "Itinerary Items",
+      "description": "Activities or places visited in an itinerary day",
+      "properties": {
+        "tripId": { "type": "string" },
+        "dayId": { "type": "string" },
+        "time": { "type": "string" },
+        "activity": { "type": "string" },
+        "location": { "type": "string" },
+        "category": { "type": "string" },
+        "estimatedCost": { "type": "number" },
+        "notes": { "type": "string" },
+        "isCompleted": { "type": "boolean" }
+      },
+      "required": ["tripId", "dayId", "activity"]
+    },
+    "expenses": {
+      "title": "Expenses",
+      "description": "Expense logs for a trip",
+      "properties": {
+        "tripId": { "type": "string" },
+        "title": { "type": "string" },
+        "amount": { "type": "number" },
+        "category": { "type": "string" },
+        "paidBy": { "type": "string" },
+        "date": { "type": "string" },
+        "notes": { "type": "string" }
+      },
+      "required": ["tripId", "title", "amount"]
+    },
+    "bookings": {
+      "title": "Bookings",
+      "description": "Flight, accommodation, or tour reservations",
+      "properties": {
+        "tripId": { "type": "string" },
+        "type": { "type": "string" },
+        "title": { "type": "string" },
+        "provider": { "type": "string" },
+        "confirmationCode": { "type": "string" },
+        "cost": { "type": "number" },
+        "status": { "type": "string" },
+        "dateTime": { "type": "string" }
+      },
+      "required": ["tripId", "type", "title"]
+    },
+    "packingItems": {
+      "title": "Packing Items",
+      "description": "Checklist for luggage items",
+      "properties": {
+        "tripId": { "type": "string" },
+        "item": { "type": "string" },
+        "category": { "type": "string" },
+        "isPacked": { "type": "boolean" },
+        "quantity": { "type": "number" }
+      },
+      "required": ["tripId", "item"]
+    },
+    "transports": {
+      "title": "Transports",
+      "description": "Transport arrangements and tickets",
+      "properties": {
+        "tripId": { "type": "string" },
+        "mode": { "type": "string" },
+        "fromLocation": { "type": "string" },
+        "toLocation": { "type": "string" },
+        "departureTime": { "type": "string" },
+        "arrivalTime": { "type": "string" },
+        "bookingReference": { "type": "string" }
+      },
+      "required": ["tripId", "mode"]
+    },
+    "notes": {
+      "title": "Notes",
+      "description": "General travel notes and guides",
+      "properties": {
+        "tripId": { "type": "string" },
+        "title": { "type": "string" },
+        "content": { "type": "string" },
+        "createdAt": { "type": "string" }
+      },
+      "required": ["tripId", "title"]
+    }
+  }
+}

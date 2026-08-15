@@ -1,0 +1,6 @@
+{
+  "name": "Traveler - Trip Planner & Workspace",
+  "description": "Centralized travel management platform featuring itinerary builder, budget planner, booking manager, place collection, transport routing, packing checklist, and interactive map.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

@@ -1,0 +1,52 @@
+const fs = require('fs');
+
+const cssContent = `@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
+  
+  --color-primary-pink: #E11D48; /* Rose-600 */
+  --color-primary-gradient: #E11D48; /* Flat rose instead of gradient */
+  --color-soft-pink: #F1F5F9; /* Slate-100 instead of pink */
+  --color-card-pink: #FFFFFF; /* White */
+  --color-screen-pink: #F8FAFC; /* Slate-50 */
+  --color-icon-pink: #E2E8F0; /* Slate-200 */
+  --color-offwhite: #FFFFFF;
+  --color-dark: #0F172A; /* Slate-900 */
+  --color-gray-custom: #64748B; /* Slate-500 */
+}
+
+@layer base {
+  :root {
+    --color-primary: #0F172A;
+  }
+}
+
+.bg-primary-pink { background-color: var(--color-primary-pink); }
+.bg-primary-gradient { background-color: var(--color-primary-gradient); }
+.bg-soft-pink { background-color: var(--color-soft-pink); }
+.bg-card-pink { background-color: var(--color-card-pink); }
+.bg-screen-pink { background-color: var(--color-screen-pink); }
+.bg-offwhite { background-color: var(--color-offwhite); }
+.bg-icon-pink { background-color: var(--color-icon-pink); }
+
+.text-dark { color: var(--color-dark); }
+.text-gray-custom { color: var(--color-gray-custom); }
+.text-primary-pink { color: var(--color-primary-pink); }
+
+.border-card-pink { border-color: #E2E8F0; }
+
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@media print {
+  .no-print { display: none !important; }
+  body { background: white !important; }
+}
+`;
+
+fs.writeFileSync('src/index.css', cssContent);

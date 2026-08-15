@@ -1,0 +1,33 @@
+import { banyuwangiTrip, banyuwangiDays, banyuwangiItems } from '../data/banyuwangiTemplate';
+import { saveTripToFirestore, saveItemToFirestore } from '../services/firestoreService';
+
+export const loadBanyuwangiTemplateToFirestore = async (userId: string) => {
+  const newTripId = banyuwangiTrip.id + '-' + userId.substring(0,6);
+  
+  const trip = {
+    ...banyuwangiTrip,
+    id: newTripId,
+    userId: userId,
+  };
+  await saveTripToFirestore(trip);
+  
+  for (const day of banyuwangiDays) {
+    const newDayId = day.id + '-' + userId.substring(0,6);
+    await saveItemToFirestore('itineraryDays', newDayId, {
+      ...day,
+      id: newDayId,
+      tripId: newTripId,
+    });
+  }
+  
+  for (const item of banyuwangiItems) {
+    const newItemId = item.id + '-' + userId.substring(0,6);
+    const newDayId = item.dayId ? item.dayId + '-' + userId.substring(0,6) : item.dayId;
+    await saveItemToFirestore('itineraryItems', newItemId, {
+      ...item,
+      id: newItemId,
+      tripId: newTripId,
+      dayId: newDayId,
+    });
+  }
+};

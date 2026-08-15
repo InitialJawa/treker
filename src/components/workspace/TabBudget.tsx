@@ -1,0 +1,369 @@
+import React, { useState } from 'react';
+import { Plus, DollarSign, TrendingUp, AlertTriangle, CheckCircle2, Clock, Edit3, Trash2, PieChart } from 'lucide-react';
+import { Trip, Expense, ExpenseCategory, ItineraryItem } from '../../types/travel';
+import { useTripContext } from '../../context/TripContext';
+import { formatCurrency } from '../../utils/formatters';
+
+interface TabBudgetProps {
+  trip: Trip;
+  expenses: Expense[];
+  itineraryItems?: ItineraryItem[];
+}
+
+export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryItems = [], bookings = [], transports = [] }) => {
+  const { addExpense, updateExpense, deleteExpense } = useTripContext();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [editingExpense, setEditingExpense] = useState<Expense | null>(null);
+
+  // Form
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState<ExpenseCategory>('Food');
+  const [estimatedAmount, setEstimatedAmount] = useState(100000);
+  const [actualAmount, setActualAmount] = useState(100000);
+  const [status, setStatus] = useState<'paid' | 'unpaid'>('paid');
+  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+
+  const totalBudget = trip.budget;
+  const paidExpenses = expenses.filter(e => e.status === 'paid');
+  const totalSpent = paidExpenses.reduce((sum, e) => sum + e.actualAmount, 0);
+  const remaining = Math.max(0, totalBudget - totalSpent);
+  const spentPercent = Math.min(100, Math.round((totalSpent / (totalBudget || 1)) * 100));
+
+  // Category breakdown
+  const categories: ExpenseCategory[] = [
+    'Transportation', 'Accommodation', 'Food', 'Activities', 'Shopping', 'Tickets', 'Rental', 'Emergency', 'Other'
+  ];
+
+  const categoryTotals = categories.map(cat => {
+    const catExp = expenses.filter(e => e.category === cat);
+    // Include ItineraryItem estimates for activities etc if needed. Or just rely on Expenses.
+    // Since ItineraryItem has its own category mapping which doesn't perfectly match ExpenseCategory,
+    // we will sum the Itinerary costs generally in 'Activities' or 'Food'.
+    let est = catExp.reduce((s, e) => s + e.estimatedAmount, 0);
+    
+    // Add itinerary costs to the estimated amount based on category matches
+    itineraryItems.forEach(item => {
+      if ((cat === 'Activities' && item.category === 'Activity') ||
+          (cat === 'Food' && item.category === 'Food') ||
+          (cat === 'Transportation' && item.category === 'Transport') ||
+          (cat === 'Accommodation' && item.category === 'Hotel') ||
+          (cat === 'Shopping' && item.category === 'Shopping') ||
+          (cat === 'Other' && (item.category === 'Free time' || item.category === 'Other'))) {
+        est += item.estimatedCost || 0;
+      }
+    });
+
+    // Add bookings costs
+    bookings.forEach(b => {
+      if ((cat === 'Accommodation' && b.type === 'Hotel') ||
+          (cat === 'Transportation' && (b.type === 'Flight' || b.type === 'Train' || b.type === 'Bus' || b.type === 'Ferry')) ||
+          (cat === 'Rental' && (b.type === 'CarRental' || b.type === 'Motorbike'))) {
+        est += b.price || 0;
+      }
+    });
+
+    // Add transports costs
+    transports.forEach(t => {
+      if (cat === 'Transportation') {
+        est += t.estimatedCost || 0;
+      }
+    });
+
+    const act = catExp.filter(e => e.status === 'paid').reduce((s, e) => s + e.actualAmount, 0);
+    return { category: cat, estimated: est, actual: act };
+  }).filter(c => c.estimated > 0 || c.actual > 0);
+
+  const totalEstimated = categoryTotals.reduce((s, c) => s + c.estimated, 0);
+
+  const handleOpenAdd = () => {
+    setEditingExpense(null);
+    setTitle('');
+    setCategory('Food');
+    setEstimatedAmount(100000);
+    setActualAmount(100000);
+    setStatus('paid');
+    setDate(new Date().toISOString().split('T')[0]);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEdit = (exp: Expense) => {
+    setEditingExpense(exp);
+    setTitle(exp.title);
+    setCategory(exp.category);
+    setEstimatedAmount(exp.estimatedAmount);
+    setActualAmount(exp.actualAmount);
+    setStatus(exp.status);
+    setDate(exp.date);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!title.trim()) return;
+
+    if (editingExpense) {
+      updateExpense(editingExpense.id, {
+        title,
+        category,
+        estimatedAmount,
+        actualAmount,
+        status,
+        date,
+      });
+    } else {
+      addExpense({
+        tripId: trip.id,
+        title,
+        category,
+        estimatedAmount,
+        actualAmount,
+        status,
+        date,
+      });
+    }
+    setIsModalOpen(false);
+  };
+
+  return (
+    <div className="space-y-6">
+      {/* Top Budget Header Gauge */}
+      <div className="bg-white p-6 rounded-3xl border border-card-pink shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+          <div>
+            <span className="text-xs font-extrabold text-primary-pink tracking-wider uppercase">Budget Overview</span>
+            <h2 className="text-2xl font-black text-dark">
+              {formatCurrency(totalSpent, trip.currency)} / {formatCurrency(totalBudget, trip.currency)}
+            </h2>
+            <p className="text-xs text-gray-custom mt-0.5">Sisa budget: {formatCurrency(remaining, trip.currency)}</p>
+          </div>
+
+          <button
+            onClick={handleOpenAdd}
+            className="bg-primary-pink hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm self-start md:self-auto transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Expense</span>
+          </button>
+        </div>
+
+        {/* Progress Fill Bar */}
+        <div className="w-full h-3.5 bg-soft-pink rounded-full overflow-hidden">
+          <div
+            className={`h-full transition-all duration-500 rounded-full ${
+              spentPercent > 90 ? 'bg-red-500' : spentPercent > 75 ? 'bg-amber-500' : 'bg-primary-pink'
+            }`}
+            style={{ width: `${spentPercent}%` }}
+          />
+        </div>
+
+        {/* Spent vs Remaining Stats Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 pt-4 border-t border-card-pink text-xs">
+          <div className="bg-offwhite p-3 rounded-2xl border border-card-pink">
+            <span className="text-gray-custom font-semibold">Total Estimated (Incl. Itinerary)</span>
+            <p className="text-sm font-extrabold text-dark">
+              {formatCurrency(
+                totalEstimated,
+                trip.currency
+              )}
+            </p>
+          </div>
+
+          <div className="bg-soft-pink p-3 rounded-2xl border border-card-pink">
+            <span className="text-primary-pink font-semibold">Total Actual Paid</span>
+            <p className="text-sm font-extrabold text-primary-pink">{formatCurrency(totalSpent, trip.currency)}</p>
+          </div>
+
+          <div className="bg-white p-3 rounded-2xl border border-card-pink">
+            <span className="text-gray-custom font-semibold">Remaining Budget</span>
+            <p className="text-sm font-extrabold text-dark">{formatCurrency(remaining, trip.currency)}</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Category Breakdown */}
+      {categoryTotals.length > 0 && (
+        <div className="bg-white p-6 rounded-3xl border border-card-pink shadow-sm">
+          <h3 className="font-extrabold text-base text-dark mb-4 flex items-center gap-2">
+            <PieChart className="w-5 h-5 text-primary-pink" />
+            Expense Breakdown by Category
+          </h3>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {categoryTotals.map((cat) => {
+              const catPercent = Math.min(100, Math.round((cat.actual / (totalSpent || 1)) * 100));
+              return (
+                <div key={cat.category} className="p-3.5 rounded-2xl border border-card-pink bg-offwhite">
+                  <div className="flex justify-between text-xs font-bold text-dark mb-1.5">
+                    <span>{cat.category}</span>
+                    <span>{formatCurrency(cat.actual, trip.currency)}</span>
+                  </div>
+                  <div className="w-full h-2 bg-soft-pink rounded-full overflow-hidden">
+                    <div className="h-full bg-primary-pink" style={{ width: `${catPercent}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* Expenses Table / List */}
+      <div className="bg-white rounded-3xl border border-card-pink overflow-hidden shadow-sm">
+        <div className="p-5 border-b border-card-pink flex items-center justify-between">
+          <h3 className="font-extrabold text-base text-dark">Expense Items</h3>
+          <span className="text-xs text-gray-custom font-semibold">{expenses.length} Transaksi</span>
+        </div>
+
+        {expenses.length === 0 ? (
+          <div className="p-8 text-center text-gray-400">
+            <DollarSign className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+            <p className="text-sm font-medium">Belum ada item pengeluaran tercatat.</p>
+          </div>
+        ) : (
+          <div className="divide-y divide-gray-100 text-xs">
+            {expenses.map((exp) => (
+              <div key={exp.id} className="p-4 hover:bg-offwhite flex items-center justify-between gap-4 transition-colors">
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="font-bold text-sm text-dark">{exp.title}</span>
+                    <span className="px-2 py-0.5 rounded-full bg-soft-pink font-semibold text-[10px] text-primary-pink">
+                      {exp.category}
+                    </span>
+                    <span
+                      className={`px-2 py-0.5 rounded-full font-bold text-[10px] ${
+                        exp.status === 'paid'
+                          ? 'bg-primary-pink text-white'
+                          : 'bg-card-pink text-dark'
+                      }`}
+                    >
+                      {exp.status === 'paid' ? 'Paid' : 'Unpaid'}
+                    </span>
+                  </div>
+                  <p className="text-gray-custom text-[11px]">
+                    Tanggal: {exp.date} • Estimasi: {formatCurrency(exp.estimatedAmount, trip.currency)}
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <span className="font-extrabold text-sm text-dark">
+                    {formatCurrency(exp.actualAmount, trip.currency)}
+                  </span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleOpenEdit(exp)}
+                      className="p-1.5 hover:bg-soft-pink rounded-full text-gray-custom hover:text-primary-pink"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => deleteExpense(exp.id)}
+                      className="p-1.5 hover:bg-red-50 rounded-full text-red-400 hover:text-red-500"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Modal */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#E8EBEF]">
+            <h3 className="font-bold text-base text-[#20263D] mb-4">
+              {editingExpense ? 'Edit Expense' : 'Add Expense'}
+            </h3>
+
+            <form onSubmit={handleSave} className="space-y-3 text-xs">
+              <div>
+                <label className="block font-semibold text-[#20263D] mb-1">Expense Name</label>
+                <input
+                  type="text"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  placeholder="e.g. Tiket Masuk Kawah Ijen"
+                  required
+                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                />
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[#20263D] mb-1">Category</label>
+                <select
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                >
+                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-[#20263D] mb-1">Estimated Cost</label>
+                  <input
+                    type="number"
+                    value={estimatedAmount}
+                    onChange={(e) => setEstimatedAmount(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-[#20263D] mb-1">Actual Spent</label>
+                  <input
+                    type="number"
+                    value={actualAmount}
+                    onChange={(e) => setActualAmount(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-[#20263D] mb-1">Status</label>
+                  <select
+                    value={status}
+                    onChange={(e) => setStatus(e.target.value as 'paid' | 'unpaid')}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  >
+                    <option value="paid">Paid</option>
+                    <option value="unpaid">Unpaid</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-semibold text-[#20263D] mb-1">Date</label>
+                  <input
+                    type="date"
+                    value={date}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  />
+                </div>
+              </div>
+
+              <div className="flex justify-end gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(false)}
+                  className="px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90"
+                >
+                  Save Expense
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
