@@ -1,17 +1,17 @@
-name = "traveler-trip-planner-backend"
+name = "treker"
 main = "worker/index.ts"
 compatibility_date = "2024-01-01"
 
 # Cloudflare D1 Database Binding
 [[d1_databases]]
 binding = "DB"
-database_name = "traveler_trips_db"
-database_id = "your-d1-database-id-here"
+database_name = "Iteneradb"
+database_id = "df0f2ce4-aea5-4e4a-bf3d-9c03d379c4e9"
 
-# Cloudflare KV Binding for ultra-fast caching & session state
-[[kv_namespaces]]
-binding = "CACHE_KV"
-id = "your-kv-namespace-id-here"
+# Optional Cloudflare KV Binding (Uncomment dan ganti id jika membuat KV namespace)
+# [[kv_namespaces]]
+# binding = "CACHE_KV"
+# id = "your-kv-namespace-id-here"
 
 [vars]
 ENVIRONMENT = "production"
