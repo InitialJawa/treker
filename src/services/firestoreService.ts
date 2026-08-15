@@ -1,4 +1,4 @@
-import { db } from './firebase';
+import { db, auth } from './firebase';
 import { 
   collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, 
   query, where, onSnapshot, arrayUnion, arrayRemove 
@@ -67,7 +67,9 @@ export async function deleteTripFromFirestore(tripId: string) {
     deleteByTripId(BOOKINGS_COL),
     deleteByTripId(PACKING_COL),
     deleteByTripId(TRANSPORTS_COL),
-    deleteByTripId(NOTES_COL)
+    deleteByTripId(NOTES_COL),
+    deleteByTripId(PLACES_COL),
+    deleteByTripId('moodboards')
   ]);
 }
 
@@ -106,7 +108,7 @@ export async function removeCollaboratorFromTrip(tripId: string, collaboratorEma
   }
   const ref = doc(db, TRIPS_COL, tripId);
   await updateDoc(ref, {
-    collaborators: arrayRemove(collaboratorEmail),
+    collaborators: arrayRemove(emailLower),
     ...(targetUid ? { memberIds: arrayRemove(targetUid) } : {})
   });
 }
@@ -116,7 +118,12 @@ export async function removeCollaboratorFromTrip(tripId: string, collaboratorEma
  */
 export async function saveItemToFirestore(colName: string, id: string, data: any) {
   const ref = doc(db, colName, id);
-  await setDoc(ref, cleanData(data), { merge: true });
+  const currentUid = auth.currentUser?.uid;
+  const payload = {
+    ...data,
+    ...(currentUid && !data.userId ? { userId: currentUid } : {})
+  };
+  await setDoc(ref, cleanData(payload), { merge: true });
 }
 
 /**

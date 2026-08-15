@@ -115,6 +115,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
         await setDoc(userDocRef, {
           updatedAt: new Date().toISOString(),
           userEmail: user.email,
+          userId: user.uid,
           theme: {
             presetId: newPresetId,
             colors: newColors

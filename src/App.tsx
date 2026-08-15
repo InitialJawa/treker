@@ -14,8 +14,17 @@ function MainApp() {
   const [currentView, setCurrentView] = useState<string>('Workspace');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
 
-  // If there are no trips, we shouldn't fail.
-  const selectedTrip = trips.find((t) => t.id === activeTripId) || trips[0];
+  // Safely match active trip, or sync first available trip if activeTripId is unassigned
+  React.useEffect(() => {
+    if (trips.length > 0) {
+      const exists = trips.some(t => t.id === activeTripId);
+      if (!activeTripId || !exists) {
+        setActiveTripId(trips[0].id);
+      }
+    }
+  }, [trips, activeTripId, setActiveTripId]);
+
+  const selectedTrip = trips.find((t) => t.id === activeTripId) || (trips.length > 0 ? trips[0] : null);
 
   const handleNavigateView = (view: string) => {
     setCurrentView(view);
@@ -88,10 +97,10 @@ function AppGuard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-soft-pink flex flex-col items-center justify-center space-y-4">
-        <div className="p-4 bg-soft-pink text-primary-pink rounded-2xl animate-bounce">
-          <Compass className="w-10 h-10" />
+        <div className="p-2 bg-white rounded-2xl shadow-sm animate-bounce">
+          <img src="/logo.svg" alt="Treker Logo" className="w-12 h-12 rounded-xl object-contain" />
         </div>
-        <p className="text-xs font-bold text-gray-custom tracking-wider uppercase">Memuat Aplikasi Traveler...</p>
+        <p className="text-xs font-bold text-gray-custom tracking-wider uppercase">Memuat TREKER...</p>
       </div>
     );
   }

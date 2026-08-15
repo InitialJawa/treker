@@ -107,7 +107,13 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [trips, setTrips] = useState<Trip[]>([]);
   const [itineraryDays, setItineraryDays] = useState<ItineraryDay[]>([]);
   const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([]);
-  const [places, setPlaces] = useState<Place[]>(INITIAL_PLACES);
+  const [places, setPlaces] = useState<Place[]>(() => {
+    try {
+      const saved = localStorage.getItem('traveler_places');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+    return INITIAL_PLACES;
+  });
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [packingItems, setPackingItems] = useState<PackingItem[]>([]);
@@ -160,9 +166,11 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
 
-    // Realtime listener for sub-collections
+    // Filtered listeners for user's sub-collections to prevent data leaks across users
+    const userFilter = (colName: string) => query(collection(db, colName), where('userId', '==', user.uid));
+
     const unsubDays = onSnapshot(
-      collection(db, 'itineraryDays'),
+      userFilter('itineraryDays'),
       (snap) => {
         const list: ItineraryDay[] = [];
         snap.forEach(d => list.push({ ...d.data(), id: d.id } as ItineraryDay));
@@ -172,7 +180,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     const unsubItems = onSnapshot(
-      collection(db, 'itineraryItems'),
+      userFilter('itineraryItems'),
       (snap) => {
         const list: ItineraryItem[] = [];
         snap.forEach(d => list.push({ ...d.data(), id: d.id } as ItineraryItem));
@@ -182,7 +190,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     const unsubExpenses = onSnapshot(
-      collection(db, 'expenses'),
+      userFilter('expenses'),
       (snap) => {
         const list: Expense[] = [];
         snap.forEach(d => list.push({ ...d.data(), id: d.id } as Expense));
@@ -192,7 +200,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     const unsubBookings = onSnapshot(
-      collection(db, 'bookings'),
+      userFilter('bookings'),
       (snap) => {
         const list: Booking[] = [];
         snap.forEach(d => list.push({ ...d.data(), id: d.id } as Booking));
@@ -202,7 +210,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     const unsubPacking = onSnapshot(
-      collection(db, 'packingItems'),
+      userFilter('packingItems'),
       (snap) => {
         const list: PackingItem[] = [];
         snap.forEach(d => list.push({ ...d.data(), id: d.id } as PackingItem));
@@ -212,7 +220,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     const unsubTransports = onSnapshot(
-      collection(db, 'transports'),
+      userFilter('transports'),
       (snap) => {
         const list: TransportLeg[] = [];
         snap.forEach(d => list.push({ ...d.data(), id: d.id } as TransportLeg));
@@ -222,7 +230,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     const unsubNotes = onSnapshot(
-      collection(db, 'notes'),
+      userFilter('notes'),
       (snap) => {
         const list: Note[] = [];
         snap.forEach(d => list.push({ ...d.data(), id: d.id } as Note));
@@ -232,13 +240,24 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     );
 
     const unsubMoodboards = onSnapshot(
-      collection(db, 'moodboards'),
+      userFilter('moodboards'),
       (snap) => {
         const list: MoodboardItem[] = [];
         snap.forEach(d => list.push({ ...d.data(), id: d.id } as MoodboardItem));
         setMoodboardItems(list);
       },
       (err) => console.warn('Moodboards snapshot error:', err)
+    );
+
+    const unsubPlaces = onSnapshot(
+      userFilter('places'),
+      (snap) => {
+        const list: Place[] = [];
+        snap.forEach(d => list.push({ ...d.data(), id: d.id } as Place));
+        setPlaces(list);
+        try { localStorage.setItem('traveler_places', JSON.stringify(list)); } catch (e) {}
+      },
+      (err) => console.warn('Places snapshot error:', err)
     );
 
     return () => {
@@ -251,6 +270,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       unsubTransports();
       unsubNotes();
       unsubMoodboards();
+      unsubPlaces();
     };
   }, [user]);
 
@@ -696,17 +716,28 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const addPlace = async (place: Omit<Place, 'id'>) => {
     const newPlace: Place = {
       ...place,
-      id: `place-${Date.now()}`
+      id: `place-${Date.now()}`,
+      tripId: place.tripId || activeTripId || '',
+      userId: user?.uid
     };
     await saveItemToFirestore('places', newPlace.id, newPlace);
-    setPlaces(prev => [...prev, newPlace]);
+    setPlaces(prev => {
+      const updated = [...prev, newPlace];
+      try { localStorage.setItem('traveler_places', JSON.stringify(updated)); } catch (e) {}
+      return updated;
+    });
   };
 
   const updatePlaceStatus = async (id: string, status: PlaceStatus) => {
     const existing = places.find(p => p.id === id);
     if (existing) {
-      await saveItemToFirestore('places', id, { ...existing, status });
-      setPlaces(prev => prev.map(p => p.id === id ? { ...p, status } : p));
+      const updatedItem = { ...existing, status };
+      await saveItemToFirestore('places', id, updatedItem);
+      setPlaces(prev => {
+        const updated = prev.map(p => p.id === id ? updatedItem : p);
+        try { localStorage.setItem('traveler_places', JSON.stringify(updated)); } catch (e) {}
+        return updated;
+      });
     }
   };
 
@@ -715,7 +746,11 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (existing) {
       const updated = { ...existing, isFavorite: !existing.isFavorite };
       await saveItemToFirestore('places', id, updated);
-      setPlaces(prev => prev.map(p => p.id === id ? updated : p));
+      setPlaces(prev => {
+        const list = prev.map(p => p.id === id ? updated : p);
+        try { localStorage.setItem('traveler_places', JSON.stringify(list)); } catch (e) {}
+        return list;
+      });
     }
   };
 
@@ -724,13 +759,21 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (existing) {
       const updated = { ...existing, ...updates };
       await saveItemToFirestore('places', id, updated);
-      setPlaces(prev => prev.map(p => p.id === id ? updated : p));
+      setPlaces(prev => {
+        const list = prev.map(p => p.id === id ? updated : p);
+        try { localStorage.setItem('traveler_places', JSON.stringify(list)); } catch (e) {}
+        return list;
+      });
     }
   };
 
   const deletePlace = async (id: string) => {
     await deleteItemFromFirestore('places', id);
-    setPlaces(prev => prev.filter(p => p.id !== id));
+    setPlaces(prev => {
+      const list = prev.filter(p => p.id !== id);
+      try { localStorage.setItem('traveler_places', JSON.stringify(list)); } catch (e) {}
+      return list;
+    });
   };
 
   const addPlaceToTripItinerary = async (place: Place, tripId: string, dayId: string) => {

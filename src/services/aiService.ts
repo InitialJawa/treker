@@ -1,4 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
 import { CurrencyCode, ItineraryCategory, PackingCategory } from '../types/travel';
 
 export interface GeneratedActivity {
@@ -28,99 +27,48 @@ export async function generateItineraryWithAI(
   currency: CurrencyCode,
   description?: string
 ): Promise<{ daysTitles: string[]; activities: GeneratedActivity[] }> {
-  const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env || {};
-  const apiKey = metaEnv.VITE_GEMINI_API_KEY || metaEnv.GEMINI_API_KEY;
-
-  if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
-    // Return structured realistic smart fallback
-    return getFallbackAIItinerary(destination, days, budget, currency);
-  }
-
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const prompt = `You are an expert travel planner. Create a detailed ${days}-day itinerary for a trip to "${destination}" for ${travelers} traveler(s) with an estimated total budget of ${currency} ${budget.toLocaleString()}.
-User details: ${description || 'Sightseeing, local food, nature, culture, and popular landmarks'}.
-
-Output MUST be strictly valid JSON without markdown formatting, matching this exact schema:
-{
-  "daysTitles": ["Day 1 Title", "Day 2 Title", ...],
-  "activities": [
-    {
-      "dayNumber": 1,
-      "time": "08:00",
-      "duration": "1h 30m",
-      "title": "Activity name",
-      "location": "Specific place name, City",
-      "category": "Food" | "Transport" | "Hotel" | "Activity" | "Shopping" | "Free time" | "Other",
-      "estimatedCost": 50000,
-      "description": "Short 1-2 sentence description",
-      "notes": "Useful travel tip",
-      "transportType": "Car" | "Walking" | "Train" | "Taxi"
-    }
-  ]
-}
-Ensure cost values are plain numbers in ${currency}. Provide 3 to 4 activities per day. Language: Bahasa Indonesia.`;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json'
-      }
+    const res = await fetch('/api/ai/generate-itinerary', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ destination, days, travelers, budget, currency, description })
     });
 
-    const responseText = response.text || '';
-    const parsed = JSON.parse(responseText);
-    if (parsed && Array.isArray(parsed.activities)) {
-      return parsed;
+    if (res.ok) {
+      const parsed = await res.json();
+      if (parsed && Array.isArray(parsed.activities)) {
+        return parsed;
+      }
     }
-    return getFallbackAIItinerary(destination, days, budget, currency);
-  } catch (error) {
-    console.warn('AI generation error, falling back to template:', error);
-    return getFallbackAIItinerary(destination, days, budget, currency);
+  } catch (err) {
+    console.warn('AI proxy endpoint unavailable or failed, using smart fallback template:', err);
   }
+
+  return getFallbackAIItinerary(destination, days, budget, currency);
 }
 
 export async function generatePackingListWithAI(
   destination: string,
   days: number
 ): Promise<GeneratedPacking[]> {
-  const metaEnv = (import.meta as unknown as { env?: Record<string, string> }).env || {};
-  const apiKey = metaEnv.VITE_GEMINI_API_KEY || metaEnv.GEMINI_API_KEY;
-
-  if (!apiKey || apiKey === 'MY_GEMINI_API_KEY') {
-    return getFallbackPackingList(days);
-  }
-
   try {
-    const ai = new GoogleGenAI({ apiKey });
-    const prompt = `Generate a travel packing list for a ${days}-day trip to "${destination}".
-Return strictly valid JSON array of objects with this schema:
-[
-  {
-    "category": "Documents" | "Clothing" | "Electronics" | "Toiletries" | "Other",
-    "name": "Item name",
-    "quantity": 1
-  }
-]
-Provide 12 to 18 essential items in Bahasa Indonesia.`;
-
-    const response = await ai.models.generateContent({
-      model: 'gemini-2.5-flash',
-      contents: prompt,
-      config: {
-        responseMimeType: 'application/json'
-      }
+    const res = await fetch('/api/ai/generate-packing', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ destination, days })
     });
 
-    const parsed = JSON.parse(response.text || '[]');
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
+    if (res.ok) {
+      const parsed = await res.json();
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
     }
-    return getFallbackPackingList(days);
   } catch (err) {
-    return getFallbackPackingList(days);
+    console.warn('AI packing endpoint unavailable, using smart fallback:', err);
   }
+
+  return getFallbackPackingList(days);
 }
 
 // Smart fallback generator for instant responsiveness

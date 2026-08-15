@@ -20,28 +20,40 @@ export function formatCurrency(amount: number | undefined | null, currency: Curr
   return `${symbol}${safeAmount.toLocaleString('en-US')}`;
 }
 
-export function formatDateRange(startDateStr: string, endDateStr: string): string {
-  if (!startDateStr || !endDateStr) return '';
-  const start = new Date(startDateStr);
-  const end = new Date(endDateStr);
+export function parseLocalDateParts(dateStr: string): { year: number; month: number; day: number } | null {
+  if (!dateStr || typeof dateStr !== 'string') return null;
+  const parts = dateStr.trim().split('T')[0].split('-');
+  if (parts.length < 3) return null;
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10) - 1; // 0-indexed
+  const day = parseInt(parts[2], 10);
+  if (isNaN(year) || isNaN(month) || isNaN(day)) return null;
+  return { year, month, day };
+}
 
-  if (isNaN(start.getTime()) || isNaN(end.getTime())) return '';
+export function formatDateRange(startDateStr: string, endDateStr: string): string {
+  const startParts = parseLocalDateParts(startDateStr);
+  const endParts = parseLocalDateParts(endDateStr);
+
+  if (!startParts || !endParts) return '';
 
   const months = [
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
   ];
 
-  const startDay = start.getDate();
-  const endDay = end.getDate();
-  const startMonth = months[start.getMonth()];
-  const endMonth = months[end.getMonth()];
-  const year = start.getFullYear();
+  const startDay = startParts.day;
+  const endDay = endParts.day;
+  const startMonth = months[startParts.month];
+  const endMonth = months[endParts.month];
 
-  if (startMonth === endMonth) {
-    return `${startDay} — ${endDay} ${startMonth} ${year}`;
+  if (startParts.year === endParts.year) {
+    if (startParts.month === endParts.month) {
+      return `${startDay} — ${endDay} ${startMonth} ${startParts.year}`;
+    }
+    return `${startDay} ${startMonth} — ${endDay} ${endMonth} ${startParts.year}`;
   }
-  return `${startDay} ${startMonth} — ${endDay} ${endMonth} ${year}`;
+  return `${startDay} ${startMonth} ${startParts.year} — ${endDay} ${endMonth} ${endParts.year}`;
 }
 
 export function calculateDaysToGo(startDateStr: string): number {

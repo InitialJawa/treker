@@ -5,7 +5,7 @@ import {
   INITIAL_TRIPS, INITIAL_ITINERARY_DAYS, INITIAL_ITINERARY_ITEMS, INITIAL_PLACES, 
   INITIAL_EXPENSES, INITIAL_BOOKINGS, INITIAL_PACKING_ITEMS, INITIAL_TRANSPORTS, INITIAL_NOTES 
 } from '../data/mockData';
-import { banyuwangiDays, banyuwangiItems } from '../data/banyuwangiTemplate';
+import { banyuwangiTrip, banyuwangiDays, banyuwangiItems } from '../data/banyuwangiTemplate';
 
 export const initializeUserTemplates = async (userId: string) => {
   try {
@@ -40,7 +40,7 @@ export const initializeUserTemplates = async (userId: string) => {
             const newTripId = `${matchingTrip.id}-${userId.substring(0, 6)}`;
             
             // Handle dayId dependency in itineraryItems
-            let payload = { ...item, id: newItemId, tripId: newTripId };
+            let payload = { ...item, id: newItemId, tripId: newTripId, userId: userId };
             if (payload.dayId) {
                payload.dayId = `${payload.dayId}-${userId.substring(0, 6)}`;
             }
@@ -58,38 +58,52 @@ export const initializeUserTemplates = async (userId: string) => {
       await seedCollection(INITIAL_TRANSPORTS, 'transports');
       await seedCollection(INITIAL_NOTES, 'notes');
 
-      await setDoc(userRef, { hasSeededTemplates: true, hasUpdatedBanyuwangiDay2: true }, { merge: true });
+      await setDoc(userRef, { hasSeededTemplates: true, hasUpdatedBanyuwangiDay2: true, hasUpdatedBanyuwangiDay34: true }, { merge: true });
       console.log("Seeding complete!");
-    } else if (!userData.hasUpdatedBanyuwangiDay2) {
-      // Sync update for existing users to add new Day 2 Banyuwangi schedule
-      console.log("Updating Banyuwangi Day 2 schedule for existing user...");
-      const day2 = banyuwangiDays.find(d => d.dayNumber === 2);
-      if (day2) {
-        const userSuffix = userId.substring(0, 6);
-        const day2Id = `${day2.id}-${userSuffix}`;
-        const tripId = `${day2.tripId}-${userSuffix}`;
+    } else if (!userData.hasUpdatedBanyuwangiDay34) {
+      // Sync update for existing users to add Day 3 and Day 4 Banyuwangi schedule
+      console.log("Updating Banyuwangi Day 3 & Day 4 schedule for existing user...");
+      const userSuffix = userId.substring(0, 6);
+      const tripId = `template-banyuwangi-explore-3d2n-${userSuffix}`;
 
-        // Update day title in Firestore
-        await saveItemToFirestore('itineraryDays', day2Id, {
-          ...day2,
-          id: day2Id,
+      // Update trip metadata to 4H3M
+      await saveTripToFirestore({
+        ...banyuwangiTrip,
+        id: tripId,
+        userId: userId,
+        tenantId: userId,
+        memberIds: [userId],
+        collaborators: [],
+        allowPublicView: false,
+      });
+
+      // Save all 4 days
+      for (const day of banyuwangiDays) {
+        const dayId = `${day.id}-${userSuffix}`;
+        await saveItemToFirestore('itineraryDays', dayId, {
+          ...day,
+          id: dayId,
           tripId: tripId,
+          userId: userId
         });
-
-        // Add/Update Day 2 items
-        const day2Items = banyuwangiItems.filter(i => i.dayId === 'bwg-day-2');
-        for (const item of day2Items) {
-          const itemId = `${item.id}-${userSuffix}`;
-          await saveItemToFirestore('itineraryItems', itemId, {
-            ...item,
-            id: itemId,
-            tripId: tripId,
-            dayId: day2Id,
-          });
-        }
       }
 
-      await setDoc(userRef, { hasUpdatedBanyuwangiDay2: true }, { merge: true });
+      // Save Day 3 & Day 4 items
+      const day3and4Items = banyuwangiItems.filter(i => i.dayId === 'bwg-day-3' || i.dayId === 'bwg-day-4');
+      for (const item of day3and4Items) {
+        const itemId = `${item.id}-${userSuffix}`;
+        const dayId = `${item.dayId}-${userSuffix}`;
+        await saveItemToFirestore('itineraryItems', itemId, {
+          ...item,
+          id: itemId,
+          tripId: tripId,
+          dayId: dayId,
+          userId: userId
+        });
+      }
+
+      await setDoc(userRef, { hasUpdatedBanyuwangiDay2: true, hasUpdatedBanyuwangiDay34: true }, { merge: true });
+      console.log("Sync of Day 3 & Day 4 complete!");
     }
   } catch (err) {
     console.error("Error seeding templates:", err);

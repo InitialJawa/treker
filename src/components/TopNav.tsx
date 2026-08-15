@@ -43,9 +43,10 @@ export const TopNav: React.FC<TopNavProps> = ({
       {/* 1. Left: Brand & Project Switcher */}
       <div className="flex items-center gap-2 md:gap-4 shrink-0" ref={dropdownRef}>
         <div 
-          className="flex items-center gap-2 shrink-0 pr-2 md:pr-4 border-r border-gray-100" 
+          className="flex items-center gap-2 shrink-0 pr-2 md:pr-4 border-r border-gray-100 cursor-pointer"
+          onClick={() => onNavigate('Workspace')}
         >
-          <Compass className="w-5 h-5 md:w-6 md:h-6 text-primary-pink" />
+          <img src="/logo.svg" alt="Treker Logo" className="w-7 h-7 md:w-8 md:h-8 rounded-xl object-contain shadow-2xs hover:scale-105 transition-transform" />
           <span className="font-black text-lg md:text-xl tracking-tight text-dark hidden sm:inline-block">TREKER</span>
         </div>
         

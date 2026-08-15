@@ -3,6 +3,7 @@ import { Plus, StickyNote, Edit3, Trash2, Calendar, Image as ImageIcon, Upload, 
 import { Trip, Note } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
 import { resizeImage } from '../../utils/imageUtils';
+import { ImagePickerField } from '../ImagePickerField';
 
 interface TabNotesProps {
   trip: Trip;
@@ -236,58 +237,12 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
               </div>
 
               {/* Attachment / Image Field */}
-              <div className="space-y-2 pt-1 border-t border-gray-100">
-                <label className="block font-semibold text-[#20263D] flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <ImageIcon className="w-4 h-4 text-primary-pink" />
-                    <span>Lampiran Foto / Gambar</span>
-                  </span>
-                  {imageUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setImageUrl('')}
-                      className="text-red-500 hover:text-red-700 text-[11px] font-bold"
-                    >
-                      Hapus Foto
-                    </button>
-                  )}
-                </label>
-
-                {imageUrl ? (
-                  <div className="relative rounded-2xl overflow-hidden border border-gray-200 h-28 bg-gray-50 group">
-                    <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                    <button
-                      type="button"
-                      onClick={() => setImageUrl('')}
-                      className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full hover:bg-black/80 transition-colors"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {/* File Upload Button */}
-                    <label className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-dashed border-gray-300 hover:border-primary-pink cursor-pointer bg-[#F7F8FA] hover:bg-soft-pink/30 transition-all text-xs font-bold text-gray-600 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                      <Upload className="w-4 h-4 text-primary-pink" />
-                      <span>{isUploading ? 'Memproses...' : 'Upload Gambar'}</span>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleFileUpload}
-                        className="hidden" 
-                      />
-                    </label>
-
-                    {/* URL Input */}
-                    <input
-                      type="url"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      placeholder="Atau URL gambar (https://...)"
-                      className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] text-xs font-medium text-[#20263D]"
-                    />
-                  </div>
-                )}
+              <div className="pt-1 border-t border-gray-100">
+                <ImagePickerField
+                  value={imageUrl}
+                  onChange={setImageUrl}
+                  label="Lampiran Foto / Gambar"
+                />
               </div>
 
               <div className="flex justify-end gap-2 pt-2">

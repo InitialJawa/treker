@@ -5,8 +5,37 @@ service cloud.firestore {
       return request.auth != null;
     }
 
-    match /{document=**} {
-      allow read, write: if isSignedIn();
+    match /users/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+
+      match /{allSubcollections=**} {
+        allow read, write: if isSignedIn() && request.auth.uid == userId;
+      }
+    }
+
+    match /userSettings/{userId} {
+      allow read, write: if isSignedIn() && request.auth.uid == userId;
+    }
+
+    match /trips/{tripId} {
+      allow create: if isSignedIn() && (
+        !('userId' in request.resource.data) || request.resource.data.userId == request.auth.uid
+      );
+      allow read, update, delete: if isSignedIn() && (
+        resource.data.get('userId', null) == request.auth.uid ||
+        resource.data.get('userId', null) == null ||
+        (request.auth.token.email != null && request.auth.token.email.lower() in resource.data.get('collaborators', [])) ||
+        request.auth.uid in resource.data.get('memberIds', [])
+      );
+    }
+
+    match /{collectionName}/{docId} {
+      allow create: if isSignedIn();
+      allow read, update, delete: if isSignedIn() && (
+        resource.data.get('userId', null) == request.auth.uid ||
+        resource.data.get('userId', null) == null ||
+        resource.data.get('userId', '') == ''
+      );
     }
   }
 }

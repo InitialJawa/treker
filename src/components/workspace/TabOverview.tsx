@@ -3,7 +3,7 @@ import {
   Calendar, DollarSign, Users, Clock, MapPin, ArrowRight, 
   ShieldCheck, AlertCircle, Plus, Camera, Compass, Sun, 
   Utensils, Car, Hotel, ShoppingBag, X, ImageIcon, ChevronRight, Check,
-  Luggage, Settings, ArrowUp, ArrowDown, Trash2, Upload, Layout, Star, RotateCcw
+  Luggage, Settings, ArrowUp, ArrowDown, Trash2, Upload, Layout, Star, RotateCcw, FolderPlus
 } from 'lucide-react';
 import { Trip, ItineraryDay, ItineraryItem, Booking, PackingItem, Expense, TransportLeg } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
@@ -17,6 +17,7 @@ export interface CustomHighlightPhoto {
   title: string;
   category: string;
   isCover?: boolean;
+  sourceType?: 'place' | 'itinerary' | 'moodboard' | 'booking' | 'note' | 'custom' | 'cover';
 }
 
 interface TabOverviewProps {
@@ -43,7 +44,18 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
   const { moodboardItems, places, notes } = useTripContext();
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [isCustomizeModalOpen, setIsCustomizeModalOpen] = useState(false);
-  const [activeCustomizeTab, setActiveCustomizeTab] = useState<'select' | 'add' | 'layout'>('select');
+  const [activeCustomizeTab, setActiveCustomizeTab] = useState<'select' | 'import' | 'add' | 'layout'>('select');
+  const [importSourceFilter, setImportSourceFilter] = useState<'all' | 'place' | 'itinerary' | 'moodboard' | 'booking'>('all');
+
+  // Track deleted photo IDs/URLs for this trip so deletion persists
+  const [deletedHighlightIds, setDeletedHighlightIds] = useState<string[]>(() => {
+    try {
+      const saved = localStorage.getItem(`traveler_deleted_photos_${trip.id}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
 
   // Custom Photo Upload Form State
   const [newPhotoTitle, setNewPhotoTitle] = useState('');
@@ -107,7 +119,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
     const list: CustomHighlightPhoto[] = [];
 
     // Custom photos first
-    customPhotos.forEach(cp => list.push(cp));
+    customPhotos.forEach(cp => list.push({ ...cp, sourceType: 'custom' }));
 
     // Cover Image
     if (trip.coverImage) {
@@ -116,7 +128,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         url: trip.coverImage,
         title: trip.destination,
         category: 'Cover Trip',
-        isCover: true
+        isCover: true,
+        sourceType: 'cover'
       });
     }
 
@@ -127,7 +140,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
           id: `item-${item.id}`,
           url: item.imageUrl,
           title: item.title,
-          category: `Hari ${item.time || 'Schedule'}`
+          category: `Hari ${item.time || 'Schedule'}`,
+          sourceType: 'itinerary'
         });
       }
     });
@@ -139,7 +153,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
           id: `mood-${m.id}`,
           url: m.imageUrl || m.url,
           title: m.title || 'Moodboard',
-          category: 'Moodboard'
+          category: 'Moodboard',
+          sourceType: 'moodboard'
         });
       }
     });
@@ -152,7 +167,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
             id: `place-${p.id}-${idx}`,
             url: phUrl,
             title: p.name,
-            category: p.category || 'Spot Impian'
+            category: p.category || 'Spot Impian',
+            sourceType: 'place'
           });
         });
       }
@@ -165,7 +181,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
           id: `booking-${b.id}`,
           url: b.imageUrl,
           title: b.name,
-          category: 'Voucher / Booking'
+          category: 'Voucher / Booking',
+          sourceType: 'booking'
         });
       }
     });
@@ -177,7 +194,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
           id: `note-${n.id}`,
           url: n.imageUrl,
           title: n.title,
-          category: 'Catatan'
+          category: 'Catatan',
+          sourceType: 'note'
         });
       }
     });
@@ -193,6 +211,9 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
   useEffect(() => {
     try {
       const savedOrder = localStorage.getItem(`traveler_highlight_order_${trip.id}`);
+      const savedDeleted = localStorage.getItem(`traveler_deleted_photos_${trip.id}`);
+      const deletedIds: string[] = savedDeleted ? JSON.parse(savedDeleted) : [];
+
       if (savedOrder) {
         const parsedIds: string[] = JSON.parse(savedOrder);
         const map = new Map(availablePhotos.map(p => [p.id, p]));
@@ -200,13 +221,21 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
 
         parsedIds.forEach(id => {
           if (map.has(id)) {
-            orderedFromSaved.push(map.get(id)!);
+            const item = map.get(id)!;
+            if (!deletedIds.includes(id) && !deletedIds.includes(item.url)) {
+              orderedFromSaved.push(item);
+            }
             map.delete(id);
           }
         });
 
-        // Append remaining available photos
-        map.forEach(item => orderedFromSaved.push(item));
+        // Append remaining available photos EXCEPT those explicitly deleted
+        map.forEach((item, id) => {
+          if (!deletedIds.includes(id) && !deletedIds.includes(item.url)) {
+            orderedFromSaved.push(item);
+          }
+        });
+
         setOrderedHighlightPhotos(orderedFromSaved);
         return;
       }
@@ -214,7 +243,11 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
       console.error('Failed loading saved highlight order:', e);
     }
 
-    setOrderedHighlightPhotos(availablePhotos);
+    // Fallback: Exclude deleted photos
+    const initialList = availablePhotos.filter(
+      p => !deletedHighlightIds.includes(p.id) && !deletedHighlightIds.includes(p.url)
+    );
+    setOrderedHighlightPhotos(initialList);
   }, [trip.id, availablePhotos.length]);
 
   // Persist layout & order state
@@ -232,6 +265,37 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
   const saveCustomPhotos = (photos: CustomHighlightPhoto[]) => {
     setCustomPhotos(photos);
     localStorage.setItem(`traveler_custom_photos_${trip.id}`, JSON.stringify(photos));
+  };
+
+  // Delete ANY photo from Overview Highlight
+  const handleDeletePhoto = (photoId: string, photoUrl: string) => {
+    const updatedOrder = orderedHighlightPhotos.filter(p => p.id !== photoId && p.url !== photoUrl);
+    saveHighlightOrder(updatedOrder);
+
+    const newDeleted = Array.from(new Set([...deletedHighlightIds, photoId, photoUrl]));
+    setDeletedHighlightIds(newDeleted);
+    localStorage.setItem(`traveler_deleted_photos_${trip.id}`, JSON.stringify(newDeleted));
+
+    if (photoId.startsWith('custom-')) {
+      const updatedCustoms = customPhotos.filter(p => p.id !== photoId);
+      saveCustomPhotos(updatedCustoms);
+    }
+  };
+
+  // Toggle Import photo from Project to Overview Highlight
+  const handleToggleImportPhoto = (photo: CustomHighlightPhoto) => {
+    const isAlreadyImported = orderedHighlightPhotos.some(p => p.id === photo.id || p.url === photo.url);
+
+    if (isAlreadyImported) {
+      handleDeletePhoto(photo.id, photo.url);
+    } else {
+      const newDeleted = deletedHighlightIds.filter(id => id !== photo.id && id !== photo.url);
+      setDeletedHighlightIds(newDeleted);
+      localStorage.setItem(`traveler_deleted_photos_${trip.id}`, JSON.stringify(newDeleted));
+
+      const updatedOrder = [...orderedHighlightPhotos, photo];
+      saveHighlightOrder(updatedOrder);
+    }
   };
 
   // Move photo position up / down
@@ -261,7 +325,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
       id: `custom-${Date.now()}`,
       url: newPhotoUrl.trim(),
       title: newPhotoTitle.trim() || 'Foto Pilihan',
-      category: newPhotoCategory.trim() || 'Custom'
+      category: newPhotoCategory.trim() || 'Custom',
+      sourceType: 'custom'
     };
 
     const updatedCustoms = [newPhoto, ...customPhotos];
@@ -289,16 +354,11 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
     }
   };
 
-  const handleDeleteCustomPhoto = (id: string) => {
-    const updatedCustoms = customPhotos.filter(p => p.id !== id);
-    saveCustomPhotos(updatedCustoms);
-    const updatedOrder = orderedHighlightPhotos.filter(p => p.id !== id);
-    saveHighlightOrder(updatedOrder);
-  };
-
   // Reset to default auto order
   const handleResetToDefault = () => {
     localStorage.removeItem(`traveler_highlight_order_${trip.id}`);
+    localStorage.removeItem(`traveler_deleted_photos_${trip.id}`);
+    setDeletedHighlightIds([]);
     setOrderedHighlightPhotos(availablePhotos);
   };
 
@@ -349,28 +409,24 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
     <div className="space-y-6">
       {/* 🌟 Top Section: Customizable Instagram Travel Gallery Showcase */}
       <div className="bg-white rounded-[32px] p-4 md:p-6 border border-card-pink shadow-xs space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-3">
           <div>
-            <h2 className="text-base md:text-lg font-extrabold text-dark flex items-center gap-2">
-              <span>Trip Highlights Gallery</span>
-            </h2>
-            <p className="text-xs text-gray-custom">Atur & tampilkan momen foto impian perjalanan terbaikmu</p>
-          </div>
-
-          <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-800 text-xs font-bold">
-              <Sun className="w-4 h-4 text-amber-500 animate-spin-slow" />
-              <span>☀️ 29°C • {trip.destination}</span>
-            </span>
-
-            {/* Customizer Button */}
-            <button
-              onClick={() => setIsCustomizeModalOpen(true)}
-              className="px-3.5 py-1.5 rounded-full bg-dark text-white hover:bg-gray-800 text-xs font-extrabold transition-all flex items-center gap-1.5 shadow-xs"
-            >
-              <Settings className="w-3.5 h-3.5 text-primary-pink" />
-              <span>Atur Foto Highlight</span>
-            </button>
+            <div className="flex items-center gap-2">
+              <h2 className="text-base md:text-lg font-extrabold text-dark">
+                Trip Highlights Gallery
+              </h2>
+              {/* Customizer Button right next to title */}
+              <button
+                type="button"
+                onClick={() => setIsCustomizeModalOpen(true)}
+                title="Atur Foto Highlight"
+                className="p-1.5 px-3 rounded-full bg-rose-50 hover:bg-rose-100 text-primary-pink border border-rose-200 text-xs font-extrabold transition-all flex items-center gap-1.5 shadow-2xs active:scale-95"
+              >
+                <Settings className="w-3.5 h-3.5 text-primary-pink" />
+                <span>Atur Foto</span>
+              </button>
+            </div>
+            <p className="text-xs text-gray-custom mt-0.5">Atur & tampilkan momen foto impian perjalanan terbaikmu</p>
           </div>
         </div>
 
@@ -850,34 +906,44 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
             </div>
 
             {/* Modal Navigation Tabs */}
-            <div className="flex rounded-2xl bg-offwhite p-1 gap-1 border border-card-pink text-xs font-extrabold">
+            <div className="flex rounded-2xl bg-offwhite p-1 gap-1 border border-card-pink text-[11px] md:text-xs font-extrabold overflow-x-auto">
               <button
                 onClick={() => setActiveCustomizeTab('select')}
-                className={`flex-1 py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
                   activeCustomizeTab === 'select' ? 'bg-white text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
                 }`}
               >
-                <ImageIcon className="w-4 h-4" />
-                <span>Atur & Urutkan ({orderedHighlightPhotos.length})</span>
+                <ImageIcon className="w-3.5 h-3.5" />
+                <span>Atur & Hapus ({orderedHighlightPhotos.length})</span>
+              </button>
+
+              <button
+                onClick={() => setActiveCustomizeTab('import')}
+                className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
+                  activeCustomizeTab === 'import' ? 'bg-white text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
+                }`}
+              >
+                <FolderPlus className="w-3.5 h-3.5" />
+                <span>Import dari Project ({availablePhotos.length})</span>
               </button>
 
               <button
                 onClick={() => setActiveCustomizeTab('add')}
-                className={`flex-1 py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
                   activeCustomizeTab === 'add' ? 'bg-white text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
                 }`}
               >
-                <Plus className="w-4 h-4" />
-                <span>+ Upload Foto Baru</span>
+                <Plus className="w-3.5 h-3.5" />
+                <span>+ Upload Baru</span>
               </button>
 
               <button
                 onClick={() => setActiveCustomizeTab('layout')}
-                className={`flex-1 py-2 rounded-xl transition-all flex items-center justify-center gap-1.5 ${
+                className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
                   activeCustomizeTab === 'layout' ? 'bg-white text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
                 }`}
               >
-                <Layout className="w-4 h-4" />
+                <Layout className="w-3.5 h-3.5" />
                 <span>Layout Grid</span>
               </button>
             </div>
@@ -896,86 +962,230 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                   </button>
                 </div>
 
-                <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-                  {orderedHighlightPhotos.map((photo, index) => (
-                    <div
-                      key={photo.id}
-                      className={`p-2.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
-                        index === 0
-                          ? 'border-primary-pink bg-rose-50/40 shadow-xs'
-                          : 'border-gray-200 bg-white hover:border-gray-300'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
-                          index === 0 ? 'bg-primary-pink text-white' : 'bg-gray-100 text-gray-600'
-                        }`}>
-                          {index + 1}
-                        </span>
+                {orderedHighlightPhotos.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl p-4">
+                    <Camera className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    <p className="text-xs font-bold text-gray-600">Belum ada foto yang dipasang di Galeri Overview.</p>
+                    <p className="text-[11px] text-gray-400 mt-0.5">Gunakan tab <b>Import dari Project</b> atau <b>+ Upload Baru</b> untuk menambah foto.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
+                    {orderedHighlightPhotos.map((photo, index) => (
+                      <div
+                        key={photo.id}
+                        className={`p-2.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                          index === 0
+                            ? 'border-primary-pink bg-rose-50/40 shadow-xs'
+                            : 'border-gray-200 bg-white hover:border-gray-300'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
+                            index === 0 ? 'bg-primary-pink text-white' : 'bg-gray-100 text-gray-600'
+                          }`}>
+                            {index + 1}
+                          </span>
 
-                        <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-gray-200 bg-gray-100">
-                          <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
-                        </div>
-
-                        <div>
-                          <div className="flex items-center gap-1.5">
-                            {index === 0 && (
-                              <span className="text-[9px] font-black bg-primary-pink text-white px-2 py-0.5 rounded-md">
-                                ⭐ COVER UTAMA
-                              </span>
-                            )}
-                            <span className="text-[10px] font-extrabold text-gray-500 uppercase">
-                              {photo.category}
-                            </span>
+                          <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-gray-200 bg-gray-100">
+                            <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
                           </div>
-                          <h4 className="text-xs font-extrabold text-dark mt-0.5 truncate max-w-[200px]">
-                            {photo.title}
-                          </h4>
+
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              {index === 0 && (
+                                <span className="text-[9px] font-black bg-primary-pink text-white px-2 py-0.5 rounded-md">
+                                  ⭐ COVER UTAMA
+                                </span>
+                              )}
+                              <span className="text-[10px] font-extrabold text-gray-500 uppercase">
+                                {photo.category}
+                              </span>
+                            </div>
+                            <h4 className="text-xs font-extrabold text-dark mt-0.5 truncate max-w-[180px] sm:max-w-[220px]">
+                              {photo.title}
+                            </h4>
+                          </div>
                         </div>
-                      </div>
 
-                      {/* Action Controls */}
-                      <div className="flex items-center gap-1 shrink-0">
-                        {index !== 0 && (
+                        {/* Action Controls */}
+                        <div className="flex items-center gap-1 shrink-0">
+                          {index !== 0 && (
+                            <button
+                              onClick={() => handleSetAsHero(index)}
+                              className="p-1.5 rounded-lg bg-soft-pink text-primary-pink hover:bg-primary-pink hover:text-white transition-colors text-[10px] font-bold flex items-center gap-1"
+                              title="Jadikan Cover Utama"
+                            >
+                              <Star className="w-3.5 h-3.5" />
+                              <span className="hidden sm:inline">Set Hero</span>
+                            </button>
+                          )}
+
                           <button
-                            onClick={() => handleSetAsHero(index)}
-                            className="p-1.5 rounded-lg bg-soft-pink text-primary-pink hover:bg-primary-pink hover:text-white transition-colors text-[10px] font-bold flex items-center gap-1"
-                            title="Jadikan Cover Utama"
+                            disabled={index === 0}
+                            onClick={() => handleMovePhoto(index, 'up')}
+                            className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-30"
+                            title="Naikkan Urutan"
                           >
-                            <Star className="w-3.5 h-3.5" />
-                            <span className="hidden sm:inline">Set Hero</span>
+                            <ArrowUp className="w-3.5 h-3.5" />
                           </button>
-                        )}
 
-                        <button
-                          disabled={index === 0}
-                          onClick={() => handleMovePhoto(index, 'up')}
-                          className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-30"
-                        >
-                          <ArrowUp className="w-3.5 h-3.5" />
-                        </button>
-
-                        <button
-                          disabled={index === orderedHighlightPhotos.length - 1}
-                          onClick={() => handleMovePhoto(index, 'down')}
-                          className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-30"
-                        >
-                          <ArrowDown className="w-3.5 h-3.5" />
-                        </button>
-
-                        {photo.id.startsWith('custom-') && (
                           <button
-                            onClick={() => handleDeleteCustomPhoto(photo.id)}
-                            className="p-1.5 rounded-lg text-red-500 hover:bg-red-50"
-                            title="Hapus foto ini"
+                            disabled={index === orderedHighlightPhotos.length - 1}
+                            onClick={() => handleMovePhoto(index, 'down')}
+                            className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-30"
+                            title="Turunkan Urutan"
+                          >
+                            <ArrowDown className="w-3.5 h-3.5" />
+                          </button>
+
+                          <button
+                            onClick={() => handleDeletePhoto(photo.id, photo.url)}
+                            className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
+                            title="Hapus foto dari Overview"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
-                        )}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* TAB 2: Import Photos from Places / Itinerary / Project */}
+            {activeCustomizeTab === 'import' && (
+              <div className="space-y-3">
+                <div className="bg-rose-50/60 p-3 rounded-2xl border border-rose-100 text-xs text-dark">
+                  <p className="font-semibold">
+                    💡 Pilih & Impor foto yang sudah pernah Anda upload di tab <b>Places (Tempat Wisata)</b>, <b>Itinerary (Rencana)</b>, <b>Moodboard</b>, atau <b>Booking</b> di project ini.
+                  </p>
                 </div>
+
+                {/* Source Category Filter Pills */}
+                <div className="flex items-center gap-1.5 overflow-x-auto pb-1 text-xs">
+                  <button
+                    type="button"
+                    onClick={() => setImportSourceFilter('all')}
+                    className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+                      importSourceFilter === 'all'
+                        ? 'bg-primary-pink text-white shadow-2xs'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Semua ({availablePhotos.length})
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setImportSourceFilter('place')}
+                    className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+                      importSourceFilter === 'place'
+                        ? 'bg-primary-pink text-white shadow-2xs'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Places ({availablePhotos.filter(p => p.sourceType === 'place').length})
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setImportSourceFilter('itinerary')}
+                    className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+                      importSourceFilter === 'itinerary'
+                        ? 'bg-primary-pink text-white shadow-2xs'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Itinerary ({availablePhotos.filter(p => p.sourceType === 'itinerary').length})
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setImportSourceFilter('moodboard')}
+                    className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+                      importSourceFilter === 'moodboard'
+                        ? 'bg-primary-pink text-white shadow-2xs'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Moodboard ({availablePhotos.filter(p => p.sourceType === 'moodboard').length})
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setImportSourceFilter('booking')}
+                    className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
+                      importSourceFilter === 'booking'
+                        ? 'bg-primary-pink text-white shadow-2xs'
+                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                    }`}
+                  >
+                    Voucher ({availablePhotos.filter(p => p.sourceType === 'booking' || p.sourceType === 'note').length})
+                  </button>
+                </div>
+
+                {/* Photos Grid */}
+                {availablePhotos.length === 0 ? (
+                  <div className="text-center py-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl p-4">
+                    <Camera className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                    <p className="text-xs font-semibold">Belum ada foto tersimpan di Places / Itinerary project ini.</p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 max-h-[380px] overflow-y-auto pr-1 pt-1">
+                    {availablePhotos
+                      .filter(photo => {
+                        if (importSourceFilter === 'all') return true;
+                        if (importSourceFilter === 'booking') return photo.sourceType === 'booking' || photo.sourceType === 'note';
+                        return photo.sourceType === importSourceFilter;
+                      })
+                      .map(photo => {
+                        const isImported = orderedHighlightPhotos.some(p => p.id === photo.id || p.url === photo.url);
+                        return (
+                          <div
+                            key={photo.id}
+                            className={`p-2 rounded-2xl border transition-all flex flex-col justify-between ${
+                              isImported ? 'border-emerald-300 bg-emerald-50/20' : 'border-gray-200 bg-white hover:border-gray-300'
+                            }`}
+                          >
+                            <div className="space-y-1.5">
+                              <div className="relative rounded-xl overflow-hidden h-28 bg-gray-100 border border-gray-100">
+                                <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
+                                <span className="absolute top-1.5 left-1.5 text-[9px] font-black bg-black/60 text-white px-2 py-0.5 rounded-md backdrop-blur-xs">
+                                  {photo.category}
+                                </span>
+                              </div>
+                              <h5 className="text-xs font-extrabold text-dark truncate" title={photo.title}>
+                                {photo.title}
+                              </h5>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleToggleImportPhoto(photo)}
+                              className={`mt-2 w-full py-1.5 px-2 rounded-xl text-[11px] font-extrabold transition-all flex items-center justify-center gap-1 ${
+                                isImported
+                                  ? 'bg-emerald-100 text-emerald-800 hover:bg-rose-100 hover:text-rose-700 hover:border-rose-300 border border-emerald-200'
+                                  : 'bg-primary-pink text-white hover:bg-opacity-90 shadow-2xs'
+                              }`}
+                            >
+                              {isImported ? (
+                                <>
+                                  <Check className="w-3.5 h-3.5 text-emerald-700" />
+                                  <span>Terpasang (Hapus)</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Plus className="w-3.5 h-3.5" />
+                                  <span>+ Import ke Overview</span>
+                                </>
+                              )}
+                            </button>
+                          </div>
+                        );
+                      })}
+                  </div>
+                )}
               </div>
             )}
 

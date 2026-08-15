@@ -4,6 +4,7 @@ import { Trip, ItineraryDay, ItineraryItem, ItineraryCategory } from '../../type
 import { useTripContext } from '../../context/TripContext';
 import { formatCurrency } from '../../utils/formatters';
 import { resizeImage } from '../../utils/imageUtils';
+import { ImagePickerField } from '../ImagePickerField';
 
 interface TabItineraryProps {
   trip: Trip;
@@ -236,16 +237,73 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
     setIsModalOpen(false);
   };
 
-  const handleAdjustTime = (deltaMinutes: number) => {
-    let [h, m] = (time || '08:00').split(':').map(Number);
-    if (isNaN(h)) h = 8;
+  const parseDurationToMinutes = (dur: string): number => {
+    if (!dur) return 60;
+    const lower = dur.toLowerCase().trim();
+    if (lower === 'full day' || lower === 'seharian') return 480;
+    
+    let totalMin = 0;
+    const hoursMatch = lower.match(/(\d+(?:\.\d+)?)\s*(?:h|hour|jam)/);
+    if (hoursMatch) {
+      totalMin += parseFloat(hoursMatch[1]) * 60;
+    }
+    const minsMatch = lower.match(/(\d+)\s*(?:m|min|menit)/);
+    if (minsMatch) {
+      totalMin += parseInt(minsMatch[1], 10);
+    }
+    if (totalMin === 0) {
+      const num = parseInt(lower, 10);
+      if (!isNaN(num)) totalMin = num;
+    }
+    return totalMin > 0 ? Math.round(totalMin) : 60;
+  };
+
+  const formatMinutesToDuration = (minutes: number): string => {
+    if (minutes <= 0) return '15m';
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hrs === 0) return `${mins}m`;
+    if (mins === 0) return `${hrs}h`;
+    return `${hrs}h ${mins}m`;
+  };
+
+  const formatMinutesToIndonesian = (minutes: number): string => {
+    if (minutes <= 0) return '15 menit';
+    const hrs = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    if (hrs === 0) return `${mins} menit`;
+    if (mins === 0) return `${hrs} jam`;
+    return `${hrs} jam ${mins} menit`;
+  };
+
+  const getEndTimeString = (startTime: string, durStr: string): string => {
+    let [h, m] = (startTime || '09:00').split(':').map(Number);
+    if (isNaN(h)) h = 9;
     if (isNaN(m)) m = 0;
-    let total = h * 60 + m + deltaMinutes;
-    if (total < 0) total += 24 * 60;
-    total = total % (24 * 60);
-    const newH = String(Math.floor(total / 60)).padStart(2, '0');
-    const newM = String(total % 60).padStart(2, '0');
-    setTime(`${newH}:${newM}`);
+    const durationMins = parseDurationToMinutes(durStr);
+    const totalMins = (h * 60 + m + durationMins) % (24 * 60);
+    const endH = String(Math.floor(totalMins / 60)).padStart(2, '0');
+    const endM = String(totalMins % 60).padStart(2, '0');
+    return `${endH}:${endM}`;
+  };
+
+  const handleEndTimeChange = (newEndTime: string) => {
+    let [startH, startM] = (time || '09:00').split(':').map(Number);
+    let [endH, endM] = (newEndTime || '10:00').split(':').map(Number);
+    if (isNaN(startH)) startH = 9;
+    if (isNaN(startM)) startM = 0;
+    if (isNaN(endH)) endH = 10;
+    if (isNaN(endM)) endM = 0;
+
+    let startTotal = startH * 60 + startM;
+    let endTotal = endH * 60 + endM;
+    if (endTotal < startTotal) {
+      endTotal += 24 * 60;
+    }
+    let diffMinutes = endTotal - startTotal;
+    if (diffMinutes <= 0) diffMinutes = 15;
+
+    setDuration(formatMinutesToDuration(diffMinutes));
   };
 
   return (
@@ -633,43 +691,102 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                {/* Start Time */}
-                <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Start Time</label>
-                  <input
-                    type="time"
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D] focus:outline-none focus:border-primary-pink cursor-pointer"
-                  />
+              {/* Time & Duration Section */}
+              <div className="bg-[#F7F8FA] p-3.5 rounded-2xl border border-[#E8EBEF] space-y-3">
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-[#20263D] mb-1">
+                      Jam Mulai
+                    </label>
+                    <input
+                      type="time"
+                      value={time}
+                      onChange={(e) => setTime(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-[#20263D] text-sm focus:ring-2 focus:ring-primary-pink/30 focus:border-primary-pink cursor-pointer shadow-2xs"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[#20263D] mb-1">
+                      Jam Selesai
+                    </label>
+                    <input
+                      type="time"
+                      value={getEndTimeString(time, duration)}
+                      onChange={(e) => handleEndTimeChange(e.target.value)}
+                      className="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-[#20263D] text-sm focus:ring-2 focus:ring-primary-pink/30 focus:border-primary-pink cursor-pointer shadow-2xs"
+                    />
+                  </div>
                 </div>
 
-                {/* Duration Dropdown */}
-                <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Duration</label>
-                  <select
-                    value={duration}
-                    onChange={(e) => setDuration(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D] focus:outline-none focus:border-primary-pink cursor-pointer"
-                  >
-                    <option value="15m">15 Menit</option>
-                    <option value="30m">30 Menit</option>
-                    <option value="45m">45 Menit</option>
-                    <option value="1h">1 Jam</option>
-                    <option value="1h 15m">1 Jam 15m</option>
-                    <option value="1h 30m">1.5 Jam (1h 30m)</option>
-                    <option value="2h">2 Jam</option>
-                    <option value="2h 30m">2.5 Jam</option>
-                    <option value="3h">3 Jam</option>
-                    <option value="3h 35m">3.5 Jam (3h 35m)</option>
-                    <option value="4h">4 Jam</option>
-                    <option value="5h">5 Jam</option>
-                    <option value="Full Day">Seharian</option>
-                    {duration && !['15m','30m','45m','1h','1h 15m','1h 30m','2h','2h 30m','3h','3h 35m','4h','5h','Full Day'].includes(duration) && (
-                      <option value={duration}>{duration}</option>
-                    )}
-                  </select>
+                {/* Duration Badge & Quick Adjust Stepper */}
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-200">
+                  <div className="flex items-center gap-1.5 bg-pink-50 border border-pink-200 px-3 py-1.5 rounded-xl">
+                    <Clock className="w-3.5 h-3.5 text-primary-pink shrink-0" />
+                    <span className="text-xs font-semibold text-gray-600">Durasi:</span>
+                    <span className="text-xs font-extrabold text-primary-pink">
+                      {formatMinutesToIndonesian(parseDurationToMinutes(duration))}
+                    </span>
+                  </div>
+
+                  {/* Quick +/- Steppers */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const cur = parseDurationToMinutes(duration);
+                        if (cur > 15) setDuration(formatMinutesToDuration(cur - 15));
+                      }}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 font-bold text-xs text-gray-700 transition-all active:scale-95 shadow-2xs"
+                      title="Kurangi 15 menit"
+                    >
+                      -15m
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDuration(formatMinutesToDuration(parseDurationToMinutes(duration) + 15))}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 font-bold text-xs text-gray-700 transition-all active:scale-95 shadow-2xs"
+                      title="Tambah 15 menit"
+                    >
+                      +15m
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setDuration(formatMinutesToDuration(parseDurationToMinutes(duration) + 60))}
+                      className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 font-bold text-xs text-gray-700 transition-all active:scale-95 shadow-2xs"
+                      title="Tambah 1 jam"
+                    >
+                      +1j
+                    </button>
+                  </div>
+                </div>
+
+                {/* Preset Duration Pills */}
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {[
+                    { label: '30 mnt', val: '30m' },
+                    { label: '1 jam', val: '1h' },
+                    { label: '1.5 jam', val: '1h 30m' },
+                    { label: '2 jam', val: '2h' },
+                    { label: '3 jam', val: '3h' },
+                    { label: 'Seharian (8j)', val: '8h' },
+                  ].map((preset) => {
+                    const isSelected = parseDurationToMinutes(duration) === parseDurationToMinutes(preset.val);
+                    return (
+                      <button
+                        key={preset.val}
+                        type="button"
+                        onClick={() => setDuration(preset.val)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all active:scale-95 ${
+                          isSelected
+                            ? 'bg-primary-pink text-white border-primary-pink shadow-xs'
+                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                        }`}
+                      >
+                        {preset.label}
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
 
@@ -724,65 +841,12 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               </div>
 
               {/* Image Attachment Field */}
-              <div className="space-y-2 pt-1 border-t border-gray-100">
-                <label className="block font-semibold text-[#20263D] flex items-center justify-between">
-                  <span className="flex items-center gap-1.5">
-                    <ImageIcon className="w-4 h-4 text-primary-pink" />
-                    <span>Foto Aktivitas / Lokasi</span>
-                  </span>
-                  {imageUrl && (
-                    <button
-                      type="button"
-                      onClick={() => setImageUrl('')}
-                      className="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1 bg-red-50 px-2 py-1 rounded-lg border border-red-200"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      <span>Hapus Foto Ini</span>
-                    </button>
-                  )}
-                </label>
-
-                {imageUrl ? (
-                  <div className="space-y-2">
-                    <div className="relative rounded-2xl overflow-hidden border border-gray-200 h-36 bg-gray-50 group">
-                      <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
-                      <button
-                        type="button"
-                        onClick={() => setImageUrl('')}
-                        className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-md flex items-center justify-center"
-                        title="Hapus foto"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                    <p className="text-[11px] text-gray-500 italic">
-                      Klik "Hapus Foto Ini" lalu tekan <strong className="text-dark">Save Activity</strong> untuk menyimpan perubahan.
-                    </p>
-                  </div>
-                ) : (
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    {/* File Upload Button */}
-                    <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-gray-300 hover:border-primary-pink cursor-pointer bg-[#F7F8FA] hover:bg-soft-pink/30 transition-all text-xs font-bold text-gray-600 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
-                      <Upload className="w-4 h-4 text-primary-pink" />
-                      <span>{isUploading ? 'Memproses...' : 'Upload dari Perangkat'}</span>
-                      <input 
-                        type="file" 
-                        accept="image/*" 
-                        onChange={handleFileUpload}
-                        className="hidden" 
-                      />
-                    </label>
-
-                    {/* URL Input */}
-                    <input
-                      type="url"
-                      value={imageUrl}
-                      onChange={(e) => setImageUrl(e.target.value)}
-                      placeholder="Atau tempel URL gambar (https://...)"
-                      className="w-full px-3 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D] text-xs"
-                    />
-                  </div>
-                )}
+              <div className="pt-1 border-t border-gray-100">
+                <ImagePickerField
+                  value={imageUrl}
+                  onChange={setImageUrl}
+                  label="Foto Aktivitas / Lokasi"
+                />
               </div>
 
               <div className="flex justify-end gap-2 pt-2">

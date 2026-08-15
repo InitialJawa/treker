@@ -2,8 +2,9 @@ import React, { useRef, useState } from 'react';
 import { Trip, MoodboardItem } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
 import { resizeImage } from '../../utils/imageUtils';
-import { Plus, Trash2, Image as ImageIcon, Loader2, X, Maximize2, Edit2, Lock, Unlock, Upload } from 'lucide-react';
+import { Plus, Trash2, Image as ImageIcon, Loader2, X, Maximize2, Edit2, Lock, Unlock, Upload, FolderPlus } from 'lucide-react';
 import { Rnd } from 'react-rnd';
+import { ProjectMediaPickerModal } from '../ProjectMediaPickerModal';
 
 interface TabMoodboardProps {
   trip: Trip;
@@ -17,6 +18,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
   
   const [isUploading, setIsUploading] = useState(false);
   const [isLocked, setIsLocked] = useState(true);
+  const [isProjectPickerOpen, setIsProjectPickerOpen] = useState(false);
   
   // Modal state
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -121,6 +123,15 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
               <span className="hidden sm:inline">{isLocked ? 'Board Terkunci' : 'Board Bebas'}</span>
             </button>
           )}
+
+          <button
+            type="button"
+            onClick={() => setIsProjectPickerOpen(true)}
+            className="bg-rose-50 hover:bg-rose-100 text-primary-pink border border-rose-200 px-3 md:px-4 py-2.5 rounded-full font-extrabold text-xs flex items-center justify-center gap-1.5 transition-all shadow-2xs active:scale-95 shrink-0"
+          >
+            <FolderPlus className="w-4 h-4" />
+            <span className="hidden sm:inline">Pilih dari Project</span>
+          </button>
 
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -347,6 +358,17 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
           </div>
         </div>
       )}
+
+      {/* Project Media Picker Modal */}
+      <ProjectMediaPickerModal
+        isOpen={isProjectPickerOpen}
+        onClose={() => setIsProjectPickerOpen(false)}
+        onSelectImage={(url) => {
+          addMoodboardItem(trip.id, url, 'Inspirasi Foto', 'Diimpor dari folder project');
+          setIsProjectPickerOpen(false);
+        }}
+        title="Tambah Inspirasi ke Moodboard"
+      />
     </div>
   );
 };

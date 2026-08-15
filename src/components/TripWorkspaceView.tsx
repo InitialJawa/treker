@@ -131,6 +131,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
 
   const handleStartDateChange = (newStart: string) => {
     setImportStartDate(newStart);
+    if (!newStart || isNaN(new Date(newStart).getTime())) return;
     if (trip.startDate && trip.endDate) {
       const oldStart = new Date(trip.startDate);
       const oldEnd = new Date(trip.endDate);
@@ -138,7 +139,9 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       
       const newStartObj = new Date(newStart);
       const newEndObj = new Date(newStartObj.getTime() + diffMs);
-      setImportEndDate(newEndObj.toISOString().split('T')[0]);
+      if (!isNaN(newEndObj.getTime())) {
+        setImportEndDate(newEndObj.toISOString().split('T')[0]);
+      }
     }
   };
 
@@ -268,6 +271,8 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
   const tripPacking = packingItems.filter(p => matchesTripId(p.tripId, trip.id));
   const tripExpenses = expenses.filter(e => matchesTripId(e.tripId, trip.id));
   const tripTransports = transports.filter(t => matchesTripId(t.tripId, trip.id));
+  const tripPlaces = places.filter(p => !p.tripId || matchesTripId(p.tripId, trip.id));
+  const tripNotes = notes.filter(n => !n.tripId || matchesTripId(n.tripId, trip.id));
 
   const tabs = [
     'Overview',

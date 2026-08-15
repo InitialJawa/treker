@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFD6E3"/>
+      <stop offset="50%" stop-color="#FFA8C5"/>
+      <stop offset="100%" stop-color="#FF8EB4"/>
+    </linearGradient>
+    <linearGradient id="duckBody" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFF58C"/>
+      <stop offset="60%" stop-color="#FFE033"/>
+      <stop offset="100%" stop-color="#FFC800"/>
+    </linearGradient>
+    <linearGradient id="beakGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#FFAA33"/>
+      <stop offset="100%" stop-color="#FF7700"/>
+    </linearGradient>
+  </defs>
+
+  <rect x="0" y="0" width="512" height="512" rx="120" fill="url(#bgGrad)"/>
+
+  <!-- Question mark -->
+  <path d="M 395,85 C 375,85 360,100 360,118 C 360,128 368,136 378,136 C 388,136 396,128 396,118 C 396,114 400,108 406,108 C 413,108 418,114 418,122 C 418,132 408,140 398,150 C 388,160 384,170 384,185 L 384,192 C 384,200 390,206 398,206 C 406,206 412,200 412,192 L 412,188 C 412,178 418,172 426,164 C 438,152 446,138 446,122 C 446,98 424,85 395,85 Z" fill="#FFFFFF"/>
+  <circle cx="398" cy="235" r="14" fill="#FFFFFF"/>
+
+  <!-- Duck -->
+  <path d="M 230,130 C 220,95 245,65 260,85 C 270,70 295,80 288,110 Z" fill="#FFE033"/>
+  <path d="M 100,320 C 80,240 140,120 256,120 C 372,120 432,240 412,320 C 430,370 410,450 360,470 C 256,480 156,470 120,440 C 95,410 90,360 100,320 Z" fill="url(#duckBody)"/>
+
+  <!-- Eyes -->
+  <ellipse cx="195" cy="280" rx="46" ry="62" fill="#FFFFFF"/>
+  <ellipse cx="317" cy="280" rx="46" ry="62" fill="#FFFFFF"/>
+  <ellipse cx="205" cy="290" rx="22" ry="30" fill="#221815"/>
+  <ellipse cx="307" cy="290" rx="22" ry="30" fill="#221815"/>
+  <circle cx="198" cy="276" r="9" fill="#FFFFFF"/>
+  <circle cx="300" cy="276" r="9" fill="#FFFFFF"/>
+
+  <!-- Beak -->
+  <path d="M 210,330 C 210,310 230,300 256,300 C 282,300 302,310 302,330 C 315,355 295,375 256,375 C 217,375 197,355 210,330 Z" fill="url(#beakGrad)"/>
+
+  <!-- Map Sheet -->
+  <path d="M 120,380 L 210,350 L 300,380 L 400,340 L 390,470 L 300,490 L 210,460 L 110,485 Z" fill="#F7FAF0" stroke="#E0E8D0" stroke-width="3"/>
+  <path d="M 140,460 Q 200,410 250,430 T 360,410" fill="none" stroke="#71C9F8" stroke-width="8" stroke-linecap="round"/>
+  
+  <!-- Pink Pin -->
+  <g transform="translate(325, 400)">
+    <path d="M 0,-30 C -18,-30 -30,-18 -30,0 C -30,20 0,45 0,45 C 0,45 30,20 30,0 C 30,-18 18,-30 0,-30 Z" fill="#FF4B72"/>
+    <circle cx="0" cy="-5" r="10" fill="#FFFFFF"/>
+  </g>
+</svg>

@@ -60,6 +60,7 @@ export interface Place {
   id: string;
   isTemplate?: boolean;
   tripId?: string;
+  userId?: string;
   name: string;
   location: string;
   latitude: number;

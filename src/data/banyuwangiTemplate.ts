@@ -2,15 +2,15 @@ import { Trip, ItineraryDay, ItineraryItem } from '../types/travel';
 
 export const banyuwangiTrip: Trip = {
   id: 'template-banyuwangi-explore-3d2n',
-  name: 'Explore Banyuwangi 3H2M (Template)',
+  name: 'Explore Banyuwangi 4H3M (Template)',
   destination: 'Banyuwangi, Indonesia',
-  startDate: '2026-09-01',
-  endDate: '2026-09-03',
+  startDate: '2026-09-03',
+  endDate: '2026-09-06',
   travelersCount: 2,
   currency: 'IDR',
-  budget: 6130000, 
+  budget: 6405000, 
   actualSpent: 0,
-  description: 'Paket Wisata Banyuwangi 3 Hari 2 Malam: Hutan De Djawatan, Green Island, Spot T, Pulau Bedil, Pantai Pulau Merah, & Kawah Ijen.',
+  description: 'Paket Wisata Banyuwangi 4 Hari 3 Malam: Hutan De Djawatan, Green Island, Pulau Menjangan, Pulau Tabuhan, Savana Baluran, & Kawah Ijen.',
   coverImage: 'https://images.unsplash.com/photo-1584810359583-96fc3448beaa?auto=format&fit=crop&w=1200&q=80',
   status: 'upcoming',
   isTemplate: true,
@@ -19,9 +19,10 @@ export const banyuwangiTrip: Trip = {
 };
 
 export const banyuwangiDays: ItineraryDay[] = [
-  { id: 'bwg-day-1', tripId: 'template-banyuwangi-explore-3d2n', date: '2026-09-01', dayNumber: 1, title: 'Kedatangan & Briefing' },
-  { id: 'bwg-day-2', tripId: 'template-banyuwangi-explore-3d2n', date: '2026-09-02', dayNumber: 2, title: 'Hutan De-Djawatan, Green Island, Spot T, Pulau Bedil, Pantai Pulau Merah' },
-  { id: 'bwg-day-3', tripId: 'template-banyuwangi-explore-3d2n', date: '2026-09-03', dayNumber: 3, title: 'Kawah Ijen Sunrise & Drop Off' },
+  { id: 'bwg-day-1', tripId: 'template-banyuwangi-explore-3d2n', date: '2026-09-03', dayNumber: 1, title: 'Kedatangan & Briefing' },
+  { id: 'bwg-day-2', tripId: 'template-banyuwangi-explore-3d2n', date: '2026-09-04', dayNumber: 2, title: 'Hutan De-Djawatan, Green Island, Spot T, Pulau Bedil, Pantai Pulau Merah' },
+  { id: 'bwg-day-3', tripId: 'template-banyuwangi-explore-3d2n', date: '2026-09-05', dayNumber: 3, title: 'Pulau Tabuhan Banyuwangi, Pulau Menjangan, Baluran (Jeep Experience)' },
+  { id: 'bwg-day-4', tripId: 'template-banyuwangi-explore-3d2n', date: '2026-09-06', dayNumber: 4, title: 'Kawah Ijen Banyuwangi (Jeep Experience)' },
 ];
 
 export const banyuwangiItems: ItineraryItem[] = [
@@ -240,12 +241,34 @@ export const banyuwangiItems: ItineraryItem[] = [
     duration: '30m'
   },
 
-  // DAY 3
-  { id: 'bwg-item-20', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '00:10', title: 'Penjemputan ke Ijen', location: 'Hotel', description: 'Persiapan dini hari', category: 'Transport', estimatedCost: 0, sortOrder: 0, duration: '1h 20m' },
-  { id: 'bwg-item-21', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '01:30', title: 'Tiba di Paltuding', location: 'Paltuding', description: 'Konfirmasi tiket online', category: 'Activity', estimatedCost: 150000, sortOrder: 1, duration: '30m' },
-  { id: 'bwg-item-22', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '02:00', title: 'Mulai Pendakian', location: 'Gunung Ijen', description: 'Pendakian ke puncak', category: 'Activity', estimatedCost: 0, sortOrder: 2, duration: '2h' },
-  { id: 'bwg-item-23', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '04:00', title: 'Puncak Kawah Ijen', location: 'Kawah Ijen', description: 'Melihat panorama kawah dan Blue Fire / Sunrise', category: 'Activity', estimatedCost: 0, sortOrder: 3, duration: '2h' },
-  { id: 'bwg-item-24', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '06:00', title: 'Kembali ke Paltuding', location: 'Paltuding', description: 'Turun dari puncak', category: 'Activity', estimatedCost: 0, sortOrder: 4, duration: '2h' },
-  { id: 'bwg-item-25', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '08:00', title: 'Kembali ke Banyuwangi', location: 'Kota Banyuwangi', description: 'Peserta akan diantar ke meeting point', category: 'Transport', estimatedCost: 0, sortOrder: 5, duration: '1h' },
-  { id: 'bwg-item-26', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '09:00', title: 'Trip Selesai', location: 'Bandara / Stasiun', description: 'Diantar kembali ke tujuan akhir', category: 'Transport', estimatedCost: 0, sortOrder: 6, duration: '-' },
+  // DAY 3: Pulau Tabuhan Banyuwangi, Pulau Menjangan, Baluran (Jeep Experience)
+  { id: 'bwg-item-d3-1', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '06:30', title: 'Penjemputan & Persiapan di Hotel/Stasiun', location: 'Hotel/Stasiun Banyuwangi Kota', description: 'Penjemputan & Persiapan di Hotel/Stasiun Banyuwangi Kota (Open Trip)', category: 'Transport', estimatedCost: 0, sortOrder: 0, duration: '30m' },
+  { id: 'bwg-item-d3-2', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '07:00', title: 'Menuju Pantai Grand Watu Dodol', location: 'Pantai Grand Watu Dodol', description: 'Menuju Pantai Grand Watu Dodol Banyuwangi', category: 'Transport', estimatedCost: 0, sortOrder: 1, duration: '1h' },
+  { id: 'bwg-item-d3-3', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '08:00', title: 'Sampai Watu Dodol & Menyebrang ke Menjangan', location: 'Pantai Grand Watu Dodol', description: 'Sampai di Pantai Grand Watu Dodol dan menyebrang ke Pulau Menjangan Bali Barat', category: 'Transport', estimatedCost: 0, sortOrder: 2, duration: '30m' },
+  { id: 'bwg-item-d3-4', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '08:30', title: 'Sampai Pulau Menjangan & Registrasi', location: 'Pulau Menjangan Bali Barat', description: 'Sampai Pulau Menjangan Bali Barat dan Registrasi pengunjung', category: 'Activity', estimatedCost: 0, sortOrder: 3, duration: '15m' },
+  { id: 'bwg-item-d3-5', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '08:45', title: 'Agenda Bebas (Foto Dermaga / Pantai)', location: 'Pulau Menjangan', description: 'Agenda bebas bisa foto-foto di dermaga/di pantai.', category: 'Activity', estimatedCost: 0, sortOrder: 4, duration: '15m' },
+  { id: 'bwg-item-d3-6', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '09:00', title: 'Snorkeling Spot 1 (Biota Laut Menjangan)', location: 'Taman Nasional Bali Barat', description: 'Snorkeling di spot pertama (menikmati indahnya bawah laut Taman Nasional Bali Barat yang masih alami kaya akan biota laut)', category: 'Activity', estimatedCost: 0, sortOrder: 5, duration: '1h' },
+  { id: 'bwg-item-d3-7', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '10:00', title: 'Snorkeling Spot 2', location: 'Pulau Menjangan', description: 'Snorkeling di spot kedua', category: 'Activity', estimatedCost: 0, sortOrder: 6, duration: '30m' },
+  { id: 'bwg-item-d3-8', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '10:30', title: 'Menuju Pulau Tabuhan Banyuwangi', location: 'Pulau Tabuhan Banyuwangi', description: 'Menuju Pulau Tabuhan Banyuwangi naik perahu', category: 'Transport', estimatedCost: 0, sortOrder: 7, duration: '30m' },
+  { id: 'bwg-item-d3-9', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '11:00', title: 'Sampai Pulau Tabuhan Banyuwangi', location: 'Pulau Tabuhan Banyuwangi', description: 'Sampai Pulau Tabuhan Banyuwangi', category: 'Activity', estimatedCost: 0, sortOrder: 8, duration: '30m' },
+  { id: 'bwg-item-d3-10', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '11:30', title: 'Makan Siang (Lunch Box)', location: 'Pulau Tabuhan', description: 'Makan Siang (lunch box)', category: 'Food', estimatedCost: 0, sortOrder: 9, duration: '30m' },
+  { id: 'bwg-item-d3-11', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '12:00', title: 'Explore & Keliling Pulau Tabuhan', location: 'Pulau Tabuhan', description: 'Agenda bebas bisa snorkeling di pinggir pantai, foto-foto, atau berkeliling pulau tabuhan (Pulau kecil di tengah laut yang memiliki pasir putih dan air laut yang jernih)', category: 'Activity', estimatedCost: 0, sortOrder: 10, duration: '30m' },
+  { id: 'bwg-item-d3-12', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '12:30', title: 'Kembali menuju Grand Watu Dodol', location: 'Pantai Grand Watu Dodol', description: 'Meninggalkan Pulau Tabuhan dan kembali menuju Grand Watu Dodol', category: 'Transport', estimatedCost: 0, sortOrder: 11, duration: '30m' },
+  { id: 'bwg-item-d3-13', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '13:00', title: 'Tiba Watu Dodol (Bilas & Bersih-bersih)', location: 'Pantai Grand Watu Dodol', description: 'Sampai Pantai Grand Watu Dodol (mandi dan bersih-bersih)', category: 'Other', estimatedCost: 0, sortOrder: 12, duration: '30m' },
+  { id: 'bwg-item-d3-14', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '13:30', title: 'Perjalanan ke TN Baluran', location: 'Taman Nasional Baluran', description: 'Melanjutkan perjalanan menuju Taman Nasional Baluran', category: 'Transport', estimatedCost: 0, sortOrder: 13, duration: '1h 30m' },
+  { id: 'bwg-item-d3-15', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '15:00', title: 'Explore Savana Bekol & Pantai Bama (Jeep)', location: 'Savana Bekol & Pantai Bama', description: 'Sampai Baluran (Duduk di atas Jeep/Trooper menikmati padang savana terluas di Pulau Jawa melihat berbagai satwa liar hidup bebas di Savana Bekol dan explore indahnya Pantai Bama)', category: 'Activity', estimatedCost: 0, sortOrder: 14, duration: '1h 30m' },
+  { id: 'bwg-item-d3-16', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '16:30', title: 'Meninggalkan Baluran ke Banyuwangi Kota', location: 'Banyuwangi Kota', description: 'Meninggalkan Baluran dan kembali menuju Banyuwangi Kota', category: 'Transport', estimatedCost: 0, sortOrder: 15, duration: '1h 30m' },
+  { id: 'bwg-item-d3-17', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-3', time: '18:00', title: 'Sampai Hotel & Istirahat', location: 'Hotel Banyuwangi', description: 'Sampai hotel dan istirahat', category: 'Hotel', estimatedCost: 0, sortOrder: 16, duration: '1h' },
+
+  // DAY 4: Kawah Ijen Banyuwangi (Jeep Experience)
+  { id: 'bwg-item-d4-1', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-4', time: '00:30', title: 'Penjemputan Peserta Stasiun/Hotel', location: 'Banyuwangi Kota', description: 'Penjemputan peserta di Stasiun/Hotel sekitar Banyuwangi kota.', category: 'Transport', estimatedCost: 0, sortOrder: 0, duration: '30m' },
+  { id: 'bwg-item-d4-2', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-4', time: '01:00', title: 'Berangkat ke Kawah Ijen', location: 'Kawah Ijen Banyuwangi', description: 'Berangkat menuju Kawah Ijen Banyuwangi', category: 'Transport', estimatedCost: 0, sortOrder: 1, duration: '1h' },
+  { id: 'bwg-item-d4-3', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-4', time: '02:00', title: 'Tiba Pos Paltuding & Trekking Puncak', location: 'Pos Paltuding, Kawah Ijen', description: 'Sampai di Pos Paltuding (Parkiran Kawah Ijen), lanjut trekking puncak Kawah Ijen Banyuwangi', category: 'Activity', estimatedCost: 0, sortOrder: 2, duration: '2h' },
+  { id: 'bwg-item-d4-4', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-4', time: '04:00', title: 'Puncak Kawah Ijen (Blue Fire & Sunrise)', location: 'Puncak Kawah Ijen', description: 'Sampai di puncak Kawah Ijen (menyaksikan fenomena langka Blue fire atau menikmati indahnya sunrise kawah ijen, melihat kemegahan danau hijau tosca dan berfoto di spot-spot instagramable)', category: 'Activity', estimatedCost: 0, sortOrder: 3, duration: '2h 30m' },
+  { id: 'bwg-item-d4-5', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-4', time: '06:30', title: 'Kembali ke Pos Paltuding', location: 'Pos Paltuding', description: 'Kembali ke Pos Paltuding', category: 'Activity', estimatedCost: 0, sortOrder: 4, duration: '1h' },
+  { id: 'bwg-item-d4-6', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-4', time: '07:30', title: 'Tiba Paltuding & Kembali ke Kota', location: 'Banyuwangi Kota', description: 'Sampai di Paltuding dan kembali menuju Banyuwangi Kota', category: 'Transport', estimatedCost: 0, sortOrder: 5, duration: '1h 30m' },
+  { id: 'bwg-item-d4-7', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-4', time: '09:00', title: 'Diantar ke Stasiun/Hotel & Selesai', location: 'Stasiun/Hotel Banyuwangi', description: 'Diantar menuju stasiun/hotel dan Selesai.', category: 'Transport', estimatedCost: 0, sortOrder: 6, duration: '30m' },
+  { id: 'bwg-item-d4-8', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-4', time: '09:00', title: 'Check in + Maksi di Hotel', location: 'Hotel Banyuwangi', description: 'Check in + Maksi di hotel', category: 'Hotel', estimatedCost: 0, sortOrder: 7, duration: '30m' },
+  { id: 'bwg-item-d4-9', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-4', time: '09:30', title: 'Istirahat + Makan Siang', location: 'Hotel', description: 'Istirahat + maksi', category: 'Food', estimatedCost: 100000, sortOrder: 8, duration: '5h 30m' },
+  { id: 'bwg-item-d4-10', tripId: 'template-banyuwangi-explore-3d2n', dayId: 'bwg-day-4', time: '15:00', title: 'Makan di Dialoog', location: 'Dialoog Banyuwangi', description: 'Makan di dialoog', category: 'Food', estimatedCost: 175000, sortOrder: 9, duration: '2h' },
 ];

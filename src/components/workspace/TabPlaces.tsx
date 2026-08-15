@@ -3,6 +3,7 @@ import { Plus, Star, MapPin, ExternalLink, Heart, Clock, DollarSign, Compass, Ch
 import { Trip, Place, PlaceStatus, ItineraryDay } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
 import { formatCurrency } from '../../utils/formatters';
+import { ImagePickerField } from '../ImagePickerField';
 
 interface TabPlacesProps {
   trip: Trip;
@@ -435,20 +436,11 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                 </select>
               </div>
 
-              <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Photo</label>
-                <div className="flex items-center gap-3">
-                  {photoUrl && (
-                    <img src={photoUrl} alt="Preview" className="w-16 h-16 object-cover rounded-xl border border-gray-200" />
-                  )}
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleImageUpload}
-                    className="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-soft-pink file:text-primary-pink hover:file:bg-pink-100"
-                  />
-                </div>
-              </div>
+              <ImagePickerField
+                value={photoUrl}
+                onChange={setPhotoUrl}
+                label="Foto Tempat"
+              />
 
               <div>
                 <label className="block font-semibold text-[#20263D] mb-1">Description</label>

@@ -74,11 +74,11 @@ export const LoginView: React.FC = () => {
         
         {/* Header Logo & Title */}
         <div className="text-center space-y-2">
-          <div className="inline-flex items-center justify-center p-3.5 bg-soft-pink rounded-2xl text-primary-pink mb-1">
-            <Compass className="w-8 h-8 stroke-[2.5]" />
+          <div className="inline-flex items-center justify-center p-1.5 bg-soft-pink rounded-2xl mb-1 shadow-sm">
+            <img src="/logo.svg" alt="Treker Logo" className="w-16 h-16 rounded-xl object-contain drop-shadow-xs" />
           </div>
           <h1 className="text-2xl font-black text-dark tracking-tight">
-            Selamat Datang di Traveler
+            Selamat Datang di TREKER
           </h1>
           <p className="text-xs text-gray-custom font-medium max-w-xs mx-auto">
             Rencanakan liburan impian, kolaborasi dengan teman, dan akses ribuan template destinasi.
