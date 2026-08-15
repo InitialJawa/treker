@@ -23,6 +23,9 @@ export const LoginView: React.FC = () => {
         setErrorMsg('Pop-up diblokir oleh browser. Izinkan pop-up atau gunakan masuk dengan Email.');
       } else if (err?.code === 'auth/popup-closed-by-user') {
         setErrorMsg('Proses masuk Google dibatalkan oleh pengguna.');
+      } else if (err?.code === 'auth/unauthorized-domain') {
+        const currentDomain = window.location.hostname;
+        setErrorMsg(`Domain (${currentDomain}) belum diizinkan di Firebase Console. Tambahkan domain ini di Firebase Console -> Authentication -> Settings -> Authorized domains, atau gunakan opsi Masuk / Daftar dengan Email di bawah.`);
       } else {
         setErrorMsg('Gagal masuk dengan Google: ' + (err?.message || 'Terjadi kesalahan'));
       }

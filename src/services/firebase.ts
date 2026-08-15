@@ -10,14 +10,24 @@ import {
   User
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
-import config from '../../firebase-applet-config.json';
+
+export const firebaseConfig = {
+  apiKey: "AIzaSyA-iRwvS84QcQYosi1PIEwmSQf50CSEZFw",
+  authDomain: "gen-lang-client-0599933378.firebaseapp.com",
+  projectId: "gen-lang-client-0599933378",
+  storageBucket: "gen-lang-client-0599933378.firebasestorage.app",
+  messagingSenderId: "540520019171",
+  appId: "1:540520019171:web:d543082020bb1d981141d6"
+};
 
 // Initialize Firebase App
-const app = getApps().length === 0 ? initializeApp(config) : getApp();
+const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-// Initialize Auth & Firestore with custom Database ID
+export const FIRESTORE_DB_ID = "ai-studio-travelertripplan-8b4a5a3f-6a4f-4af3-827b-4140ad64b58e";
+
+// Initialize Auth & Firestore
 export const auth = getAuth(app);
-export const db = getFirestore(app, config.firestoreDatabaseId || undefined);
+export const db = getFirestore(app, FIRESTORE_DB_ID);
 
 export const googleProvider = new GoogleAuthProvider();
 // Request standard profile & email scopes
@@ -25,31 +35,35 @@ googleProvider.addScope('profile');
 googleProvider.addScope('email');
 
 /**
- * Creates or updates user record in Firestore `users` collection
+ * Creates or updates user record in Firestore `users` collection safely
  */
 export async function syncUserProfile(user: User) {
   if (!user) return;
-  const userRef = doc(db, 'users', user.uid);
-  const snap = await getDoc(userRef);
-  if (!snap.exists()) {
-    await setDoc(userRef, {
-      uid: user.uid,
-      email: user.email?.toLowerCase() || '',
-      displayName: user.displayName || user.email?.split('@')[0] || 'Traveler',
-      photoURL: user.photoURL || '',
-      subscriptionPlan: 'free',
-      subscriptionStatus: 'active',
-      tripsCreatedThisMonth: 0,
-      createdAt: new Date().toISOString()
-    });
-  } else {
-    // update photo or display name if changed
-    await setDoc(userRef, {
-      photoURL: user.photoURL || snap.data().photoURL || '',
-      displayName: user.displayName || snap.data().displayName || '',
-      email: user.email?.toLowerCase() || snap.data().email || '',
-      lastLoginAt: new Date().toISOString()
-    }, { merge: true });
+  try {
+    const userRef = doc(db, 'users', user.uid);
+    const snap = await getDoc(userRef);
+    if (!snap.exists()) {
+      await setDoc(userRef, {
+        uid: user.uid,
+        email: user.email?.toLowerCase() || '',
+        displayName: user.displayName || user.email?.split('@')[0] || 'Traveler',
+        photoURL: user.photoURL || '',
+        subscriptionPlan: 'free',
+        subscriptionStatus: 'active',
+        tripsCreatedThisMonth: 0,
+        createdAt: new Date().toISOString()
+      });
+    } else {
+      // update photo or display name if changed
+      await setDoc(userRef, {
+        photoURL: user.photoURL || snap.data().photoURL || '',
+        displayName: user.displayName || snap.data().displayName || '',
+        email: user.email?.toLowerCase() || snap.data().email || '',
+        lastLoginAt: new Date().toISOString()
+      }, { merge: true });
+    }
+  } catch (err: any) {
+    console.warn('syncUserProfile warning (Firestore offline/unavailable):', err?.message || err);
   }
 }
 
@@ -64,7 +78,7 @@ export async function signInWithGoogle() {
     }
     return result.user;
   } catch (error: any) {
-    console.error('Google Sign In Error:', error);
+    console.warn('Google Sign In notice:', error?.message || error);
     throw error;
   }
 }
@@ -86,17 +100,21 @@ export async function loginWithEmail(email: string, pass: string) {
 export async function registerWithEmail(email: string, pass: string, name?: string) {
   const result = await createUserWithEmailAndPassword(auth, email, pass);
   if (result.user) {
-    const userRef = doc(db, 'users', result.user.uid);
-    await setDoc(userRef, {
-      uid: result.user.uid,
-      email: result.user.email?.toLowerCase() || email.toLowerCase(),
-      displayName: name || email.split('@')[0],
-      photoURL: '',
-      subscriptionPlan: 'free',
-      subscriptionStatus: 'active',
-      tripsCreatedThisMonth: 0,
-      createdAt: new Date().toISOString()
-    });
+    try {
+      const userRef = doc(db, 'users', result.user.uid);
+      await setDoc(userRef, {
+        uid: result.user.uid,
+        email: result.user.email?.toLowerCase() || email.toLowerCase(),
+        displayName: name || email.split('@')[0],
+        photoURL: '',
+        subscriptionPlan: 'free',
+        subscriptionStatus: 'active',
+        tripsCreatedThisMonth: 0,
+        createdAt: new Date().toISOString()
+      });
+    } catch (err: any) {
+      console.warn('registerWithEmail profile sync warning:', err?.message || err);
+    }
   }
   return result.user;
 }

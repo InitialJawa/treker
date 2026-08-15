@@ -448,7 +448,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const duplicateTrip = async (origTripId: string, customName?: string, newStartDate?: string, newEndDate?: string): Promise<string> => {
     if (!user) throw new Error("User belum login.");
-    const origTrip = trips.find(t => t.id === origTripId);
+    const origTrip = trips.find(t => t.id === origTripId) || INITIAL_TRIPS.find(t => t.id === origTripId);
     if (!origTrip) throw new Error("Trip tidak ditemukan.");
 
     const newId = `trip-${Date.now()}`;
@@ -460,7 +460,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       memberIds: [user.uid],
       collaborators: [],
       allowPublicView: false,
-              isTemplate: false,
+      isTemplate: false,
       name: customName || `${origTrip.name} (Salin)`,
       startDate: newStartDate || origTrip.startDate,
       endDate: newEndDate || origTrip.endDate,
@@ -477,8 +477,11 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       dayOffset = Math.round(diffTime / (1000 * 3600 * 24));
     }
 
-    // Duplicate days
-    const oldDays = itineraryDays.filter(d => d.tripId === origTripId);
+    // Duplicate days (from state or mockData fallback)
+    let oldDays = itineraryDays.filter(d => d.tripId === origTripId);
+    if (oldDays.length === 0) {
+      oldDays = INITIAL_ITINERARY_DAYS.filter(d => d.tripId === origTripId);
+    }
     const dayMap = new Map<string, string>();
     for (const d of oldDays) {
       const newDayId = `day-${newId}-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
@@ -491,19 +494,23 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         newDateStr = oldDateObj.toISOString().split('T')[0];
       }
 
-      const newDay: ItineraryDay = { ...d, id: newDayId, tripId: newId, date: newDateStr };
+      const newDay: ItineraryDay = { ...d, id: newDayId, tripId: newId, date: newDateStr, userId: user.uid };
       await saveItemToFirestore('itineraryDays', newDayId, newDay);
     }
 
     // Duplicate items
-    const oldItems = itineraryItems.filter(i => i.tripId === origTripId);
+    let oldItems = itineraryItems.filter(i => i.tripId === origTripId);
+    if (oldItems.length === 0) {
+      oldItems = INITIAL_ITINERARY_ITEMS.filter(i => i.tripId === origTripId);
+    }
     for (let idx = 0; idx < oldItems.length; idx++) {
       const item = oldItems[idx];
       const newItem: ItineraryItem = {
         ...item,
         id: `item-${newId}-${idx + 1}`,
         tripId: newId,
-        dayId: dayMap.get(item.dayId) || item.dayId
+        dayId: dayMap.get(item.dayId) || item.dayId,
+        userId: user.uid
       };
       await saveItemToFirestore('itineraryItems', newItem.id, newItem);
     }

@@ -84,7 +84,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           }));
         }
       } catch (error) {
-        console.error('Error fetching user theme settings from Firestore:', error);
+        console.warn('Notice fetching user theme settings from Firestore:', error);
       }
     };
 
@@ -122,7 +122,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           }
         }, { merge: true });
       } catch (err) {
-        console.error('Firestore save theme error:', err);
+        console.warn('Firestore save theme warning:', err);
       }
     }
 
