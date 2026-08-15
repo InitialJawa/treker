@@ -1,1 +1,0 @@
-// We cannot use admin sdk in browser but we can just use the reset to default button in UI that is linked to TripContext, or just add a temporary button or just run standard seed script using existing firebase client if we had access to it.

@@ -44,10 +44,10 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-white p-5 rounded-[24px] border border-card-pink flex items-center justify-between gap-4 shadow-sm">
+      <div className="bg-white p-3 md:p-5 rounded-[24px] border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div>
           <span className="text-xs font-extrabold text-primary-pink tracking-wider uppercase">Route Flow</span>
-          <h2 className="text-xl font-extrabold text-dark">Transport Planner</h2>
+          <h2 className="text-lg md:text-xl font-extrabold text-dark">Transport Planner</h2>
           <p className="text-xs text-gray-custom mt-0.5">
             Rute perjalanan antar lokasi di {trip.destination}
           </p>
@@ -55,7 +55,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary-pink hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
+          className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>Add Transport Leg</span>
@@ -64,12 +64,12 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
 
       {/* Visual Route Diagram Flow */}
       {tripTransports.length > 0 && (
-        <div className="bg-white p-6 rounded-[32px] border border-card-pink shadow-sm">
+        <div className="bg-white p-3 md:p-6 rounded-[32px] border border-card-pink shadow-sm">
           <h3 className="font-extrabold text-sm text-dark mb-4">Route Sequential Flow</h3>
           <div className="flex items-center gap-2 overflow-x-auto pb-4 pt-2 no-scrollbar">
             {tripTransports.map((leg, idx) => (
               <React.Fragment key={leg.id}>
-                <div className="bg-soft-pink/50 border border-card-pink p-4 rounded-[20px] shrink-0 text-center min-w-[130px]">
+                <div className="bg-soft-pink/50 border border-card-pink p-2 md:p-4 rounded-[20px] shrink-0 text-center min-w-[130px]">
                   <span className="text-[10px] font-bold text-primary-pink uppercase">Point {idx + 1}</span>
                   <p className="font-bold text-xs text-dark truncate">{leg.origin}</p>
                 </div>
@@ -83,7 +83,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
                 </div>
 
                 {idx === tripTransports.length - 1 && (
-                  <div className="bg-soft-pink/50 border border-card-pink p-4 rounded-[20px] shrink-0 text-center min-w-[130px]">
+                  <div className="bg-soft-pink/50 border border-card-pink p-2 md:p-4 rounded-[20px] shrink-0 text-center min-w-[130px]">
                     <span className="text-[10px] font-bold text-primary-pink uppercase">Point {idx + 2}</span>
                     <p className="font-bold text-xs text-dark truncate">{leg.destination}</p>
                   </div>
@@ -96,19 +96,19 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
 
       {/* Detailed List */}
       <div className="bg-white rounded-[32px] border border-card-pink overflow-hidden shadow-sm">
-        <div className="p-5 border-b border-card-pink font-extrabold text-sm text-dark">
+        <div className="p-3 md:p-5 border-b border-card-pink font-extrabold text-sm text-dark">
           Transport Legs Details ({tripTransports.length})
         </div>
 
         {tripTransports.length === 0 ? (
-          <div className="p-8 text-center text-gray-custom">
+          <div className="p-2 md:p-4 md:p-8 text-center text-gray-custom">
             <Car className="w-10 h-10 mx-auto mb-2 text-soft-pink" />
             <p className="text-sm font-medium">Belum ada rute transportasi tercatat.</p>
           </div>
         ) : (
           <div className="divide-y divide-card-pink text-xs">
             {tripTransports.map((leg) => (
-              <div key={leg.id} className="p-4 hover:bg-offwhite flex items-center justify-between gap-4 transition-colors">
+              <div key={leg.id} className="p-2 md:p-4 hover:bg-offwhite flex items-center justify-between gap-2 md:gap-4 transition-colors">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 font-bold text-sm text-dark">
                     <span>{leg.origin}</span>
@@ -142,9 +142,9 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#E8EBEF]">
-            <h3 className="font-bold text-base text-[#20263D] mb-4">Add Transport Leg</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-[#E8EBEF]">
+            <h3 className="font-bold text-sm md:text-base text-[#20263D] mb-4">Add Transport Leg</h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
@@ -229,13 +229,13 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90 transition-all"
+                  className="px-3 md:px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90 transition-all"
                 >
                   Save Leg
                 </button>

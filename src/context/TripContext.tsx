@@ -1,17 +1,19 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { 
-  Trip, ItineraryDay, ItineraryItem, Place, Expense, Booking, PackingItem, TransportLeg, Note, CurrencyCode, PlaceStatus
+  Trip, ItineraryDay, ItineraryItem, Place, Expense, Booking, PackingItem, TransportLeg, Note, CurrencyCode, PlaceStatus, MoodboardItem
 } from '../types/travel';
 import { 
   INITIAL_TRIPS, INITIAL_ITINERARY_DAYS, INITIAL_ITINERARY_ITEMS, INITIAL_PLACES, 
   INITIAL_EXPENSES, INITIAL_BOOKINGS, INITIAL_PACKING_ITEMS, INITIAL_TRANSPORTS, INITIAL_NOTES 
 } from '../data/mockData';
 import { generateItineraryWithAI, generatePackingListWithAI } from '../services/aiService';
+import { syncItineraryDaysDates } from '../utils/formatters';
 import { useAuth } from './AuthContext';
 import { db } from '../services/firebase';
 import { 
   collection, doc, setDoc, getDocs, deleteDoc, query, where, onSnapshot 
 } from 'firebase/firestore';
+import { initializeUserTemplates } from '../services/onboardingService';
 import { 
   saveTripToFirestore, deleteTripFromFirestore, addCollaboratorToTrip, removeCollaboratorFromTrip, saveItemToFirestore, deleteItemFromFirestore 
 } from '../services/firestoreService';
@@ -26,6 +28,7 @@ interface TripContextType {
   packingItems: PackingItem[];
   transports: TransportLeg[];
   notes: Note[];
+  moodboardItems: MoodboardItem[];
   
   activeTripId: string | null;
   setActiveTripId: (id: string | null) => void;
@@ -51,12 +54,17 @@ interface TripContextType {
   addItineraryItem: (item: Omit<ItineraryItem, 'id' | 'sortOrder'>) => Promise<void>;
   updateItineraryItem: (id: string, updates: Partial<ItineraryItem>) => Promise<void>;
   deleteItineraryItem: (id: string) => Promise<void>;
-  addItineraryDay: (tripId: string, title: string) => Promise<void>;
+  addItineraryDay: (tripId: string, title: string, insertIndex?: number) => Promise<void>;
+  updateItineraryDay: (id: string, title: string) => Promise<void>;
+  deleteItineraryDay: (id: string, tripId: string) => Promise<void>;
+  reorderItineraryDays: (tripId: string, dayId: string, newIndex: number) => Promise<void>;
 
   // Places
   addPlace: (place: Omit<Place, 'id'>) => Promise<void>;
   updatePlaceStatus: (id: string, status: PlaceStatus) => Promise<void>;
   togglePlaceFavorite: (id: string) => Promise<void>;
+  updatePlace: (id: string, updates: Partial<Place>) => Promise<void>;
+  deletePlace: (id: string) => Promise<void>;
   addPlaceToTripItinerary: (place: Place, tripId: string, dayId: string) => Promise<void>;
 
   // Budget
@@ -83,6 +91,9 @@ interface TripContextType {
   addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   updateNote: (id: string, updates: Partial<Note>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
+  addMoodboardItem: (tripId: string, imageUrl: string, title?: string, caption?: string) => Promise<void>;
+  deleteMoodboardItem: (id: string) => Promise<void>;
+  updateMoodboardItem: (id: string, updates: Partial<MoodboardItem>) => Promise<void>;
 
   // System
   resetToDefaults: () => void;
@@ -102,6 +113,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [packingItems, setPackingItems] = useState<PackingItem[]>([]);
   const [transports, setTransports] = useState<TransportLeg[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [moodboardItems, setMoodboardItems] = useState<MoodboardItem[]>([]);
 
   const [activeTripId, setActiveTripId] = useState<string | null>(null);
   const [currency, setCurrency] = useState<CurrencyCode>('IDR');
@@ -118,62 +130,35 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const userEmail = user.email ? user.email.toLowerCase() : '';
 
     // Realtime listener for trips where userId == uid OR collaborators contains email OR isTemplate == true
+    
+    initializeUserTemplates(user.uid);
+
     const tripsCol = collection(db, 'trips');
+    const qTrips = query(collection(db, 'trips'), where('memberIds', 'array-contains', user.uid));
     const unsubTrips = onSnapshot(
-      tripsCol,
-      async (snapshot) => {
-        const fetchedTrips: Trip[] = [];
+      qTrips,
+      (snapshot) => {
+        const fetchedTrips = [];
         snapshot.forEach(docSnap => {
-          const data = docSnap.data() as Trip;
-          const belongsToUser = data.userId === user.uid;
-          const isSharedWithUser = userEmail && data.collaborators && data.collaborators.includes(userEmail);
-          const isTmpl = data.isTemplate === true;
-
-          if (belongsToUser || isSharedWithUser || isTmpl) {
-            fetchedTrips.push({ ...data, id: docSnap.id });
-          }
+          fetchedTrips.push({ ...docSnap.data(), id: docSnap.id });
         });
-
-        // If user has zero trips in Firestore, seed initial sample trips into Firestore for this user
-        if (fetchedTrips.length === 0 && user.uid) {
-          const seedPromises = INITIAL_TRIPS.map(t => {
-            const seededTrip: Trip = {
-              ...t,
-              id: `${t.id}-${user.uid.substring(0, 6)}`,
-              userId: user.uid,
-              collaborators: []
-            };
-            return saveTripToFirestore(seededTrip);
-          });
-          await Promise.all(seedPromises);
-
-          // Seed initial sub items
-          for (const day of INITIAL_ITINERARY_DAYS) {
-            const newDayId = `${day.id}-${user.uid.substring(0, 6)}`;
-            const matchingTrip = INITIAL_TRIPS.find(t => t.id === day.tripId);
-            if (matchingTrip) {
-              const newTripId = `${matchingTrip.id}-${user.uid.substring(0, 6)}`;
-              await saveItemToFirestore('itineraryDays', newDayId, { ...day, id: newDayId, tripId: newTripId });
-            }
-          }
-          for (const item of INITIAL_ITINERARY_ITEMS) {
-            const newItemId = `${item.id}-${user.uid.substring(0, 6)}`;
-            const matchingTrip = INITIAL_TRIPS.find(t => t.id === item.tripId);
-            if (matchingTrip) {
-              const newTripId = `${matchingTrip.id}-${user.uid.substring(0, 6)}`;
-              await saveItemToFirestore('itineraryItems', newItemId, { ...item, id: newItemId, tripId: newTripId });
-            }
-          }
-          return;
-        }
-
         setTrips(fetchedTrips);
-        if (!activeTripId && fetchedTrips.length > 0) {
-          setActiveTripId(fetchedTrips[0].id);
-        }
+        
+        // Only set active if none is set and we have trips
+        setTrips(prev => {
+          if (!activeTripId && fetchedTrips.length > 0) {
+            // Need a tiny delay to ensure it doesn't cause render loops, but direct setting here is okay.
+            setTimeout(() => {
+               // Only update if still no active
+               setActiveTripId((curr) => curr ? curr : fetchedTrips[0].id);
+            }, 0);
+          }
+          return fetchedTrips;
+        });
       },
       (err) => console.warn('Trips snapshot error:', err)
     );
+
 
     // Realtime listener for sub-collections
     const unsubDays = onSnapshot(
@@ -246,6 +231,16 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       (err) => console.warn('Notes snapshot error:', err)
     );
 
+    const unsubMoodboards = onSnapshot(
+      collection(db, 'moodboards'),
+      (snap) => {
+        const list: MoodboardItem[] = [];
+        snap.forEach(d => list.push({ ...d.data(), id: d.id } as MoodboardItem));
+        setMoodboardItems(list);
+      },
+      (err) => console.warn('Moodboards snapshot error:', err)
+    );
+
     return () => {
       unsubTrips();
       unsubDays();
@@ -255,6 +250,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       unsubPacking();
       unsubTransports();
       unsubNotes();
+      unsubMoodboards();
     };
   }, [user]);
 
@@ -294,8 +290,11 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       name: finalTripName,
       id: newId,
       userId: user.uid,
+      tenantId: user.uid,
+      memberIds: [user.uid],
       collaborators: [],
-      actualSpent: 0,
+      allowPublicView: false,
+              actualSpent: 0,
       status: 'upcoming',
       isFavorite: false,
       createdAt: new Date().toISOString().split('T')[0]
@@ -403,6 +402,19 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (existing) {
       const updated = { ...existing, ...updates };
       await saveTripToFirestore(updated);
+      
+      // Always ensure days are synced to the correct dates and length,
+      // because they might be out of sync from a previous failed update.
+      const existingDays = itineraryDays.filter(d => d.tripId === id);
+      await syncItineraryDaysDates(
+        id, 
+        updated.startDate, 
+        updated.endDate, 
+        existingDays, 
+        updated.destination, 
+        saveItemToFirestore, 
+        deleteItemFromFirestore
+      );
     }
   };
 
@@ -424,8 +436,11 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       ...origTrip,
       id: newId,
       userId: user.uid,
+      tenantId: user.uid,
+      memberIds: [user.uid],
       collaborators: [],
-      isTemplate: false,
+      allowPublicView: false,
+              isTemplate: false,
       name: customName || `${origTrip.name} (Salin)`,
       startDate: newStartDate || origTrip.startDate,
       endDate: newEndDate || origTrip.endDate,
@@ -555,17 +570,127 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await deleteItemFromFirestore('itineraryItems', id);
   };
 
-  const addItineraryDay = async (tripId: string, title: string) => {
-    const tripDays = itineraryDays.filter(d => d.tripId === tripId);
-    const newDayNum = tripDays.length + 1;
-    const newDay: ItineraryDay = {
-      id: `day-${tripId}-${Date.now()}`,
+  const updateItineraryDay = async (id: string, title: string) => {
+    const existing = itineraryDays.find(d => d.id === id);
+    if (existing) {
+      await saveItemToFirestore('itineraryDays', id, { ...existing, title });
+    }
+  };
+
+  const deleteItineraryDay = async (id: string, tripId: string) => {
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) return;
+
+    const tripDays = itineraryDays.filter(d => d.tripId === tripId).sort((a, b) => a.dayNumber - b.dayNumber);
+    const dayToDelete = tripDays.find(d => d.id === id);
+    if (!dayToDelete) return;
+
+    // Delete the day
+    await deleteItemFromFirestore('itineraryDays', id);
+
+    // Delete all items in that day
+    const itemsInDay = itineraryItems.filter(i => i.dayId === id);
+    for (const item of itemsInDay) {
+      await deleteItemFromFirestore('itineraryItems', item.id);
+    }
+
+    // Re-index remaining days absolutely
+    const remainingDays = tripDays.filter(d => d.id !== id);
+    const start = new Date(trip.startDate);
+    
+    for (let i = 0; i < remainingDays.length; i++) {
+      const day = remainingDays[i];
+      const newDayNum = i + 1;
+      const newDate = new Date(start);
+      newDate.setDate(start.getDate() + i);
+      const newDateStr = newDate.toISOString().split('T')[0];
+
+      if (day.dayNumber !== newDayNum || day.date !== newDateStr) {
+        await saveItemToFirestore('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
+      }
+    }
+
+    // Update trip endDate
+    const currentEnd = new Date(trip.startDate);
+    currentEnd.setDate(currentEnd.getDate() + Math.max(0, remainingDays.length - 1));
+    await saveTripToFirestore({ ...trip, endDate: currentEnd.toISOString().split('T')[0] });
+  };
+
+  
+  const reorderItineraryDays = async (tripId: string, dayId: string, newIndex: number) => {
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) return;
+
+    const tripDays = itineraryDays.filter(d => d.tripId === tripId).sort((a, b) => a.dayNumber - b.dayNumber);
+    const draggedDayIndex = tripDays.findIndex(d => d.id === dayId);
+    if (draggedDayIndex === -1 || draggedDayIndex === newIndex) return;
+
+    // Create a new array with the dragged day moved
+    const newOrder = [...tripDays];
+    const [draggedDay] = newOrder.splice(draggedDayIndex, 1);
+    newOrder.splice(newIndex, 0, draggedDay);
+
+    // Re-assign dayNumber and date based on new order
+    const start = new Date(trip.startDate);
+    for (let i = 0; i < newOrder.length; i++) {
+      const day = newOrder[i];
+      const newDayNum = i + 1;
+      const newDate = new Date(start);
+      newDate.setDate(start.getDate() + i);
+      
+      const newDateStr = newDate.toISOString().split('T')[0];
+      if (day.dayNumber !== newDayNum || day.date !== newDateStr) {
+        await saveItemToFirestore('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
+      }
+    }
+  };
+
+  const addItineraryDay = async (tripId: string, title: string, insertIndex?: number) => {
+    const trip = trips.find(t => t.id === tripId);
+    if (!trip) return;
+
+    const start = new Date(trip.startDate);
+    const tripDays = itineraryDays.filter(d => d.tripId === tripId).sort((a, b) => a.dayNumber - b.dayNumber);
+    
+    // If insertIndex is not provided or is invalid, append to the end
+    const indexToInsert = (insertIndex !== undefined && insertIndex >= 0 && insertIndex <= tripDays.length) 
+         ? insertIndex 
+         : tripDays.length;
+
+    // Create new day object
+    const newDayId = `day-${tripId}-${Date.now()}`;
+    const newDayObj = {
+      id: newDayId,
       tripId,
-      dayNumber: newDayNum,
-      date: new Date().toISOString().split('T')[0],
-      title: title || `Hari ${newDayNum}`
+      dayNumber: -1, // temporary
+      date: '', // temporary
+      title: title || 'Hari Baru'
     };
-    await saveItemToFirestore('itineraryDays', newDay.id, newDay);
+
+    // Insert into the array
+    const newOrder = [...tripDays];
+    newOrder.splice(indexToInsert, 0, newDayObj as any);
+
+    // Re-index all days absolutely
+    for (let i = 0; i < newOrder.length; i++) {
+      const day = newOrder[i];
+      const newDayNum = i + 1;
+      const newDate = new Date(start);
+      newDate.setDate(start.getDate() + i);
+      const newDateStr = newDate.toISOString().split('T')[0];
+      
+      if (day.id === newDayId) {
+         if (!title) day.title = `Hari ${newDayNum}`;
+         await saveItemToFirestore('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
+      } else if (day.dayNumber !== newDayNum || day.date !== newDateStr) {
+         await saveItemToFirestore('itineraryDays', day.id, { ...day, dayNumber: newDayNum, date: newDateStr });
+      }
+    }
+
+    // Update trip endDate
+    const currentEnd = new Date(trip.startDate);
+    currentEnd.setDate(currentEnd.getDate() + Math.max(0, newOrder.length - 1));
+    await saveTripToFirestore({ ...trip, endDate: currentEnd.toISOString().split('T')[0] });
   };
 
   const addPlace = async (place: Omit<Place, 'id'>) => {
@@ -574,20 +699,38 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       id: `place-${Date.now()}`
     };
     await saveItemToFirestore('places', newPlace.id, newPlace);
+    setPlaces(prev => [...prev, newPlace]);
   };
 
   const updatePlaceStatus = async (id: string, status: PlaceStatus) => {
     const existing = places.find(p => p.id === id);
     if (existing) {
       await saveItemToFirestore('places', id, { ...existing, status });
+      setPlaces(prev => prev.map(p => p.id === id ? { ...p, status } : p));
     }
   };
 
   const togglePlaceFavorite = async (id: string) => {
     const existing = places.find(p => p.id === id);
     if (existing) {
-      await saveItemToFirestore('places', id, { ...existing, isFavorite: !existing.isFavorite });
+      const updated = { ...existing, isFavorite: !existing.isFavorite };
+      await saveItemToFirestore('places', id, updated);
+      setPlaces(prev => prev.map(p => p.id === id ? updated : p));
     }
+  };
+
+  const updatePlace = async (id: string, updates: Partial<Place>) => {
+    const existing = places.find(p => p.id === id);
+    if (existing) {
+      const updated = { ...existing, ...updates };
+      await saveItemToFirestore('places', id, updated);
+      setPlaces(prev => prev.map(p => p.id === id ? updated : p));
+    }
+  };
+
+  const deletePlace = async (id: string) => {
+    await deleteItemFromFirestore('places', id);
+    setPlaces(prev => prev.filter(p => p.id !== id));
   };
 
   const addPlaceToTripItinerary = async (place: Place, tripId: string, dayId: string) => {
@@ -715,6 +858,40 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     }
   };
 
+  
+  const addMoodboardItem = async (tripId: string, imageUrl: string, title?: string, caption?: string) => {
+    const newItem: MoodboardItem = {
+      id: 'mb-' + Date.now(),
+      tripId,
+      imageUrl,
+      title: title || '',
+      caption: caption || '',
+      x: Math.floor(Math.random() * 100),
+      y: Math.floor(Math.random() * 100),
+      width: 250,
+      height: 250,
+      zIndex: Date.now() % 100000,
+      createdAt: new Date().toISOString()
+    };
+    await saveItemToFirestore('moodboards', newItem.id, newItem);
+    setMoodboardItems(prev => [...prev, newItem]);
+  };
+
+  const deleteMoodboardItem = async (id: string) => {
+    await deleteItemFromFirestore('moodboards', id);
+    setMoodboardItems(prev => prev.filter(m => m.id !== id));
+  };
+
+  const updateMoodboardItem = async (id: string, updates: Partial<MoodboardItem>) => {
+    const existing = moodboardItems.find(m => m.id === id);
+    if (existing) {
+      const updated = { ...existing, ...updates };
+      await saveItemToFirestore('moodboards', id, updated);
+      setMoodboardItems(prev => prev.map(m => m.id === id ? updated : m));
+    }
+  };
+
+
   const deleteNote = async (id: string) => {
     await deleteItemFromFirestore('notes', id);
   };
@@ -743,6 +920,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         packingItems,
         transports,
         notes,
+        moodboardItems,
         activeTripId,
         setActiveTripId,
         currency,
@@ -762,9 +940,14 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updateItineraryItem,
         deleteItineraryItem,
         addItineraryDay,
+        updateItineraryDay,
+        deleteItineraryDay,
+        reorderItineraryDays,
         addPlace,
         updatePlaceStatus,
         togglePlaceFavorite,
+        updatePlace,
+        deletePlace,
         addPlaceToTripItinerary,
         addExpense,
         updateExpense,
@@ -781,6 +964,9 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         addNote,
         updateNote,
         deleteNote,
+        addMoodboardItem,
+        deleteMoodboardItem,
+        updateMoodboardItem,
         resetToDefaults
       }}
     >

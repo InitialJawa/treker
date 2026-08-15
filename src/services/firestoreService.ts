@@ -1,23 +1,28 @@
+import { db } from './firebase';
 import { 
-  db 
-} from './firebase';
-import { 
-  collection, 
-  doc, 
-  setDoc, 
-  getDoc, 
-  getDocs, 
-  updateDoc, 
-  deleteDoc, 
-  query, 
-  where, 
-  onSnapshot, 
-  arrayUnion, 
-  arrayRemove 
+  collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, 
+  query, where, onSnapshot, arrayUnion, arrayRemove 
 } from 'firebase/firestore';
 import { 
   Trip, ItineraryDay, ItineraryItem, Place, Expense, Booking, PackingItem, TransportLeg, Note 
 } from '../types/travel';
+
+// Helper to remove undefined values, which Firestore doesn't accept
+function cleanData(obj) {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(cleanData);
+  
+  const cleaned = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      const val = obj[key];
+      if (val !== undefined) {
+        cleaned[key] = (val !== null && typeof val === 'object') ? cleanData(val) : val;
+      }
+    }
+  }
+  return cleaned;
+}
 
 // Collections
 const TRIPS_COL = 'trips';
@@ -35,20 +40,17 @@ const NOTES_COL = 'notes';
  */
 export async function saveTripToFirestore(trip: Trip) {
   const ref = doc(db, TRIPS_COL, trip.id);
-  await setDoc(ref, {
+  await setDoc(ref, cleanData({
     ...trip,
     collaborators: trip.collaborators || []
-  }, { merge: true });
+  }), { merge: true });
 }
 
 /**
  * Delete trip and its associated items from Firestore
  */
 export async function deleteTripFromFirestore(tripId: string) {
-  // Delete main trip
   await deleteDoc(doc(db, TRIPS_COL, tripId));
-
-  // Helper to delete associated sub-documents by tripId
   const deleteByTripId = async (colName: string) => {
     try {
       const q = query(collection(db, colName), where('tripId', '==', tripId));
@@ -58,7 +60,6 @@ export async function deleteTripFromFirestore(tripId: string) {
       console.warn(`Error deleting ${colName}:`, err);
     }
   };
-
   await Promise.all([
     deleteByTripId(DAYS_COL),
     deleteByTripId(ITEMS_COL),
@@ -74,9 +75,19 @@ export async function deleteTripFromFirestore(tripId: string) {
  * Add a collaborator email to a trip
  */
 export async function addCollaboratorToTrip(tripId: string, collaboratorEmail: string) {
+  const emailLower = collaboratorEmail.trim().toLowerCase();
+  const usersRef = collection(db, 'users');
+  const q = query(usersRef, where('email', '==', emailLower));
+  const snap = await getDocs(q);
+  
+  let newUid = null;
+  if (!snap.empty) {
+    newUid = snap.docs[0].id;
+  }
   const ref = doc(db, TRIPS_COL, tripId);
   await updateDoc(ref, {
-    collaborators: arrayUnion(collaboratorEmail.trim().toLowerCase())
+    collaborators: arrayUnion(emailLower),
+    ...(newUid ? { memberIds: arrayUnion(newUid) } : {})
   });
 }
 
@@ -84,9 +95,19 @@ export async function addCollaboratorToTrip(tripId: string, collaboratorEmail: s
  * Remove a collaborator from a trip
  */
 export async function removeCollaboratorFromTrip(tripId: string, collaboratorEmail: string) {
+  const emailLower = collaboratorEmail.trim().toLowerCase();
+  const usersRef = collection(db, 'users');
+  const q = query(usersRef, where('email', '==', emailLower));
+  const snap = await getDocs(q);
+  
+  let targetUid = null;
+  if (!snap.empty) {
+    targetUid = snap.docs[0].id;
+  }
   const ref = doc(db, TRIPS_COL, tripId);
   await updateDoc(ref, {
-    collaborators: arrayRemove(collaboratorEmail)
+    collaborators: arrayRemove(collaboratorEmail),
+    ...(targetUid ? { memberIds: arrayRemove(targetUid) } : {})
   });
 }
 
@@ -95,7 +116,7 @@ export async function removeCollaboratorFromTrip(tripId: string, collaboratorEma
  */
 export async function saveItemToFirestore(colName: string, id: string, data: any) {
   const ref = doc(db, colName, id);
-  await setDoc(ref, data, { merge: true });
+  await setDoc(ref, cleanData(data), { merge: true });
 }
 
 /**

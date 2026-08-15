@@ -31,13 +31,15 @@ export async function syncUserProfile(user: User) {
   if (!user) return;
   const userRef = doc(db, 'users', user.uid);
   const snap = await getDoc(userRef);
-
   if (!snap.exists()) {
     await setDoc(userRef, {
       uid: user.uid,
-      email: user.email || '',
+      email: user.email?.toLowerCase() || '',
       displayName: user.displayName || user.email?.split('@')[0] || 'Traveler',
       photoURL: user.photoURL || '',
+      subscriptionPlan: 'free',
+      subscriptionStatus: 'active',
+      tripsCreatedThisMonth: 0,
       createdAt: new Date().toISOString()
     });
   } else {
@@ -45,6 +47,7 @@ export async function syncUserProfile(user: User) {
     await setDoc(userRef, {
       photoURL: user.photoURL || snap.data().photoURL || '',
       displayName: user.displayName || snap.data().displayName || '',
+      email: user.email?.toLowerCase() || snap.data().email || '',
       lastLoginAt: new Date().toISOString()
     }, { merge: true });
   }
@@ -86,9 +89,12 @@ export async function registerWithEmail(email: string, pass: string, name?: stri
     const userRef = doc(db, 'users', result.user.uid);
     await setDoc(userRef, {
       uid: result.user.uid,
-      email: result.user.email || email,
+      email: result.user.email?.toLowerCase() || email.toLowerCase(),
       displayName: name || email.split('@')[0],
       photoURL: '',
+      subscriptionPlan: 'free',
+      subscriptionStatus: 'active',
+      tripsCreatedThisMonth: 0,
       createdAt: new Date().toISOString()
     });
   }

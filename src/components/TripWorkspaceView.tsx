@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { ArrowLeft, Share2, Printer, Edit3, Calendar, MapPin, Users, DollarSign, Heart, Sparkles, Trash2, Copy, AlertTriangle, Check, UserPlus, X, Globe, Shield, Upload } from 'lucide-react';
+import { ArrowLeft, Share2, Printer, Edit3, Calendar, MapPin, Users, DollarSign, Heart, Trash2, Copy, AlertTriangle, Check, UserPlus, X, Globe, Shield, Upload } from 'lucide-react';
 import { Trip } from '../types/travel';
 import { useTripContext } from '../context/TripContext';
 import { useAuth } from '../context/AuthContext';
@@ -8,6 +8,7 @@ import { resizeImage } from '../utils/imageUtils';
 
 // Tabs
 import { TabOverview } from './workspace/TabOverview';
+import { TabMoodboard } from './workspace/TabMoodboard';
 import { TabItinerary } from './workspace/TabItinerary';
 import { TabBudget } from './workspace/TabBudget';
 import { TabBookings } from './workspace/TabBookings';
@@ -36,6 +37,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
     places,
     transports,
     notes,
+    moodboardItems,
     toggleTripFavorite,
     deleteTrip,
     duplicateTrip,
@@ -51,6 +53,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
   const isTemplateViewOnly = !hasEditAccess && trip.isTemplate;
 
   const [isEditTripModalOpen, setIsEditTripModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [editName, setEditName] = useState('');
   const [editDest, setEditDest] = useState('');
   const [editStart, setEditStart] = useState('');
@@ -65,12 +68,33 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
     setEditEnd(trip.endDate);
     setEditTravelers(trip.travelersCount || 1);
     setEditBudget(trip.budget || 0);
+    setNewCoverUrl(trip.coverImage || '');
     setIsEditTripModalOpen(true);
   };
 
   const handleEditTripSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!hasEditAccess) return;
+    
+    setIsSaving(true);
+    
+    const start = new Date(editStart);
+    const end = new Date(editEnd);
+    const diffTime = end.getTime() - start.getTime();
+    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
+    
+    if (start.getFullYear() < 2000) {
+      alert('Tahun tidak valid. Masukkan tahun yang benar.');
+      setIsSaving(false);
+      return;
+    }
+    
+    if (diffDays > 60) {
+      alert('Maksimal durasi trip adalah 60 hari. Silakan sesuaikan tanggal.');
+      setIsSaving(false);
+      return;
+    }
+
     try {
       await updateTrip(trip.id, {
         name: editName,
@@ -81,11 +105,13 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
         budget: editBudget
       });
       setIsEditTripModalOpen(false);
-      setToastMessage('✓ Detail trip berhasil diperbarui!');
+      setToastMessage('Detail trip berhasil diperbarui!');
       setTimeout(() => setToastMessage(null), 3000);
-    } catch (e) {
+    } catch (e: any) {
       console.error(e);
-      alert('Gagal menyimpan perubahan.');
+      alert('Gagal menyimpan perubahan: ' + (e.message || e));
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -121,7 +147,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
     setIsImporting(true);
     try {
       await duplicateTrip(trip.id, importName, importStartDate, importEndDate);
-      setToastMessage('✓ Template berhasil diimpor! Silakan kembali ke Dashboard.');
+      setToastMessage('Template berhasil diimpor! Silakan kembali ke Dashboard.');
       setIsImportModalOpen(false);
       setTimeout(() => {
         setToastMessage(null);
@@ -176,7 +202,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
   const handleDuplicate = async () => {
     try {
       await duplicateTrip(trip.id);
-      setToastMessage(`✓ Trip "${trip.name}" telah berhasil diduplikat!`);
+      setToastMessage(`Trip "${trip.name}" telah berhasil diduplikat!`);
       setTimeout(() => setToastMessage(null), 3500);
     } catch (e) {
       console.error(e);
@@ -190,7 +216,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
     setShareLoading(true);
     try {
       await shareTripWithCollaborator(trip.id, collaboratorEmail.trim());
-      setToastMessage(`✓ Akses trip berhasil dibagikan ke ${collaboratorEmail.trim()}`);
+      setToastMessage(`Akses trip berhasil dibagikan ke ${collaboratorEmail.trim()}`);
       setCollaboratorEmail('');
       setTimeout(() => setToastMessage(null), 3500);
     } catch (err: any) {
@@ -214,7 +240,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
   const handleToggleTemplate = async () => {
     try {
       await toggleTripTemplate(trip.id);
-      setToastMessage(trip.isTemplate ? 'Status template dinonaktifkan.' : '✓ Trip dijadikan template untuk dikopi user lain!');
+      setToastMessage(trip.isTemplate ? 'Status template dinonaktifkan.' : 'Trip dijadikan template untuk dikopi user lain!');
       setTimeout(() => setToastMessage(null), 3500);
     } catch (e) {
       console.error(e);
@@ -228,14 +254,24 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
   };
 
   // Filter trip-specific items
-  const tripDays = itineraryDays.filter(d => d.tripId === trip.id);
-  const tripItems = itineraryItems.filter(i => i.tripId === trip.id);
-  const tripBookings = bookings.filter(b => b.tripId === trip.id);
-  const tripPacking = packingItems.filter(p => p.tripId === trip.id);
-  const tripExpenses = expenses.filter(e => e.tripId === trip.id);
+  const matchesTripId = (targetTripId: string | undefined, currentTripId: string) => {
+    if (!targetTripId) return false;
+    if (targetTripId === currentTripId) return true;
+    if (currentTripId.startsWith(targetTripId) || targetTripId.startsWith(currentTripId)) return true;
+    return false;
+  };
+
+  const tripMoodboards = moodboardItems.filter(m => matchesTripId(m.tripId, trip.id));
+  const tripDays = itineraryDays.filter(d => matchesTripId(d.tripId, trip.id)).sort((a, b) => Number(a.dayNumber) - Number(b.dayNumber));
+  const tripItems = itineraryItems.filter(i => matchesTripId(i.tripId, trip.id));
+  const tripBookings = bookings.filter(b => matchesTripId(b.tripId, trip.id));
+  const tripPacking = packingItems.filter(p => matchesTripId(p.tripId, trip.id));
+  const tripExpenses = expenses.filter(e => matchesTripId(e.tripId, trip.id));
+  const tripTransports = transports.filter(t => matchesTripId(t.tripId, trip.id));
 
   const tabs = [
     'Overview',
+    'Moodboard',
     'Itinerary',
     'Budget',
     'Bookings',
@@ -249,37 +285,31 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
     <div className="space-y-6 pb-12 relative">
       {/* Toast Notification Banner */}
       {toastMessage && (
-        <div className="fixed top-6 right-6 bg-primary-pink text-white px-5 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-2 font-bold text-xs animate-bounce">
+        <div className="fixed top-6 right-6 bg-primary-pink text-white px-3 md:px-5 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-2 font-bold text-xs animate-bounce">
           <Check className="w-4 h-4 stroke-[3]" />
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Top Navigation Bar */}
-      <div className="flex flex-wrap items-center justify-between gap-4">
-        <button
-          onClick={onBackToDashboard}
-          className="flex items-center gap-2 text-xs font-bold text-dark bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full hover:bg-white transition-colors"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>← Kembali ke Dashboard</span>
-        </button>
+      <div className="flex flex-wrap items-center justify-between gap-2 md:gap-4">
+        {/* Removed Back to Dashboard button */}
 
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center justify-between w-full md:w-auto gap-1 md:gap-2 whitespace-nowrap">
           <button
             onClick={() => toggleTripFavorite(trip.id)}
             title="Sukai Trip Ini"
-            className="p-2.5 rounded-full bg-white hover:bg-soft-pink text-primary-pink shadow-sm transition-colors"
+            className="p-1.5 md:p-2.5 rounded-full bg-white hover:bg-soft-pink text-primary-pink shadow-sm transition-colors"
           >
-            <Heart className={`w-4 h-4 ${trip.isFavorite ? 'fill-primary-pink' : ''}`} />
+            <Heart className={`w-3 h-3 md:w-4 md:h-4 ${trip.isFavorite ? 'fill-primary-pink' : ''}`} />
           </button>
 
           {isTemplateViewOnly ? (
             <button
               onClick={openImportModal}
-              className="bg-primary-pink text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+              className="shrink-0 bg-primary-pink text-white px-3 py-1 md:px-5 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1 md:gap-1.5 transition-all shadow-md active:scale-95"
             >
-              <Copy className="w-4 h-4" />
+              <Copy className="w-3 h-3 md:w-4 md:h-4" />
               <span>Gunakan Template Ini</span>
             </button>
           ) : (
@@ -287,9 +317,9 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
               {hasEditAccess && (
                 <button
                   onClick={() => setIsShareModalOpen(true)}
-                  className="bg-white hover:bg-soft-pink text-primary-pink px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                  className="bg-white hover:bg-soft-pink text-primary-pink px-2.5 py-1 md:px-4 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1 md:gap-1.5 transition-all shadow-sm"
                 >
-                  <UserPlus className="w-4 h-4" />
+                  <UserPlus className="w-3 h-3 md:w-4 md:h-4" />
                   <span>Kolaborasi</span>
                   {trip.collaborators && trip.collaborators.length > 0 && (
                     <span className="bg-primary-pink text-white text-[10px] px-1.5 py-0.5 rounded-full font-black ml-0.5">
@@ -301,27 +331,27 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
 
               <button
                 onClick={handleDuplicate}
-                className="bg-white hover:bg-soft-pink text-primary-pink px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                className="shrink-0 bg-white hover:bg-soft-pink text-primary-pink px-2.5 py-1 md:px-4 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1 md:gap-1.5 transition-all shadow-sm"
               >
-                <Copy className="w-4 h-4" />
+                <Copy className="w-3 h-3 md:w-4 md:h-4" />
                 <span>Duplikat</span>
               </button>
 
               <button
                 onClick={() => setIsExportModalOpen(true)}
-                className="bg-primary-pink text-white px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
+                className="shrink-0 bg-primary-pink text-white px-2.5 py-1 md:px-4 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1 md:gap-2 shadow-sm transition-all"
               >
-                <Printer className="w-4 h-4" />
+                <Printer className="w-3 h-3 md:w-4 md:h-4" />
                 <span>Cetak PDF</span>
               </button>
 
               {isOwner && (
                 <button
                   onClick={() => setIsDeleteModalOpen(true)}
-                  className="bg-white hover:bg-red-50 text-red-500 px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+                  className="shrink-0 bg-white hover:bg-red-50 text-red-500 p-1.5 md:px-4 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center justify-center gap-1 md:gap-1.5 transition-all shadow-sm"
                 >
-                  <Trash2 className="w-4 h-4" />
-                  <span>Hapus</span>
+                  <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
+                  <span className="hidden sm:inline">Hapus</span>
                 </button>
               )}
             </>
@@ -338,82 +368,12 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
 
-        {hasEditAccess && (
-          <button 
-            onClick={() => { setIsEditingCover(true); setNewCoverUrl(trip.coverImage); }}
-            className="absolute top-4 right-4 bg-white/20 hover:bg-white/40 backdrop-blur-md p-2 rounded-full text-white transition-all shadow-md border border-card-pink/30"
-          >
-            <Edit3 className="w-5 h-5" />
-          </button>
-        )}
+        
 
-        {isEditingCover && (
-          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-6 z-20">
-            <h3 className="text-white font-bold mb-4">Ubah Foto Cover Trip</h3>
-            
-            <div className="flex flex-col gap-3 w-full max-w-md">
-              <div className="flex gap-2 w-full">
-                <input
-                  type="text"
-                  value={newCoverUrl}
-                  onChange={(e) => setNewCoverUrl(e.target.value)}
-                  placeholder="Paste Image URL here..."
-                  className="flex-1 px-4 py-2 rounded-xl text-xs font-semibold text-dark focus:outline-none"
-                />
-                <button 
-                  onClick={handleSaveCover}
-                  className="bg-primary-pink text-white px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-opacity-90"
-                >
-                  Save URL
-                </button>
-              </div>
-
-              <div className="flex items-center gap-4 my-2">
-                <div className="flex-1 h-px bg-white/30"></div>
-                <span className="text-white/70 text-xs font-bold uppercase tracking-wider">ATAU</span>
-                <div className="flex-1 h-px bg-white/30"></div>
-              </div>
-
-              <div className="flex gap-2 w-full">
-                <input 
-                  type="file" 
-                  accept="image/*" 
-                  ref={fileInputRef} 
-                  className="hidden" 
-                  onChange={handleFileUpload} 
-                />
-                <button 
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={isUploading}
-                  className="w-full bg-white text-dark px-4 py-3 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-100 disabled:opacity-70 transition-colors"
-                >
-                  <Upload className="w-4 h-4" />
-                  {isUploading ? 'Mengunggah...' : 'Unggah Foto dari Perangkat (Maks 5MB)'}
-                </button>
-              </div>
-
-              <button 
-                onClick={() => setIsEditingCover(false)}
-                className="mt-2 text-white/80 hover:text-white px-4 py-2 text-xs font-bold transition-colors text-center w-full"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        )}
+        
 
         <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-xs font-bold bg-primary-pink px-3 py-1 rounded-full w-fit">
-              ● {trip.status.toUpperCase()} WORKSPACE
-            </span>
-            {trip.isTemplate && (
-              <span className="text-xs font-bold bg-amber-500 text-white px-3 py-1 rounded-full flex items-center gap-1">
-                <Globe className="w-3.5 h-3.5" /> TEMPLATE PUBLIK
-              </span>
-            )}
-          </div>
-          <h1 className="text-2xl md:text-4xl font-black tracking-tight flex items-center gap-3">
+          <h1 className="text-base md:text-lg md:text-4xl font-black tracking-tight flex items-center gap-3">
             {trip.name}
             {hasEditAccess && (
               <button onClick={openEditTripModal} className="text-white hover:text-primary-pink transition-colors bg-white/20 hover:bg-white p-2 rounded-full backdrop-blur-sm shadow-sm" title="Edit Trip Details">
@@ -421,7 +381,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
               </button>
             )}
           </h1>
-          <p className="text-xs md:text-sm font-semibold opacity-90 flex items-center gap-3 flex-wrap">
+          <p className="text-[10px] md:text-sm font-semibold opacity-90 flex items-center gap-3 flex-wrap">
             <span className="flex items-center gap-1">
               <MapPin className="w-4 h-4 text-primary-pink" />
               {trip.destination}
@@ -441,15 +401,15 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       </div>
 
       {/* Horizontal Workspace Nav Tabs */}
-      <div className="bg-offwhite rounded-[24px] border border-card-pink p-1.5 shadow-sm overflow-x-auto no-scrollbar">
-        <div className="flex items-center gap-1 min-w-max">
+      <div className="bg-white rounded-full border border-card-pink p-1.5 shadow-sm overflow-x-auto no-scrollbar">
+        <div className="flex items-center gap-1 w-full min-w-max">
           {tabs.map((tab) => {
             const isActive = activeTab === tab;
             return (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-6 py-3 rounded-full text-xs font-extrabold transition-all ${
+                className={`flex-1 text-center px-3 md:px-4 py-3 rounded-full text-xs font-extrabold transition-all ${
                   isActive
                     ? 'bg-primary-pink text-white shadow-md'
                     : 'text-gray-custom hover:bg-soft-pink hover:text-primary-pink'
@@ -471,7 +431,15 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
           bookings={tripBookings}
           packing={tripPacking}
           expenses={tripExpenses}
+          transports={tripTransports}
           onNavigateTab={setActiveTab}
+        />
+      )}
+
+{activeTab === 'Moodboard' && (
+        <TabMoodboard
+          trip={trip}
+          items={tripMoodboards}
         />
       )}
 
@@ -489,7 +457,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
           expenses={tripExpenses}
           itineraryItems={tripItems}
           bookings={tripBookings}
-          transports={transports}
+          transports={tripTransports}
         />
       )}
 
@@ -543,12 +511,12 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
 
       {/* Share / Collaboration Modal */}
       {isShareModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-md w-full shadow-2xl border border-gray-100 space-y-5 animate-scale-up">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-md w-full shadow-2xl border border-gray-100 space-y-5 animate-scale-up">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
               <div className="flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-primary-pink" />
-                <h3 className="font-extrabold text-base text-dark">Bagikan Trip ke Akun Lain</h3>
+                <h3 className="font-extrabold text-sm md:text-base text-dark">Bagikan Trip ke Akun Lain</h3>
               </div>
               <button
                 onClick={() => setIsShareModalOpen(false)}
@@ -570,12 +538,12 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                   onChange={(e) => setCollaboratorEmail(e.target.value)}
                   placeholder="email.teman@gmail.com"
                   required
-                  className="flex-1 px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold focus:outline-none focus:border-primary-pink bg-soft-pink"
+                  className="flex-1 px-3 md:px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold focus:outline-none focus:border-primary-pink bg-soft-pink"
                 />
                 <button
                   type="submit"
                   disabled={shareLoading}
-                  className="bg-primary-pink hover:bg-[#DB2777] text-white px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-pink-500/20 active:scale-95 shrink-0"
+                  className="shrink-0 bg-primary-pink hover:bg-[#DB2777] text-white px-3 md:px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-pink-500/20 active:scale-95 shrink-0"
                 >
                   {shareLoading ? 'Menambahkan...' : 'Undang'}
                 </button>
@@ -633,8 +601,8 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       
       {/* Edit Trip Modal */}
       {isEditTripModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
               <h3 className="font-extrabold text-sm text-dark">
                 Edit Detail Trip
@@ -655,7 +623,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                   required
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full bg-offwhite border border-card-pink rounded-xl px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  className="w-full bg-offwhite border border-card-pink rounded-xl px-3 md:px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                 />
               </div>
               <div>
@@ -665,7 +633,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                   required
                   value={editDest}
                   onChange={(e) => setEditDest(e.target.value)}
-                  className="w-full bg-offwhite border border-card-pink rounded-xl px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  className="w-full bg-offwhite border border-card-pink rounded-xl px-3 md:px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -716,12 +684,60 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                 </div>
               </div>
 
-              <div className="pt-2">
+              <div className="pt-2 border-t border-gray-100">
+                <label className="block text-xs font-bold text-gray-custom mb-2 mt-2">Foto Cover Trip</label>
+                <div className="flex flex-col gap-2">
+                  <div className="flex gap-2 w-full">
+                    <input
+                      type="text"
+                      value={newCoverUrl}
+                      onChange={(e) => setNewCoverUrl(e.target.value)}
+                      placeholder="Paste Image URL here..."
+                      className="flex-1 bg-offwhite border border-card-pink rounded-xl px-3 py-2 text-xs font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                    />
+                    <button 
+                      type="button"
+                      onClick={handleSaveCover}
+                      className="shrink-0 bg-primary-pink text-white px-3 py-2 rounded-xl text-xs font-bold whitespace-nowrap hover:bg-opacity-90 transition-colors"
+                    >
+                      Save URL
+                    </button>
+                  </div>
+                  
+                  <div className="flex items-center gap-2 md:gap-4 my-1">
+                    <div className="flex-1 h-px bg-gray-200"></div>
+                    <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">ATAU</span>
+                    <div className="flex-1 h-px bg-gray-200"></div>
+                  </div>
+
+                  <div className="flex gap-2 w-full">
+                    <input 
+                      type="file" 
+                      accept="image/*" 
+                      ref={fileInputRef} 
+                      className="hidden" 
+                      onChange={handleFileUpload} 
+                    />
+                    <button 
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className="w-full bg-white border border-gray-200 text-dark px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-50 disabled:opacity-70 transition-colors shadow-sm"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      {isUploading ? 'Mengunggah...' : 'Upload dari Perangkat (Maks 5MB)'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <div className="pt-4">
                 <button
                   type="submit"
-                  className="w-full bg-primary-pink text-white rounded-xl py-3 text-sm font-extrabold shadow-md hover:shadow-lg active:scale-[0.98] transition-all flex justify-center items-center gap-2"
+                  disabled={isSaving}
+                  className="w-full bg-primary-pink text-white rounded-xl py-3 text-sm font-extrabold shadow-md hover:shadow-lg active:scale-[0.98] transition-all flex justify-center items-center gap-2 disabled:opacity-70"
                 >
-                  Simpan Perubahan
+                  {isSaving ? 'Menyimpan...' : 'Simpan Perubahan'}
                 </button>
               </div>
             </form>
@@ -731,8 +747,8 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
 
       {/* Import Template Modal */}
       {isImportModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 animate-scale-up">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-gray-100 animate-scale-up">
             <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
               <h3 className="font-extrabold text-sm text-dark">
                 Gunakan Template Ini
@@ -753,7 +769,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                   required
                   value={importName}
                   onChange={(e) => setImportName(e.target.value)}
-                  className="w-full bg-offwhite border border-card-pink rounded-xl px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  className="w-full bg-offwhite border border-card-pink rounded-xl px-3 md:px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -797,14 +813,14 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
 
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
             <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mx-auto">
               <AlertTriangle className="w-6 h-6" />
             </div>
 
             <div className="text-center space-y-2">
-              <h3 className="font-extrabold text-base text-dark">Hapus Trip "{trip.name}"?</h3>
+              <h3 className="font-extrabold text-sm md:text-base text-dark">Hapus Trip "{trip.name}"?</h3>
               <p className="text-xs font-semibold text-gray-500 leading-relaxed">
                 Apakah Anda yakin ingin menghapus trip ini? Seluruh data itinerary, budget, booking, dan catatan akan dihapus secara permanen dari Firestore.
               </p>

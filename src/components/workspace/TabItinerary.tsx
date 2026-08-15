@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Plus, Clock, MapPin, DollarSign, Edit3, Trash2, Sparkles, Copy, ChevronUp, ChevronDown, Utensils, Car, Hotel, Compass, ShoppingBag, Coffee, MoreHorizontal } from 'lucide-react';
+import { Plus, Clock, MapPin, DollarSign, Edit3, Trash2, Copy, ChevronUp, ChevronDown, Utensils, Car, Hotel, Compass, ShoppingBag, Coffee, MoreHorizontal, MoveRight, Image as ImageIcon, Upload, X } from 'lucide-react';
 import { Trip, ItineraryDay, ItineraryItem, ItineraryCategory } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
 import { formatCurrency } from '../../utils/formatters';
+import { resizeImage } from '../../utils/imageUtils';
 
 interface TabItineraryProps {
   trip: Trip;
@@ -11,10 +12,14 @@ interface TabItineraryProps {
 }
 
 export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items }) => {
-  const { addItineraryItem, updateItineraryItem, deleteItineraryItem, addItineraryDay } = useTripContext();
+  const { addItineraryItem, updateItineraryItem, deleteItineraryItem, addItineraryDay, updateItineraryDay, deleteItineraryDay, reorderItineraryDays } = useTripContext();
   const [selectedDayId, setSelectedDayId] = useState<string>(days[0]?.id || '');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ItineraryItem | null>(null);
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
+  const [itemToMove, setItemToMove] = useState<ItineraryItem | null>(null);
+  const [targetDayId, setTargetDayId] = useState<string>('');
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   // Form State
   const [title, setTitle] = useState('');
@@ -25,7 +30,9 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
   const [cost, setCost] = useState(0);
   const [description, setDescription] = useState('');
   const [notes, setNotes] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
   const [transportType, setTransportType] = useState('Car');
+  const [isUploading, setIsUploading] = useState(false);
 
   const activeDay = days.find(d => d.id === selectedDayId) || days[0];
   const dayItems = items.filter(i => i.dayId === (activeDay?.id || '')).sort((a, b) => a.time.localeCompare(b.time));
@@ -50,7 +57,94 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
     setCost(50000);
     setDescription('');
     setNotes('');
+    setImageUrl('');
     setIsModalOpen(true);
+  };
+
+  const [isMoveAllModalOpen, setIsMoveAllModalOpen] = useState(false);
+  const [targetDayIdAll, setTargetDayIdAll] = useState<string>('');
+  const [moveMode, setMoveMode] = useState<'merge' | 'swap' | 'shift'>('shift');
+
+  const handleOpenMoveAll = () => {
+    setTargetDayIdAll('');
+    setIsMoveAllModalOpen(true);
+  };
+
+  const handleSaveMoveAll = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (targetDayIdAll && targetDayIdAll !== activeDay?.id && activeDay) {
+      const sortedDays = [...days].sort((a, b) => a.dayNumber - b.dayNumber);
+      const targetIndex = sortedDays.findIndex(d => d.id === targetDayIdAll);
+      const targetDay = sortedDays[targetIndex];
+      const sourceDay = activeDay;
+      
+      const updates: { id: string, newDayId: string }[] = [];
+      const titleUpdates: { id: string, newTitle: string }[] = [];
+      
+      if (moveMode === 'merge') {
+        dayItems.forEach(item => updates.push({ id: item.id, newDayId: targetDayIdAll }));
+        titleUpdates.push({ id: targetDay.id, newTitle: `${sourceDay.title} & ${targetDay.title}` });
+        titleUpdates.push({ id: sourceDay.id, newTitle: 'Hari Kosong' });
+      } else if (moveMode === 'swap') {
+        const targetItems = items.filter(i => i.dayId === targetDayIdAll);
+        dayItems.forEach(item => updates.push({ id: item.id, newDayId: targetDayIdAll }));
+        targetItems.forEach(item => updates.push({ id: item.id, newDayId: sourceDay.id }));
+        titleUpdates.push({ id: targetDay.id, newTitle: sourceDay.title });
+        titleUpdates.push({ id: sourceDay.id, newTitle: targetDay.title });
+      } else if (moveMode === 'shift') {
+        for (let i = targetIndex; i < sortedDays.length - 1; i++) {
+          const currentDayId = sortedDays[i].id;
+          const nextDayId = sortedDays[i+1].id;
+          const itemsToShift = items.filter(it => it.dayId === currentDayId && it.dayId !== sourceDay.id);
+          itemsToShift.forEach(item => updates.push({ id: item.id, newDayId: nextDayId }));
+          titleUpdates.push({ id: nextDayId, newTitle: sortedDays[i].title });
+        }
+        dayItems.forEach(item => updates.push({ id: item.id, newDayId: targetDayIdAll }));
+        titleUpdates.push({ id: targetDay.id, newTitle: sourceDay.title });
+        if (!titleUpdates.some(tu => tu.id === sourceDay.id)) {
+           titleUpdates.push({ id: sourceDay.id, newTitle: 'Hari Kosong' });
+        }
+      }
+      
+      for (const u of updates) {
+        if (u.newDayId) {
+          await updateItineraryItem(u.id, { dayId: u.newDayId });
+        }
+      }
+      for (const tu of titleUpdates) {
+         await updateItineraryDay(tu.id, tu.newTitle);
+      }
+    }
+    setIsMoveAllModalOpen(false);
+  };
+
+  const handleOpenMove = (item: ItineraryItem) => {
+    setItemToMove(item);
+    setTargetDayId(item.dayId);
+    setIsMoveModalOpen(true);
+  };
+
+  const handleSaveMove = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (itemToMove && targetDayId && targetDayId !== itemToMove.dayId) {
+      await updateItineraryItem(itemToMove.id, { dayId: targetDayId });
+    }
+    setIsMoveModalOpen(false);
+    setItemToMove(null);
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploading(true);
+      const resizedDataUrl = await resizeImage(file, 1000);
+      setImageUrl(resizedDataUrl);
+    } catch (err) {
+      console.error('Failed to process image:', err);
+    } finally {
+      setIsUploading(false);
+    }
   };
 
   const handleOpenEdit = (item: ItineraryItem) => {
@@ -63,17 +157,45 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
     setCost(item.estimatedCost);
     setDescription(item.description || '');
     setNotes(item.notes || '');
+    setImageUrl(item.imageUrl || '');
     setIsModalOpen(true);
   };
 
   const [isAddDayModalOpen, setIsAddDayModalOpen] = useState(false);
+  
+  const [draggedDayId, setDraggedDayId] = useState<string | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, id: string) => {
+    setDraggedDayId(id);
+    e.dataTransfer.effectAllowed = 'move';
+    // Small delay to prevent the dragged element from turning completely transparent if we styled it
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = async (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedDayId) {
+      await reorderItineraryDays(trip.id, draggedDayId, targetIndex);
+    }
+    setDraggedDayId(null);
+  };
+
   const [newDayTitleInput, setNewDayTitleInput] = useState('');
+  const [insertDayIndex, setInsertDayIndex] = useState<number | ''>('');
+  const [editingDayTitleId, setEditingDayTitleId] = useState<string | null>(null);
+  const [editedDayTitle, setEditedDayTitle] = useState('');
 
   const handleCreateNewDay = (e: React.FormEvent) => {
     e.preventDefault();
     if (newDayTitleInput.trim()) {
-      addItineraryDay(trip.id, newDayTitleInput.trim());
+      const idx = insertDayIndex === '' ? undefined : Number(insertDayIndex);
+      addItineraryDay(trip.id, newDayTitleInput.trim(), idx);
       setNewDayTitleInput('');
+      setInsertDayIndex('');
       setIsAddDayModalOpen(false);
     }
   };
@@ -92,6 +214,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
         estimatedCost: cost,
         description,
         notes,
+        imageUrl: imageUrl.trim(),
         transportType,
       });
     } else {
@@ -106,27 +229,48 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
         estimatedCost: cost,
         description,
         notes,
+        imageUrl: imageUrl.trim(),
         transportType,
       });
     }
     setIsModalOpen(false);
   };
 
+  const handleAdjustTime = (deltaMinutes: number) => {
+    let [h, m] = (time || '08:00').split(':').map(Number);
+    if (isNaN(h)) h = 8;
+    if (isNaN(m)) m = 0;
+    let total = h * 60 + m + deltaMinutes;
+    if (total < 0) total += 24 * 60;
+    total = total % (24 * 60);
+    const newH = String(Math.floor(total / 60)).padStart(2, '0');
+    const newM = String(total % 60).padStart(2, '0');
+    setTime(`${newH}:${newM}`);
+  };
+
   return (
     <div className="space-y-6">
       {/* Day Selector Horizontal Bar */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar">
-        {days.map((day) => {
+      <div 
+        className="flex items-center gap-2 overflow-x-auto pb-2 no-scrollbar"
+        onDragOver={handleDragOver}
+      >
+        {days.map((day, index) => {
           const isActive = day.id === selectedDayId;
+          const isDragging = draggedDayId === day.id;
           return (
             <button
               key={day.id}
+              draggable
+              onDragStart={(e) => handleDragStart(e, day.id)}
+              onDrop={(e) => handleDrop(e, index)}
               onClick={() => setSelectedDayId(day.id)}
-              className={`px-4 py-3 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 border ${
+              className={`cursor-grab active:cursor-grabbing px-3 md:px-4 py-3 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 border ${
                 isActive
                   ? 'bg-primary-pink text-white border-primary-pink shadow-sm'
                   : 'bg-white text-dark border-card-pink hover:bg-soft-pink'
-              }`}
+              } ${isDragging ? 'opacity-50' : 'opacity-100'}`}
+              title="Tahan dan geser untuk memindahkan hari"
             >
               <span>DAY {day.dayNumber}</span>
               <span className={`text-[10px] ${isActive ? 'text-white/80' : 'text-[#6F7787]'}`}>• {day.date}</span>
@@ -144,12 +288,52 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
       </div>
 
       {/* Day Title & Header Banner */}
-      <div className="bg-white p-5 rounded-2xl border border-card-pink flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
-        <div>
-          <span className="text-xs font-bold text-primary-pink tracking-wider uppercase">
-            DAY {activeDay?.dayNumber} — {activeDay?.date}
-          </span>
-          <h2 className="text-xl font-extrabold text-dark mt-0.5">{activeDay?.title}</h2>
+      <div className="bg-white p-3 md:p-5 rounded-2xl border border-card-pink flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4 shadow-sm">
+        <div className="flex-1">
+          <div className="flex items-center">
+            <span className="text-xs font-bold text-primary-pink tracking-wider uppercase">
+              DAY {activeDay?.dayNumber} — {activeDay?.date}
+            </span>
+          </div>
+          <div className="flex items-center gap-2 mt-0.5">
+            {editingDayTitleId === activeDay?.id ? (
+              <form 
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (editedDayTitle.trim() && activeDay) {
+                    updateItineraryDay(activeDay.id, editedDayTitle.trim());
+                  }
+                  setEditingDayTitleId(null);
+                }}
+                className="flex items-center gap-2 w-full max-w-sm"
+              >
+                <input 
+                  type="text" 
+                  value={editedDayTitle}
+                  onChange={(e) => setEditedDayTitle(e.target.value)}
+                  className="px-2 py-1 border border-gray-300 rounded-md text-sm font-bold text-dark w-full"
+                  autoFocus
+                />
+                <button type="submit" className="text-xs bg-primary-pink text-white px-2 py-1 rounded-md">Simpan</button>
+                <button type="button" onClick={() => setEditingDayTitleId(null)} className="text-xs text-gray-500">Batal</button>
+              </form>
+            ) : (
+              <>
+                <h2 className="text-lg md:text-xl font-extrabold text-dark">{activeDay?.title}</h2>
+                <button 
+                  onClick={() => {
+                    if (activeDay) {
+                      setEditedDayTitle(activeDay.title);
+                      setEditingDayTitleId(activeDay.id);
+                    }
+                  }}
+                  className="text-gray-400 hover:text-primary-pink transition-colors"
+                >
+                  <Edit3 className="w-4 h-4" />
+                </button>
+              </>
+            )}
+          </div>
           <p className="text-xs text-gray-custom mt-1">
             Total {dayItems.length} Aktivitas | Estimasi Biaya:{' '}
             <span className="font-bold text-dark">
@@ -161,38 +345,62 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAdd}
-          className="bg-primary-pink hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Add Activity</span>
-        </button>
+        <div className="flex flex-wrap items-center gap-2 shrink-0 justify-end mt-4 sm:mt-0">
+          {activeDay && (
+            <button 
+              onClick={() => {
+                 if (true) {
+                    deleteItineraryDay(activeDay.id, trip.id);
+                 }
+              }}
+              className="bg-white border border-[#E8EBEF] hover:border-red-500 text-gray-500 hover:text-red-500 w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-sm active:scale-95 shrink-0"
+              title="Hapus Hari Ini"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
+          {dayItems.length > 0 && (
+            <button
+              onClick={handleOpenMoveAll}
+              className="bg-white border border-[#E8EBEF] hover:border-primary-pink text-[#20263D] hover:text-primary-pink px-3 md:px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0"
+            >
+              <MoveRight className="w-4 h-4" />
+              <span className="hidden sm:inline">Pindah Semua</span>
+            </button>
+          )}
+          <button
+            onClick={handleOpenAdd}
+            className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Add Activity</span>
+          </button>
+        </div>
       </div>
 
       {/* Timeline Activities List */}
       {dayItems.length === 0 ? (
         <div className="bg-white rounded-3xl border border-card-pink p-12 text-center shadow-sm">
           <Clock className="w-12 h-12 text-soft-pink mx-auto mb-3" />
-          <h3 className="font-bold text-base text-dark">Belum ada aktivitas di {activeDay?.title}</h3>
+          <h3 className="font-bold text-sm md:text-base text-dark">Belum ada aktivitas di {activeDay?.title}</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Tambahkan aktivitas manual atau gunakan AI untuk auto-generate.</p>
           <button
             onClick={handleOpenAdd}
-            className="bg-primary-pink hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-bold text-xs inline-flex items-center gap-2 shadow-sm transition-all"
+            className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs inline-flex items-center gap-2 shadow-sm transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Tambah Aktivitas Pertama</span>
           </button>
         </div>
       ) : (
-        <div className="relative pl-6 space-y-6 before:absolute before:left-2.5 before:top-3 before:bottom-3 before:w-0.5 before:bg-card-pink">
+        <div className="relative pl-8 space-y-6 before:absolute before:left-[15px] before:top-6 before:bottom-6 before:border-l-[3px] before:border-dashed before:border-primary-pink/30">
           {dayItems.map((item, index) => (
             <div key={item.id} className="relative group">
               {/* Timeline Pin Dot */}
-              <div className="absolute -left-[23px] top-4 w-4 h-4 rounded-full bg-primary-pink border-4 border-white shadow-sm group-hover:scale-125 transition-transform" />
+              <div className="absolute -left-[25px] top-[24px] w-[14px] h-[14px] rounded-full bg-primary-pink border-[3px] border-white shadow-sm group-hover:scale-125 transition-transform z-10" />
 
               {/* Activity Card */}
-              <div className="bg-white rounded-3xl p-5 border border-card-pink hover:border-primary-pink shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="bg-white rounded-3xl p-3 md:p-5 border border-card-pink hover:border-primary-pink shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4">
                 <div className="space-y-2 flex-1">
                   {/* Category Pill & Time */}
                   <div className="flex items-center gap-2 text-xs">
@@ -213,7 +421,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
 
                   {/* Title & Location */}
                   <div>
-                    <h3 className="font-bold text-base text-dark">{item.title}</h3>
+                    <h3 className="font-bold text-sm md:text-base text-dark">{item.title}</h3>
                     <p className="text-xs text-gray-custom flex items-center gap-1 mt-0.5 font-medium">
                       <MapPin className="w-3.5 h-3.5 text-primary-pink shrink-0" />
                       {item.location}
@@ -232,6 +440,26 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                       💡 {item.notes}
                     </p>
                   )}
+
+                  {/* Activity Photo Attachment */}
+                  {item.imageUrl && (
+                    <div className="mt-2">
+                      <div 
+                        onClick={() => setPreviewImage(item.imageUrl!)} 
+                        className="relative group/img cursor-pointer inline-block rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 shadow-xs max-w-xs"
+                      >
+                        <img 
+                          src={item.imageUrl} 
+                          alt={item.title} 
+                          className="h-28 md:h-36 w-full object-cover group-hover/img:scale-105 transition-transform duration-300"
+                        />
+                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
+                          <ImageIcon className="w-4 h-4" />
+                          <span>Lihat Foto</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 {/* Right Side Cost & Actions */}
@@ -241,6 +469,13 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                   </span>
 
                   <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleOpenMove(item)}
+                      className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-[#20263D] transition-colors"
+                      title="Pindah Hari"
+                    >
+                      <MoveRight className="w-4 h-4" />
+                    </button>
                     <button
                       onClick={() => handleOpenEdit(item)}
                       className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-[#20263D] transition-colors"
@@ -263,11 +498,125 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
         </div>
       )}
 
+      {/* Move All Activities Modal */}
+      {isMoveAllModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-3 md:p-6 shadow-2xl relative border border-gray-100 animate-scale-up">
+            <h3 className="font-extrabold text-sm text-dark mb-4">
+              Pindahkan Semua Aktivitas
+            </h3>
+            
+            <form onSubmit={handleSaveMoveAll} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-semibold text-[#20263D] mb-1">Pilih Hari Tujuan</label>
+                <select
+                  value={targetDayIdAll}
+                  onChange={(e) => setTargetDayIdAll(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D] mb-3"
+                >
+                  <option value="" disabled>Pilih hari...</option>
+                  {days.filter(d => d.id !== activeDay?.id).map(d => (
+                    <option key={d.id} value={d.id}>DAY {d.dayNumber} - {d.title}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[#20263D] mb-2">Metode Pindah</label>
+                <div className="space-y-2">
+                  <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${moveMode === 'shift' ? 'border-primary-pink bg-soft-pink' : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input type="radio" name="moveMode" value="shift" checked={moveMode === 'shift'} onChange={() => setMoveMode('shift')} className="mt-0.5" />
+                    <div>
+                      <div className="font-bold text-dark">Geser Jadwal (Shift)</div>
+                      <div className="text-gray-500 mt-0.5 text-[10px]">Aktivitas tujuan akan digeser ke hari berikutnya (Efek Domino).</div>
+                    </div>
+                  </label>
+                  <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${moveMode === 'swap' ? 'border-primary-pink bg-soft-pink' : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input type="radio" name="moveMode" value="swap" checked={moveMode === 'swap'} onChange={() => setMoveMode('swap')} className="mt-0.5" />
+                    <div>
+                      <div className="font-bold text-dark">Tukar Hari (Swap)</div>
+                      <div className="text-gray-500 mt-0.5 text-[10px]">Aktivitas hari ini dan hari tujuan akan saling bertukar tempat.</div>
+                    </div>
+                  </label>
+                  <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${moveMode === 'merge' ? 'border-primary-pink bg-soft-pink' : 'border-gray-200 hover:bg-gray-50'}`}>
+                    <input type="radio" name="moveMode" value="merge" checked={moveMode === 'merge'} onChange={() => setMoveMode('merge')} className="mt-0.5" />
+                    <div>
+                      <div className="font-bold text-dark">Gabungkan (Merge)</div>
+                      <div className="text-gray-500 mt-0.5 text-[10px]">Tumpuk semua aktivitas ini ke hari tujuan (Bisa overbooked).</div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsMoveAllModalOpen(false)}
+                  className="px-3 md:px-4 py-2 rounded-xl text-gray-500 hover:bg-gray-100 font-bold transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  disabled={!targetDayIdAll}
+                  className="px-3 md:px-4 py-2 rounded-xl bg-primary-pink text-white font-bold shadow-md active:scale-95 transition-all disabled:opacity-50"
+                >
+                  Proses
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* Move Activity Modal */}
+      {isMoveModalOpen && (
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl max-w-sm w-full p-3 md:p-6 shadow-2xl relative border border-gray-100 animate-scale-up">
+            <h3 className="font-extrabold text-sm text-dark mb-4">
+              Pindahkan Aktivitas
+            </h3>
+            <div className="mb-4 text-xs text-gray-500">
+              Pindahkan <span className="font-bold text-dark">{itemToMove?.title}</span> ke hari lain:
+            </div>
+            <form onSubmit={handleSaveMove} className="space-y-4 text-xs">
+              <div>
+                <label className="block font-semibold text-[#20263D] mb-1">Pilih Hari Tujuan</label>
+                <select
+                  value={targetDayId}
+                  onChange={(e) => setTargetDayId(e.target.value)}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
+                >
+                  {days.map(d => (
+                    <option key={d.id} value={d.id}>DAY {d.dayNumber} - {d.title}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="pt-2 flex justify-end gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsMoveModalOpen(false)}
+                  className="px-3 md:px-4 py-2 rounded-xl text-gray-500 hover:bg-gray-100 font-bold transition-colors"
+                >
+                  Batal
+                </button>
+                <button
+                  type="submit"
+                  className="px-3 md:px-4 py-2 rounded-xl bg-primary-pink text-white font-bold shadow-md active:scale-95 transition-all"
+                >
+                  Pindahkan
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
       {/* Add / Edit Activity Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-6 shadow-2xl relative border border-[#E8EBEF]">
-            <h3 className="font-bold text-lg text-[#20263D] mb-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4 overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-3 md:p-6 shadow-2xl relative border border-[#E8EBEF]">
+            <h3 className="font-bold text-base md:text-lg text-[#20263D] mb-4">
               {editingItem ? 'Edit Activity' : 'Add New Activity'}
             </h3>
 
@@ -285,25 +634,42 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               </div>
 
               <div className="grid grid-cols-2 gap-3">
+                {/* Start Time */}
                 <div>
                   <label className="block font-semibold text-[#20263D] mb-1">Start Time</label>
                   <input
-                    type="text"
+                    type="time"
                     value={time}
                     onChange={(e) => setTime(e.target.value)}
-                    placeholder="09:00"
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D] focus:outline-none focus:border-primary-pink cursor-pointer"
                   />
                 </div>
+
+                {/* Duration Dropdown */}
                 <div>
                   <label className="block font-semibold text-[#20263D] mb-1">Duration</label>
-                  <input
-                    type="text"
+                  <select
                     value={duration}
                     onChange={(e) => setDuration(e.target.value)}
-                    placeholder="1h 30m"
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
-                  />
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D] focus:outline-none focus:border-primary-pink cursor-pointer"
+                  >
+                    <option value="15m">15 Menit</option>
+                    <option value="30m">30 Menit</option>
+                    <option value="45m">45 Menit</option>
+                    <option value="1h">1 Jam</option>
+                    <option value="1h 15m">1 Jam 15m</option>
+                    <option value="1h 30m">1.5 Jam (1h 30m)</option>
+                    <option value="2h">2 Jam</option>
+                    <option value="2h 30m">2.5 Jam</option>
+                    <option value="3h">3 Jam</option>
+                    <option value="3h 35m">3.5 Jam (3h 35m)</option>
+                    <option value="4h">4 Jam</option>
+                    <option value="5h">5 Jam</option>
+                    <option value="Full Day">Seharian</option>
+                    {duration && !['15m','30m','45m','1h','1h 15m','1h 30m','2h','2h 30m','3h','3h 35m','4h','5h','Full Day'].includes(duration) && (
+                      <option value={duration}>{duration}</option>
+                    )}
+                  </select>
                 </div>
               </div>
 
@@ -357,17 +723,80 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                 />
               </div>
 
+              {/* Image Attachment Field */}
+              <div className="space-y-2 pt-1 border-t border-gray-100">
+                <label className="block font-semibold text-[#20263D] flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-primary-pink" />
+                    <span>Foto Aktivitas / Lokasi</span>
+                  </span>
+                  {imageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl('')}
+                      className="text-red-500 hover:text-red-700 text-xs font-bold flex items-center gap-1 bg-red-50 px-2 py-1 rounded-lg border border-red-200"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                      <span>Hapus Foto Ini</span>
+                    </button>
+                  )}
+                </label>
+
+                {imageUrl ? (
+                  <div className="space-y-2">
+                    <div className="relative rounded-2xl overflow-hidden border border-gray-200 h-36 bg-gray-50 group">
+                      <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                      <button
+                        type="button"
+                        onClick={() => setImageUrl('')}
+                        className="absolute top-2 right-2 p-1.5 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-md flex items-center justify-center"
+                        title="Hapus foto"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <p className="text-[11px] text-gray-500 italic">
+                      Klik "Hapus Foto Ini" lalu tekan <strong className="text-dark">Save Activity</strong> untuk menyimpan perubahan.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {/* File Upload Button */}
+                    <label className={`flex items-center justify-center gap-2 p-3 rounded-xl border-2 border-dashed border-gray-300 hover:border-primary-pink cursor-pointer bg-[#F7F8FA] hover:bg-soft-pink/30 transition-all text-xs font-bold text-gray-600 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                      <Upload className="w-4 h-4 text-primary-pink" />
+                      <span>{isUploading ? 'Memproses...' : 'Upload dari Perangkat'}</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileUpload}
+                        className="hidden" 
+                      />
+                    </label>
+
+                    {/* URL Input */}
+                    <input
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="Atau tempel URL gambar (https://...)"
+                      className="w-full px-3 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D] text-xs"
+                    />
+                  </div>
+                )}
+              </div>
+
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600 hover:bg-gray-50"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600 hover:bg-gray-50"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90"
+                  disabled={isUploading}
+                  className="px-3 md:px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90 disabled:opacity-50"
                 >
                   Save Activity
                 </button>
@@ -377,35 +806,66 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
         </div>
       )}
 
+      {/* Lightbox Preview Modal */}
+      {previewImage && (
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-black" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black text-white rounded-full z-10 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img src={previewImage} alt="Enlarged preview" className="max-w-full max-h-[85vh] object-contain" />
+          </div>
+        </div>
+      )}
+
       {/* Add Day Modal */}
       {isAddDayModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
-            <h3 className="font-bold text-base text-[#20263D]">Tambah Hari Itinerary Baru</h3>
-            <form onSubmit={handleCreateNewDay} className="space-y-3 text-xs">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
+            <h3 className="font-bold text-sm md:text-base text-[#20263D]">Tambah Hari Itinerary Baru</h3>
+            <form onSubmit={handleCreateNewDay} className="space-y-4 text-xs">
               <div>
                 <label className="block font-semibold text-[#20263D] mb-1">Judul / Kegiatan Hari</label>
                 <input
                   type="text"
                   value={newDayTitleInput}
                   onChange={(e) => setNewDayTitleInput(e.target.value)}
-                  placeholder="e.g. Hari 4: Wisata Belanja & Oleh-oleh"
+                  placeholder="e.g. Hari: Wisata Belanja & Oleh-oleh"
                   required
                   autoFocus
                   className="w-full px-3 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
                 />
               </div>
+              <div>
+                <label className="block font-semibold text-[#20263D] mb-1">Sisipkan di Posisi</label>
+                <select
+                  value={insertDayIndex}
+                  onChange={(e) => setInsertDayIndex(e.target.value === '' ? '' : Number(e.target.value))}
+                  className="w-full px-3 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
+                >
+                  <option value="">Di Akhir (Sebagai Hari Terakhir)</option>
+                  {days.map((d, idx) => (
+                    <option key={d.id} value={idx}>Sisipkan sebagai DAY {idx + 1}</option>
+                  ))}
+                </select>
+              </div>
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsAddDayModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600 hover:bg-gray-50"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600 hover:bg-gray-50"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90"
+                  className="px-3 md:px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90"
                 >
                   Tambah Hari
                 </button>

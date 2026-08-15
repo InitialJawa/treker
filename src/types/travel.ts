@@ -6,7 +6,9 @@ export interface Trip {
   id: string;
   userId?: string;
   collaborators?: string[];
-  isTemplate?: boolean;
+  tenantId?: string;
+  memberIds?: string[];
+  allowPublicView?: boolean;
   name: string;
   destination: string;
   startDate: string; // YYYY-MM-DD
@@ -18,6 +20,7 @@ export interface Trip {
   description: string;
   coverImage: string;
   status: TripStatus;
+  isTemplate?: boolean;
   isFavorite: boolean;
   createdAt: string;
 }
@@ -26,6 +29,7 @@ export type ItineraryCategory = 'Food' | 'Transport' | 'Hotel' | 'Activity' | 'S
 
 export interface ItineraryDay {
   id: string;
+  isTemplate?: boolean;
   tripId: string;
   dayNumber: number;
   date: string; // YYYY-MM-DD
@@ -34,6 +38,7 @@ export interface ItineraryDay {
 
 export interface ItineraryItem {
   id: string;
+  isTemplate?: boolean;
   dayId: string;
   tripId: string;
   time: string; // HH:mm
@@ -44,6 +49,7 @@ export interface ItineraryItem {
   estimatedCost: number;
   description?: string;
   notes?: string;
+  imageUrl?: string;
   transportType?: string;
   sortOrder: number;
 }
@@ -52,6 +58,7 @@ export type PlaceStatus = 'wishlist' | 'planned' | 'visited';
 
 export interface Place {
   id: string;
+  isTemplate?: boolean;
   tripId?: string;
   name: string;
   location: string;
@@ -82,6 +89,7 @@ export type ExpenseCategory =
 
 export interface Expense {
   id: string;
+  isTemplate?: boolean;
   tripId: string;
   category: ExpenseCategory;
   title: string;
@@ -97,6 +105,7 @@ export type BookingStatus = 'Need Booking' | 'Pending' | 'Confirmed' | 'Cancelle
 
 export interface Booking {
   id: string;
+  isTemplate?: boolean;
   tripId: string;
   type: BookingType;
   name: string;
@@ -109,12 +118,14 @@ export interface Booking {
   status: BookingStatus;
   notes?: string;
   attachmentName?: string;
+  imageUrl?: string;
 }
 
 export type PackingCategory = 'Documents' | 'Clothing' | 'Electronics' | 'Toiletries' | 'Other';
 
 export interface PackingItem {
   id: string;
+  isTemplate?: boolean;
   tripId: string;
   category: PackingCategory;
   name: string;
@@ -126,6 +137,7 @@ export type TransportType = 'Walking' | 'Car' | 'Motorcycle' | 'Taxi' | 'Bus' | 
 
 export interface TransportLeg {
   id: string;
+  isTemplate?: boolean;
   tripId: string;
   origin: string;
   destination: string;
@@ -138,10 +150,28 @@ export interface TransportLeg {
 
 export interface Note {
   id: string;
+  isTemplate?: boolean;
   tripId: string;
   title: string;
   content: string;
   createdAt: string;
   updatedAt: string;
   color?: string;
+  imageUrl?: string;
+}
+
+export interface MoodboardItem {
+  id: string;
+  isTemplate?: boolean;
+  tripId: string;
+  imageUrl: string;
+  title?: string;
+  caption?: string;
+  x?: number;
+  y?: number;
+  width?: number;
+  height?: number;
+  rotation?: number;
+  zIndex?: number;
+  createdAt: string;
 }

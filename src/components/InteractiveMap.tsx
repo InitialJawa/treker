@@ -73,7 +73,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({ places, onPlaceS
     if (activeTripId && itineraryDays.length > 0) {
       const firstDay = itineraryDays.find(d => d.tripId === activeTripId) || itineraryDays[0];
       addPlaceToTripItinerary(place, activeTripId, firstDay.id);
-      setToastMsg(`✓ ${place.name} telah ditambahkan ke Itinerary ${firstDay.title}!`);
+      setToastMsg(`${place.name} telah ditambahkan ke Itinerary ${firstDay.title}!`);
       setTimeout(() => setToastMsg(null), 3500);
     } else {
       setToastMsg('Silakan pilih atau buat trip terlebih dahulu!');

@@ -337,6 +337,15 @@ export const INITIAL_EXPENSES: Expense[] = [
   { id: 'exp-3', tripId: 'trip-banyuwangi-2026', category: 'Activities', title: 'Sewa Jeep & Guide Kawah Ijen', estimatedAmount: 700000, actualAmount: 650000, status: 'paid', date: '2026-08-15' },
   { id: 'exp-4', tripId: 'trip-banyuwangi-2026', category: 'Food', title: 'Estimasi Kuliner & Resto (3 Hari)', estimatedAmount: 900000, actualAmount: 250000, status: 'paid', date: '2026-10-04' },
   { id: 'exp-5', tripId: 'trip-banyuwangi-2026', category: 'Shopping', title: 'Oleh-oleh Batik Osing & Kopi', estimatedAmount: 600000, actualAmount: 0, status: 'unpaid', date: '2026-10-06' }
+,
+  // Bali
+  { id: 'exp-bali-1', tripId: 'trip-bali-2026', category: 'Accommodation', title: 'Ubud Yoga Retreat Resort', estimatedAmount: 2500000, actualAmount: 2400000, status: 'paid', date: '2026-08-10' },
+  { id: 'exp-bali-2', tripId: 'trip-bali-2026', category: 'Transportation', title: 'Sewa Motor Ubud', estimatedAmount: 300000, actualAmount: 300000, status: 'paid', date: '2026-08-11' },
+  // Italy
+  { id: 'exp-italy-1', tripId: 'trip-italy-2026', category: 'Food', title: 'Michelin Star Dinner Rome', estimatedAmount: 3000000, actualAmount: 3500000, status: 'paid', date: '2026-09-10' },
+  // Norway
+  { id: 'exp-norway-1', tripId: 'trip-norway-2026', category: 'Transportation', title: 'Fjord Cruise Ticket', estimatedAmount: 1500000, actualAmount: 1500000, status: 'paid', date: '2026-12-05' }
+
 ];
 
 export const INITIAL_BOOKINGS: Booking[] = [
@@ -399,6 +408,12 @@ export const INITIAL_BOOKINGS: Booking[] = [
     status: 'Pending',
     notes: 'Perlu konfirmasi pembayaran transfer H-2.'
   }
+,
+  // Bali
+  { id: 'book-bali-1', tripId: 'trip-bali-2026', type: 'Hotel', name: 'Ubud Yoga Retreat Resort', provider: 'Agoda', confirmationNumber: 'AG-123456', date: '2026-10-10', time: '14:00', location: 'Ubud, Bali', price: 2400000, status: 'Confirmed', notes: 'Include breakfast and morning yoga' },
+  // Italy
+  { id: 'book-italy-1', tripId: 'trip-italy-2026', type: 'Train', name: 'Eurostar Rome to Florence', provider: 'Trenitalia', confirmationNumber: 'TR-999888', date: '2026-09-11', time: '09:00', location: 'Roma Termini', price: 1200000, status: 'Confirmed', notes: 'Business Class' }
+
 ];
 
 export const INITIAL_PACKING_ITEMS: PackingItem[] = [
@@ -430,6 +445,14 @@ export const INITIAL_PACKING_ITEMS: PackingItem[] = [
   { id: 'p-17', tripId: 'trip-banyuwangi-2026', category: 'Other', name: 'Obat Pribadi & Tolak Angin', quantity: 1, isPacked: true },
   { id: 'p-18', tripId: 'trip-banyuwangi-2026', category: 'Other', name: 'Air Minum & Snack Bar Energy', quantity: 4, isPacked: false },
   { id: 'p-19', tripId: 'trip-banyuwangi-2026', category: 'Other', name: 'Kacamata Hitam Sunset', quantity: 2, isPacked: false }
+,
+  // Bali
+  { id: 'pack-bali-1', tripId: 'trip-bali-2026', category: 'Clothing', name: 'Baju Renang & Tabir Surya', quantity: 2, isPacked: false },
+  // Italy
+  { id: 'pack-italy-1', tripId: 'trip-italy-2026', category: 'Clothing', name: 'Jaket Musim Gugur', quantity: 1, isPacked: false },
+  // Norway
+  { id: 'pack-norway-1', tripId: 'trip-norway-2026', category: 'Clothing', name: 'Thermal Wear & Winter Coat', quantity: 3, isPacked: false }
+
 ];
 
 export const INITIAL_TRANSPORTS: TransportLeg[] = [
@@ -466,6 +489,12 @@ export const INITIAL_TRANSPORTS: TransportLeg[] = [
     estimatedCost: 150000,
     notes: 'Melalui jalur lintas selatan.'
   }
+,
+  // Bali
+  { id: 'tr-bali-1', tripId: 'trip-bali-2026', origin: 'Bandara Ngurah Rai', destination: 'Ubud', type: 'Car', distance: '38 km', duration: '1h 15m', estimatedCost: 250000, notes: 'Airport transfer' },
+  // Italy
+  { id: 'tr-italy-1', tripId: 'trip-italy-2026', origin: 'Rome', destination: 'Florence', type: 'Train', distance: '274 km', duration: '1h 30m', estimatedCost: 1200000, notes: 'High speed train' }
+
 ];
 
 export const INITIAL_NOTES: Note[] = [
@@ -496,4 +525,15 @@ export const INITIAL_NOTES: Note[] = [
     updatedAt: '2026-08-12',
     color: '#E0F2FE' // soft blue
   }
+
+
+
+
+
+,
+  // Bali
+  { id: 'note-bali-1', tripId: 'trip-bali-2026', title: 'Sewa Motor di Ubud', content: 'Pastikan bawa SIM Internasional atau SIM C. Bensin eceran banyak tersedia.', createdAt: '2026-08-10', updatedAt: '2026-08-10', color: '#FEF3C7' },
+  // Norway
+  { id: 'note-norway-1', tripId: 'trip-norway-2026', title: 'Persiapan Suhu Minus', content: 'Suhu bisa mencapai -10C. Bawa heattech ekstra!', createdAt: '2026-08-10', updatedAt: '2026-08-10', color: '#E0F2FE' }
+
 ];

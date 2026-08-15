@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, ArrowRight, ArrowLeft, MapPin, Calendar, Users, DollarSign, Sparkles, Check, Compass } from 'lucide-react';
+import { X, ArrowRight, ArrowLeft, MapPin, Calendar, Users, DollarSign, Wand2, Loader2, Check, Compass } from 'lucide-react';
 import { useTripContext } from '../context/TripContext';
+import { getCurrencySymbol } from '../utils/formatters';
 import { CurrencyCode } from '../types/travel';
 
 interface CreateTripModalProps {
@@ -298,7 +299,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
             <div>
               <label className="block text-sm font-semibold text-dark mb-2">Estimated Total Budget</label>
               <div className="relative">
-                <DollarSign className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <span className="text-gray-400 font-bold absolute left-4 top-1/2 -translate-y-1/2">{getCurrencySymbol(currency)}</span>
                 <input
                   type="number"
                   value={budget}
@@ -346,7 +347,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
                 generateAI ? 'bg-primary-pink text-white' : 'bg-gray-200 text-gray-500'
               }`}>
-                <Sparkles className="w-3.5 h-3.5" />
+                <Wand2 className="w-3.5 h-3.5" />
               </div>
               <div className="flex-1">
                 <h4 className="font-bold text-sm text-dark">Generate Starter Itinerary with AI</h4>
@@ -388,7 +389,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
             >
               {isSubmitting ? (
                 <>
-                  <Sparkles className="w-4 h-4 animate-spin" />
+                  <Loader2 className="w-4 h-4 animate-spin" />
                   Building Workspace...
                 </>
               ) : (

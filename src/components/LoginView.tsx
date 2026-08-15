@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Mail, Lock, User as UserIcon, Sparkles, MapPin, Compass, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
+import { Mail, Lock, User as UserIcon, MapPin, Compass, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react';
 
 export const LoginView: React.FC = () => {
   const { signInWithGoogle, loginWithEmail, registerWithEmail } = useAuth();

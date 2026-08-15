@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Star, MapPin, ExternalLink, Heart, Clock, DollarSign, Compass, CheckCircle } from 'lucide-react';
+import { Plus, Star, MapPin, ExternalLink, Heart, Clock, DollarSign, Compass, CheckCircle, Edit2, Trash2, Image as ImageIcon } from 'lucide-react';
 import { Trip, Place, PlaceStatus, ItineraryDay } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
 import { formatCurrency } from '../../utils/formatters';
@@ -11,7 +11,7 @@ interface TabPlacesProps {
 }
 
 export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
-  const { addPlace, updatePlaceStatus, togglePlaceFavorite, addPlaceToTripItinerary } = useTripContext();
+  const { addPlace, updatePlaceStatus, togglePlaceFavorite, addPlaceToTripItinerary, deletePlace, updatePlace } = useTripContext();
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -24,33 +24,113 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
   const [description, setDescription] = useState('');
   const [openingHours, setOpeningHours] = useState('08:00 - 17:00');
   const [photoUrl, setPhotoUrl] = useState('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80');
+  const [status, setStatus] = useState<PlaceStatus>('wishlist');
+  const [editingPlaceId, setEditingPlaceId] = useState<string | null>(null);
 
-  const tripPlaces = places.filter(p => p.tripId === trip.id || !p.tripId);
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          const MAX_WIDTH = 800;
+          const MAX_HEIGHT = 800;
+          let width = img.width;
+          let height = img.height;
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width;
+              width = MAX_WIDTH;
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height;
+              height = MAX_HEIGHT;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          ctx?.drawImage(img, 0, 0, width, height);
+          const dataUrl = canvas.toDataURL('image/jpeg', 0.8);
+          setPhotoUrl(dataUrl);
+        };
+        img.src = event.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const tripPlaces = places.filter(p => p.tripId === trip.id);
   const filteredPlaces = tripPlaces.filter(p => {
     if (filterStatus === 'all') return true;
     return p.status === filterStatus;
   });
 
+  const handleOpenEdit = (p: Place) => {
+    setEditingPlaceId(p.id);
+    setName(p.name);
+    setLocation(p.location);
+    setCategory(p.category);
+    setRating(p.rating || 4.5);
+    setEstimatedCost(p.estimatedCost || 0);
+    setDescription(p.description || '');
+    setOpeningHours(p.openingHours || '');
+    setPhotoUrl(p.photos?.[0] || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80');
+    setStatus(p.status || 'wishlist');
+    setIsModalOpen(true);
+  };
+
   const handleAddPlace = (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
-
-    addPlace({
-      tripId: trip.id,
-      name,
-      location,
-      latitude: -8.0583,
-      longitude: 114.2424,
-      category,
-      rating,
-      estimatedCost,
-      description: description || `Destinasi menarik di ${location}`,
-      openingHours,
-      photos: [photoUrl],
-      status: 'wishlist',
-      isFavorite: true,
-    });
+    
+    if (editingPlaceId) {
+      updatePlace(editingPlaceId, {
+        name,
+        location,
+        category,
+        rating,
+        estimatedCost,
+        description,
+        openingHours,
+        photos: [photoUrl],
+        status,
+      });
+    } else {
+      addPlace({
+        tripId: trip.id,
+        name,
+        location,
+        latitude: -8.0583,
+        longitude: 114.2424,
+        category,
+        rating,
+        estimatedCost,
+        description: description || `Destinasi menarik di ${location}`,
+        openingHours,
+        photos: [photoUrl],
+        status: status,
+        isFavorite: true,
+      });
+    }
     setIsModalOpen(false);
+    resetForm();
+  };
+
+  const resetForm = () => {
+    setEditingPlaceId(null);
+    setName('');
+    setLocation(trip.destination);
+    setCategory('Nature');
+    setEstimatedCost(50000);
+    setDescription('');
+    setStatus('wishlist');
+    setPhotoUrl('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80');
   };
 
   const [selectedPlaceForItinerary, setSelectedPlaceForItinerary] = useState<Place | null>(null);
@@ -72,7 +152,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
     const targetDay = days.find(d => d.id === selectedDayId) || days[0];
 
     addPlaceToTripItinerary(selectedPlaceForItinerary, trip.id, targetDay.id);
-    setToastMessage(`✓ ${selectedPlaceForItinerary.name} telah ditambahkan ke ${targetDay.title}!`);
+    setToastMessage(`${selectedPlaceForItinerary.name} telah ditambahkan ke ${targetDay.title}!`);
     setSelectedPlaceForItinerary(null);
     setTimeout(() => setToastMessage(null), 3500);
   };
@@ -80,13 +160,13 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
   return (
     <div className="space-y-6">
       {/* Top Bar Filter */}
-      <div className="bg-white p-5 rounded-[24px] border border-card-pink flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm">
+      <div className="bg-white p-3 md:p-5 rounded-[24px] border border-card-pink flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {['all', 'wishlist', 'planned', 'visited'].map((st) => (
             <button
               key={st}
               onClick={() => setFilterStatus(st)}
-              className={`px-4 py-2 rounded-full text-xs font-bold capitalize transition-all ${
+              className={`px-3 md:px-4 py-2 rounded-full text-xs font-bold capitalize transition-all ${
                 filterStatus === st
                   ? 'bg-primary-pink text-white shadow-sm'
                   : 'bg-offwhite text-gray-custom hover:bg-soft-pink hover:text-primary-pink'
@@ -99,7 +179,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
 
         <button
           onClick={() => setIsModalOpen(true)}
-          className="bg-primary-pink hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm self-start sm:self-auto shrink-0 transition-all"
+          className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm self-start sm:self-auto shrink-0 transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>Add New Place</span>
@@ -110,11 +190,11 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
       {filteredPlaces.length === 0 ? (
         <div className="bg-white rounded-[32px] border border-card-pink p-12 text-center text-gray-custom shadow-sm">
           <Compass className="w-12 h-12 mx-auto mb-2 text-soft-pink" />
-          <h3 className="font-bold text-base text-dark">Tidak ada tempat ditemukan</h3>
+          <h3 className="font-bold text-sm md:text-base text-dark">Tidak ada tempat ditemukan</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Simpan tempat menarik atau gunakan tempat favorit dari Explore.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5">
           {filteredPlaces.map((place) => (
             <div
               key={place.id}
@@ -130,21 +210,38 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                   />
                   <button
                     onClick={() => togglePlaceFavorite(place.id)}
-                    className="absolute top-3 right-3 p-2 bg-icon-pink rounded-full shadow-sm text-primary-pink hover:scale-110 transition-transform"
+                    className="absolute top-3 right-3 p-2 bg-icon-pink rounded-full shadow-sm text-primary-pink hover:scale-110 transition-transform z-10"
                   >
                     <Heart className={`w-4 h-4 ${place.isFavorite ? 'fill-primary-pink' : ''}`} />
                   </button>
 
-                  <span className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md text-primary-pink text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm">
+                  <div className="absolute top-3 left-3 flex gap-2 z-10">
+                    <button
+                      onClick={() => handleOpenEdit(place)}
+                      className="p-2 bg-white/90 rounded-full shadow-sm text-gray-600 hover:text-primary-pink hover:scale-110 transition-transform backdrop-blur-sm"
+                      title="Edit Place"
+                    >
+                      <Edit2 className="w-3.5 h-3.5" />
+                    </button>
+                    <button
+                      onClick={() => deletePlace(place.id)}
+                      className="p-2 bg-white/90 rounded-full shadow-sm text-gray-600 hover:text-red-500 hover:scale-110 transition-transform backdrop-blur-sm"
+                      title="Delete Place"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+
+                  <span className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md text-primary-pink text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm z-10">
                     {place.category}
                   </span>
                 </div>
 
                 {/* Details */}
-                <div className="p-4 space-y-2">
+                <div className="p-2 md:p-4 space-y-2">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <h3 className="font-extrabold text-base text-dark group-hover:text-primary-pink transition-colors">
+                      <h3 className="font-extrabold text-sm md:text-base text-dark group-hover:text-primary-pink transition-colors">
                         {place.name}
                       </h3>
                       <p className="text-xs text-gray-custom flex items-center gap-1 mt-0.5">
@@ -176,7 +273,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
               </div>
 
               {/* Status Select & Add to Itinerary Button */}
-              <div className="p-4 pt-0 space-y-2">
+              <div className="p-2 md:p-4 pt-0 space-y-2">
                 <div className="flex items-center gap-2">
                   <select
                     value={place.status}
@@ -190,7 +287,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
 
                   <button
                     onClick={() => handleOpenDayPicker(place)}
-                    className="bg-primary-pink hover:bg-opacity-90 text-white text-xs font-bold px-4 py-1.5 rounded-full transition-all shadow-sm flex items-center gap-1 shrink-0 active:scale-95"
+                    className="bg-primary-pink hover:bg-opacity-90 text-white text-xs font-bold px-3 md:px-4 py-1.5 rounded-full transition-all shadow-sm flex items-center gap-1 shrink-0 active:scale-95"
                   >
                     <Plus className="w-3.5 h-3.5" />
                     <span>Itinerary</span>
@@ -204,15 +301,15 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed top-6 right-6 bg-primary-pink text-white px-5 py-3 rounded-full shadow-lg z-50 flex items-center gap-2 font-bold text-xs animate-bounce border-2 border-white">
+        <div className="fixed top-6 right-6 bg-primary-pink text-white px-3 md:px-5 py-3 rounded-full shadow-lg z-50 flex items-center gap-2 font-bold text-xs animate-bounce border-2 border-white">
           <span>{toastMessage}</span>
         </div>
       )}
 
       {/* Day Picker Modal */}
       {selectedPlaceForItinerary && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-[32px] p-6 max-w-sm w-full shadow-2xl border border-card-pink space-y-4 animate-scale-up">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-[32px] p-3 md:p-6 max-w-sm w-full shadow-2xl border border-card-pink space-y-4 animate-scale-up">
             <h3 className="font-extrabold text-sm text-dark">
               Tambahkan "{selectedPlaceForItinerary.name}" ke Itinerary
             </h3>
@@ -252,9 +349,9 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#E8EBEF]">
-            <h3 className="font-bold text-base text-[#20263D] mb-4">Add Place to Wishlist</h3>
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-[#E8EBEF]">
+            <h3 className="font-bold text-sm md:text-base text-[#20263D] mb-4">{editingPlaceId ? "Edit Place" : "Add Place"}</h3>
 
             <form onSubmit={handleAddPlace} className="space-y-3 text-xs">
               <div>
@@ -300,6 +397,59 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block font-semibold text-[#20263D] mb-1">Rating</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="1"
+                    max="5"
+                    value={rating}
+                    onChange={(e) => setRating(Number(e.target.value))}
+                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  />
+                </div>
+                <div>
+                  <label className="block font-semibold text-[#20263D] mb-1">Opening Hours</label>
+                  <input
+                    type="text"
+                    value={openingHours}
+                    onChange={(e) => setOpeningHours(e.target.value)}
+                    placeholder="e.g. 08:00 - 17:00"
+                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[#20263D] mb-1">Status</label>
+                <select
+                  value={status}
+                  onChange={(e) => setStatus(e.target.value as any)}
+                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                >
+                  <option value="wishlist">Wishlist</option>
+                  <option value="planned">Planned</option>
+                  <option value="visited">Visited</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-semibold text-[#20263D] mb-1">Photo</label>
+                <div className="flex items-center gap-3">
+                  {photoUrl && (
+                    <img src={photoUrl} alt="Preview" className="w-16 h-16 object-cover rounded-xl border border-gray-200" />
+                  )}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleImageUpload}
+                    className="w-full text-xs file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-soft-pink file:text-primary-pink hover:file:bg-pink-100"
+                  />
+                </div>
+              </div>
+
               <div>
                 <label className="block font-semibold text-[#20263D] mb-1">Description</label>
                 <textarea
@@ -314,15 +464,15 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90 transition-all"
+                  className="px-3 md:px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90 transition-all"
                 >
-                  Save Place
+                  {editingPlaceId ? "Save Changes" : "Save Place"}
                 </button>
               </div>
             </form>

@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Plus, Hotel, Plane, Train, Car, ShieldCheck, FileText, ExternalLink, Edit3, Trash2, Tag, Calendar, MapPin } from 'lucide-react';
+import { Plus, Hotel, Plane, Train, Car, ShieldCheck, FileText, ExternalLink, Edit3, Trash2, Tag, Calendar, MapPin, Image as ImageIcon, Upload, X } from 'lucide-react';
 import { Trip, Booking, BookingType, BookingStatus } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
 import { formatCurrency } from '../../utils/formatters';
+import { resizeImage } from '../../utils/imageUtils';
 
 interface TabBookingsProps {
   trip: Trip;
@@ -13,6 +14,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
   const { addBooking, updateBooking, deleteBooking } = useTripContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingBooking, setEditingBooking] = useState<Booking | null>(null);
+  const [previewImage, setPreviewImage] = useState<string | null>(null);
 
   // Form
   const [name, setName] = useState('');
@@ -25,6 +27,8 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
   const [price, setPrice] = useState(1200000);
   const [status, setStatus] = useState<BookingStatus>('Confirmed');
   const [notes, setNotes] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [isUploading, setIsUploading] = useState(false);
 
   const bookingIcons: Record<BookingType, React.ReactNode> = {
     Hotel: <Hotel className="w-5 h-5 text-purple-600" />,
@@ -44,6 +48,20 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
     Completed: 'bg-blue-100 text-blue-800 border-blue-200'
   };
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploading(true);
+      const resizedDataUrl = await resizeImage(file, 1000);
+      setImageUrl(resizedDataUrl);
+    } catch (err) {
+      console.error('Failed to process image:', err);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleOpenAdd = () => {
     setEditingBooking(null);
     setName('');
@@ -56,6 +74,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
     setPrice(500000);
     setStatus('Confirmed');
     setNotes('');
+    setImageUrl('');
     setIsModalOpen(true);
   };
 
@@ -71,6 +90,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
     setPrice(b.price);
     setStatus(b.status);
     setNotes(b.notes || '');
+    setImageUrl(b.imageUrl || '');
     setIsModalOpen(true);
   };
 
@@ -90,6 +110,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
         price,
         status,
         notes,
+        imageUrl: imageUrl.trim(),
       });
     } else {
       addBooking({
@@ -104,6 +125,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
         price,
         status,
         notes,
+        imageUrl: imageUrl.trim(),
         attachmentName: `${type.toLowerCase()}_confirmation.pdf`
       });
     }
@@ -113,18 +135,18 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-white p-5 rounded-[24px] border border-card-pink flex items-center justify-between gap-4 shadow-sm">
+      <div className="bg-white p-3 md:p-5 rounded-[24px] border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div>
-          <span className="text-xs font-extrabold text-primary-pink tracking-wider uppercase">Reservations</span>
-          <h2 className="text-xl font-extrabold text-dark">Booking Manager</h2>
-          <p className="text-xs text-gray-custom mt-0.5">
+          <span className="text-[10px] md:text-xs font-extrabold text-primary-pink tracking-wider uppercase">Reservations</span>
+          <h2 className="text-base md:text-lg md:text-xl font-extrabold text-dark">Booking Manager</h2>
+          <p className="text-[10px] md:text-xs text-gray-custom mt-0.5">
             {bookings.filter(b => b.status === 'Confirmed').length} dari {bookings.length} reservasi terkonfirmasi
           </p>
         </div>
 
         <button
           onClick={handleOpenAdd}
-          className="bg-primary-pink hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
+          className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-4 py-1.5 md:px-5 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1.5 md:gap-2 shadow-sm transition-all"
         >
           <Plus className="w-4 h-4" />
           <span>Add Booking</span>
@@ -135,21 +157,21 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
       {bookings.length === 0 ? (
         <div className="bg-white rounded-[32px] border border-card-pink p-12 text-center text-gray-custom shadow-sm">
           <Hotel className="w-12 h-12 mx-auto mb-2 text-soft-pink" />
-          <h3 className="font-bold text-base text-dark">Belum ada reservasi tersimpan</h3>
+          <h3 className="font-bold text-sm md:text-base text-dark">Belum ada reservasi tersimpan</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Simpan bukti voucher hotel, tiket pesawat, atau penyewaan kendaraan.</p>
           <button
             onClick={handleOpenAdd}
-            className="bg-primary-pink hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-bold text-xs transition-all"
+            className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs transition-all"
           >
             + Add Booking
           </button>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
           {bookings.map((b) => (
             <div
               key={b.id}
-              className="bg-white rounded-3xl p-5 border border-card-pink hover:border-primary-pink shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+              className="bg-white rounded-3xl p-3 md:p-5 border border-card-pink hover:border-primary-pink shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div className="space-y-3">
                 {/* Type & Status Header */}
@@ -171,7 +193,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
 
                 {/* Booking Name & Code */}
                 <div>
-                  <h3 className="font-extrabold text-base text-dark">{b.name}</h3>
+                  <h3 className="font-extrabold text-sm md:text-base text-dark">{b.name}</h3>
                   <p className="text-xs text-gray-custom flex items-center gap-1.5 mt-1">
                     <span>Code:</span>
                     <span className="font-mono font-bold text-dark bg-offwhite px-2 py-0.5 rounded-md">
@@ -194,6 +216,26 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
 
                 {b.notes && (
                   <p className="text-xs text-gray-custom italic">" {b.notes} "</p>
+                )}
+
+                {/* Booking Image / Voucher Attachment */}
+                {b.imageUrl && (
+                  <div className="mt-2">
+                    <div
+                      onClick={() => setPreviewImage(b.imageUrl!)}
+                      className="relative group/img cursor-pointer rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 h-32 w-full"
+                    >
+                      <img
+                        src={b.imageUrl}
+                        alt={b.name}
+                        className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
+                        <ImageIcon className="w-4 h-4" />
+                        <span>Lihat Bukti Voucher / Tiket</span>
+                      </div>
+                    </div>
+                  </div>
                 )}
               </div>
 
@@ -230,9 +272,9 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#E8EBEF]">
-            <h3 className="font-bold text-base text-[#20263D] mb-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-[#E8EBEF]">
+            <h3 className="font-bold text-sm md:text-base text-[#20263D] mb-4">
               {editingBooking ? 'Edit Booking' : 'Add Booking'}
             </h3>
 
@@ -337,22 +379,96 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
                 />
               </div>
 
+              {/* Attachment / Image Field */}
+              <div className="space-y-2 pt-1 border-t border-gray-100">
+                <label className="block font-semibold text-[#20263D] flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <ImageIcon className="w-4 h-4 text-primary-pink" />
+                    <span>Lampiran Gambar / Bukti Tiket / Voucher</span>
+                  </span>
+                  {imageUrl && (
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl('')}
+                      className="text-red-500 hover:text-red-700 text-[11px] font-bold"
+                    >
+                      Hapus Foto
+                    </button>
+                  )}
+                </label>
+
+                {imageUrl ? (
+                  <div className="relative rounded-2xl overflow-hidden border border-gray-200 h-28 bg-gray-50 group">
+                    <img src={imageUrl} alt="Preview" className="w-full h-full object-cover" />
+                    <button
+                      type="button"
+                      onClick={() => setImageUrl('')}
+                      className="absolute top-2 right-2 p-1.5 bg-black/60 text-white rounded-full hover:bg-black/80 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                    {/* File Upload Button */}
+                    <label className={`flex items-center justify-center gap-2 p-2.5 rounded-xl border-2 border-dashed border-gray-300 hover:border-primary-pink cursor-pointer bg-[#F7F8FA] hover:bg-soft-pink/30 transition-all text-xs font-bold text-gray-600 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                      <Upload className="w-4 h-4 text-primary-pink" />
+                      <span>{isUploading ? 'Memproses...' : 'Upload Gambar'}</span>
+                      <input 
+                        type="file" 
+                        accept="image/*" 
+                        onChange={handleFileUpload}
+                        className="hidden" 
+                      />
+                    </label>
+
+                    {/* URL Input */}
+                    <input
+                      type="url"
+                      value={imageUrl}
+                      onChange={(e) => setImageUrl(e.target.value)}
+                      placeholder="Atau URL gambar (https://...)"
+                      className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] text-xs font-medium text-[#20263D]"
+                    />
+                  </div>
+                )}
+              </div>
+
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90 transition-all"
+                  disabled={isUploading}
+                  className="px-3 md:px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90 transition-all disabled:opacity-50"
                 >
                   Save Booking
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+
+      {/* Lightbox Preview Modal */}
+      {previewImage && (
+        <div 
+          className="fixed inset-0 bg-black/80 backdrop-blur-xs z-50 flex items-center justify-center p-4 animate-fade-in"
+          onClick={() => setPreviewImage(null)}
+        >
+          <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-black" onClick={e => e.stopPropagation()}>
+            <button
+              onClick={() => setPreviewImage(null)}
+              className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black text-white rounded-full z-10 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
+            <img src={previewImage} alt="Enlarged voucher preview" className="max-w-full max-h-[85vh] object-contain" />
           </div>
         </div>
       )}

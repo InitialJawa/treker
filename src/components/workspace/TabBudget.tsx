@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
-import { Plus, DollarSign, TrendingUp, AlertTriangle, CheckCircle2, Clock, Edit3, Trash2, PieChart } from 'lucide-react';
-import { Trip, Expense, ExpenseCategory, ItineraryItem } from '../../types/travel';
+import { Plus, Wallet, TrendingUp, AlertTriangle, CheckCircle2, Clock, Edit3, Trash2, PieChart } from 'lucide-react';
+import { Trip, Expense, ExpenseCategory, ItineraryItem, Booking, TransportLeg } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
 import { formatCurrency } from '../../utils/formatters';
+import { calculateTripBudgetSummary } from '../../utils/budgetUtils';
 
 interface TabBudgetProps {
   trip: Trip;
   expenses: Expense[];
   itineraryItems?: ItineraryItem[];
+  bookings?: Booking[];
+  transports?: TransportLeg[];
 }
 
 export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryItems = [], bookings = [], transports = [] }) => {
@@ -23,57 +26,19 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
   const [status, setStatus] = useState<'paid' | 'unpaid'>('paid');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
 
-  const totalBudget = trip.budget;
-  const paidExpenses = expenses.filter(e => e.status === 'paid');
-  const totalSpent = paidExpenses.reduce((sum, e) => sum + e.actualAmount, 0);
-  const remaining = Math.max(0, totalBudget - totalSpent);
-  const spentPercent = Math.min(100, Math.round((totalSpent / (totalBudget || 1)) * 100));
+  // Unified Budget Calculation
+  const budgetSummary = calculateTripBudgetSummary(trip, expenses, itineraryItems, bookings, transports);
+  const totalBudget = budgetSummary.totalBudget;
+  const totalSpent = budgetSummary.totalSpent;
+  const totalEstimated = budgetSummary.totalEstimated;
+  const remaining = budgetSummary.remainingBudget;
+  const spentPercent = budgetSummary.spentPercentage;
+  const categoryTotals = budgetSummary.categoryTotals;
 
-  // Category breakdown
-  const categories: ExpenseCategory[] = [
+  // Categories list for form select
+  const categoriesList: ExpenseCategory[] = [
     'Transportation', 'Accommodation', 'Food', 'Activities', 'Shopping', 'Tickets', 'Rental', 'Emergency', 'Other'
   ];
-
-  const categoryTotals = categories.map(cat => {
-    const catExp = expenses.filter(e => e.category === cat);
-    // Include ItineraryItem estimates for activities etc if needed. Or just rely on Expenses.
-    // Since ItineraryItem has its own category mapping which doesn't perfectly match ExpenseCategory,
-    // we will sum the Itinerary costs generally in 'Activities' or 'Food'.
-    let est = catExp.reduce((s, e) => s + e.estimatedAmount, 0);
-    
-    // Add itinerary costs to the estimated amount based on category matches
-    itineraryItems.forEach(item => {
-      if ((cat === 'Activities' && item.category === 'Activity') ||
-          (cat === 'Food' && item.category === 'Food') ||
-          (cat === 'Transportation' && item.category === 'Transport') ||
-          (cat === 'Accommodation' && item.category === 'Hotel') ||
-          (cat === 'Shopping' && item.category === 'Shopping') ||
-          (cat === 'Other' && (item.category === 'Free time' || item.category === 'Other'))) {
-        est += item.estimatedCost || 0;
-      }
-    });
-
-    // Add bookings costs
-    bookings.forEach(b => {
-      if ((cat === 'Accommodation' && b.type === 'Hotel') ||
-          (cat === 'Transportation' && (b.type === 'Flight' || b.type === 'Train' || b.type === 'Bus' || b.type === 'Ferry')) ||
-          (cat === 'Rental' && (b.type === 'CarRental' || b.type === 'Motorbike'))) {
-        est += b.price || 0;
-      }
-    });
-
-    // Add transports costs
-    transports.forEach(t => {
-      if (cat === 'Transportation') {
-        est += t.estimatedCost || 0;
-      }
-    });
-
-    const act = catExp.filter(e => e.status === 'paid').reduce((s, e) => s + e.actualAmount, 0);
-    return { category: cat, estimated: est, actual: act };
-  }).filter(c => c.estimated > 0 || c.actual > 0);
-
-  const totalEstimated = categoryTotals.reduce((s, c) => s + c.estimated, 0);
 
   const handleOpenAdd = () => {
     setEditingExpense(null);
@@ -127,19 +92,19 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
   return (
     <div className="space-y-6">
       {/* Top Budget Header Gauge */}
-      <div className="bg-white p-6 rounded-3xl border border-card-pink shadow-sm">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
+      <div className="bg-white p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4 mb-4">
           <div>
-            <span className="text-xs font-extrabold text-primary-pink tracking-wider uppercase">Budget Overview</span>
-            <h2 className="text-2xl font-black text-dark">
+            <span className="text-[10px] md:text-xs font-extrabold text-primary-pink tracking-wider uppercase">Budget Overview</span>
+            <h2 className="text-lg md:text-xl md:text-2xl font-black text-dark">
               {formatCurrency(totalSpent, trip.currency)} / {formatCurrency(totalBudget, trip.currency)}
             </h2>
-            <p className="text-xs text-gray-custom mt-0.5">Sisa budget: {formatCurrency(remaining, trip.currency)}</p>
+            <p className="text-[10px] md:text-xs text-gray-custom mt-0.5">Sisa budget: {formatCurrency(remaining, trip.currency)}</p>
           </div>
 
           <button
             onClick={handleOpenAdd}
-            className="bg-primary-pink hover:bg-opacity-90 text-white px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm self-start md:self-auto transition-all"
+            className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-4 py-1.5 md:px-5 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1.5 md:gap-2 shadow-sm self-start md:self-auto transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>Add Expense</span>
@@ -182,13 +147,13 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
 
       {/* Category Breakdown */}
       {categoryTotals.length > 0 && (
-        <div className="bg-white p-6 rounded-3xl border border-card-pink shadow-sm">
-          <h3 className="font-extrabold text-base text-dark mb-4 flex items-center gap-2">
+        <div className="bg-white p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
+          <h3 className="font-extrabold text-sm md:text-base text-dark mb-4 flex items-center gap-2">
             <PieChart className="w-5 h-5 text-primary-pink" />
             Expense Breakdown by Category
           </h3>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-4">
             {categoryTotals.map((cat) => {
               const catPercent = Math.min(100, Math.round((cat.actual / (totalSpent || 1)) * 100));
               return (
@@ -209,20 +174,20 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
 
       {/* Expenses Table / List */}
       <div className="bg-white rounded-3xl border border-card-pink overflow-hidden shadow-sm">
-        <div className="p-5 border-b border-card-pink flex items-center justify-between">
-          <h3 className="font-extrabold text-base text-dark">Expense Items</h3>
+        <div className="p-3 md:p-5 border-b border-card-pink flex items-center justify-between">
+          <h3 className="font-extrabold text-sm md:text-base text-dark">Expense Items</h3>
           <span className="text-xs text-gray-custom font-semibold">{expenses.length} Transaksi</span>
         </div>
 
         {expenses.length === 0 ? (
-          <div className="p-8 text-center text-gray-400">
-            <DollarSign className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+          <div className="p-2 md:p-4 md:p-8 text-center text-gray-400">
+            <Wallet className="w-10 h-10 mx-auto mb-2 text-gray-300" />
             <p className="text-sm font-medium">Belum ada item pengeluaran tercatat.</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-100 text-xs">
             {expenses.map((exp) => (
-              <div key={exp.id} className="p-4 hover:bg-offwhite flex items-center justify-between gap-4 transition-colors">
+              <div key={exp.id} className="p-2 md:p-4 hover:bg-offwhite flex items-center justify-between gap-2 md:gap-4 transition-colors">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-sm text-dark">{exp.title}</span>
@@ -271,9 +236,9 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#E8EBEF]">
-            <h3 className="font-bold text-base text-[#20263D] mb-4">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-[#E8EBEF]">
+            <h3 className="font-bold text-sm md:text-base text-[#20263D] mb-4">
               {editingExpense ? 'Edit Expense' : 'Add Expense'}
             </h3>
 
@@ -297,7 +262,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
                   onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
                   className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
                 >
-                  {categories.map(c => <option key={c} value={c}>{c}</option>)}
+                  {categoriesList.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
               </div>
 
@@ -349,13 +314,13 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90"
+                  className="px-3 md:px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90"
                 >
                   Save Expense
                 </button>
