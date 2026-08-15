@@ -34,13 +34,23 @@ export default {
       return new Response(null, { status: 204, headers: CORS_HEADERS });
     }
 
-    // Ping / Health Check
-    if (url.pathname === '/api/health' || url.pathname === '/api/cloudflare/health') {
+    // Ping / Health Check & Root landing
+    if (url.pathname === '/' || url.pathname === '/health' || url.pathname === '/api/health' || url.pathname === '/api/cloudflare/health') {
       return jsonResponse({
         status: 'ok',
-        engine: 'Cloudflare Workers + D1',
+        app: 'Treker - Traveler Trip Planner API',
+        engine: 'Cloudflare Workers + D1 Database',
+        database: 'Iteneradb',
         region: request.cf?.colo || 'EDGE',
         timestamp: new Date().toISOString(),
+        availableEndpoints: [
+          'GET  /api/cloudflare/health',
+          'GET  /api/cloudflare/trips',
+          'POST /api/cloudflare/trips',
+          'DELETE /api/cloudflare/trips/:id',
+          'GET  /api/cloudflare/theme',
+          'POST /api/cloudflare/theme'
+        ]
       });
     }
 
@@ -49,9 +59,12 @@ export default {
     const userUidHeader = request.headers.get('X-User-Uid');
     const userId = userUidHeader || (authHeader ? authHeader.replace('Bearer ', '') : 'guest');
 
+    // Normalize path to support both /api/cloudflare/trips and /trips or /api/trips
+    const path = url.pathname.replace(/^\/api\/cloudflare/, '').replace(/^\/api/, '');
+
     try {
-      // 1. GET /api/cloudflare/trips - Fetch all trips for user
-      if (url.pathname === '/api/cloudflare/trips' && request.method === 'GET') {
+      // 1. GET /trips - Fetch all trips for user
+      if (path === '/trips' && request.method === 'GET') {
         if (!env.DB) {
           return jsonResponse({ error: 'Cloudflare D1 binding (DB) not configured.' }, 500);
         }
@@ -70,8 +83,8 @@ export default {
         return jsonResponse({ success: true, trips, count: trips.length });
       }
 
-      // 2. POST /api/cloudflare/trips - Save or Update Trip
-      if (url.pathname === '/api/cloudflare/trips' && request.method === 'POST') {
+      // 2. POST /trips - Save or Update Trip
+      if (path === '/trips' && request.method === 'POST') {
         const body = await request.json() as any;
         const {
           id, title, destination, startDate, endDate, totalBudget,
@@ -119,9 +132,9 @@ export default {
         return jsonResponse({ success: true, id });
       }
 
-      // 3. DELETE /api/cloudflare/trips/:id - Delete Trip
-      if (url.pathname.startsWith('/api/cloudflare/trips/') && request.method === 'DELETE') {
-        const tripId = url.pathname.split('/')[4];
+      // 3. DELETE /trips/:id - Delete Trip
+      if (path.startsWith('/trips/') && request.method === 'DELETE') {
+        const tripId = path.split('/')[2];
         if (!tripId) return jsonResponse({ error: 'Missing tripId' }, 400);
 
         await env.DB.prepare(`DELETE FROM trips WHERE id = ?`).bind(tripId).run();
@@ -133,8 +146,8 @@ export default {
         return jsonResponse({ success: true, deletedTripId: tripId });
       }
 
-      // 4. GET /api/cloudflare/theme - Get User Custom Theme
-      if (url.pathname === '/api/cloudflare/theme' && request.method === 'GET') {
+      // 4. GET /theme - Get User Custom Theme
+      if (path === '/theme' && request.method === 'GET') {
         const { results } = await env.DB.prepare(
           `SELECT * FROM user_themes WHERE userId = ?`
         ).bind(userId).all();
@@ -153,8 +166,8 @@ export default {
         });
       }
 
-      // 5. POST /api/cloudflare/theme - Save User Custom Theme
-      if (url.pathname === '/api/cloudflare/theme' && request.method === 'POST') {
+      // 5. POST /theme - Save User Custom Theme
+      if (path === '/theme' && request.method === 'POST') {
         const { presetId, colors } = await request.json() as any;
 
         await env.DB.prepare(`
@@ -169,7 +182,7 @@ export default {
         return jsonResponse({ success: true, userId });
       }
 
-      return jsonResponse({ error: 'Endpoint not found' }, 404);
+      return jsonResponse({ error: 'Endpoint not found', path: url.pathname }, 404);
     } catch (err: any) {
       return jsonResponse({ error: err.message || 'Cloudflare D1 Server Error' }, 500);
     }
