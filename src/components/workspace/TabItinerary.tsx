@@ -36,7 +36,15 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
   const [isUploading, setIsUploading] = useState(false);
 
   const activeDay = days.find(d => d.id === selectedDayId) || days[0];
-  const dayItems = items.filter(i => i.dayId === (activeDay?.id || '')).sort((a, b) => a.time.localeCompare(b.time));
+  const dayItems = items.filter(i => {
+    if (!activeDay) return false;
+    if (i.dayId === activeDay.id) return true;
+    if (i.dayId && activeDay.id && (i.dayId.includes(activeDay.id) || activeDay.id.includes(i.dayId))) return true;
+    const itemDayNum = i.dayId?.match(/day-?(\d+)/i)?.[1];
+    const activeDayNum = (activeDay.id?.match(/day-?(\d+)/i)?.[1] || String(activeDay.dayNumber));
+    if (itemDayNum && activeDayNum && itemDayNum === activeDayNum) return true;
+    return false;
+  }).sort((a, b) => (a.time || '00:00').localeCompare(b.time || '00:00'));
 
   const categoryIcons: Record<ItineraryCategory, React.ReactNode> = {
     Food: <Utensils className="w-3.5 h-3.5 text-amber-600" />,

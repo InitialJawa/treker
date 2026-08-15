@@ -10,20 +10,14 @@ import {
   User
 } from 'firebase/auth';
 import { getFirestore, doc, setDoc, getDoc, serverTimestamp } from 'firebase/firestore';
+import firebaseAppletConfig from '../../firebase-applet-config.json';
 
-export const firebaseConfig = {
-  apiKey: "AIzaSyA-iRwvS84QcQYosi1PIEwmSQf50CSEZFw",
-  authDomain: "gen-lang-client-0599933378.firebaseapp.com",
-  projectId: "gen-lang-client-0599933378",
-  storageBucket: "gen-lang-client-0599933378.firebasestorage.app",
-  messagingSenderId: "540520019171",
-  appId: "1:540520019171:web:d543082020bb1d981141d6"
-};
+export const firebaseConfig = firebaseAppletConfig;
 
 // Initialize Firebase App
 const app = getApps().length === 0 ? initializeApp(firebaseConfig) : getApp();
 
-export const FIRESTORE_DB_ID = "ai-studio-travelertripplan-8b4a5a3f-6a4f-4af3-827b-4140ad64b58e";
+export const FIRESTORE_DB_ID = firebaseAppletConfig.firestoreDatabaseId || "ai-studio-travelertripplan-8b4a5a3f-6a4f-4af3-827b-4140ad64b58e";
 
 // Initialize Auth & Firestore
 export const auth = getAuth(app);

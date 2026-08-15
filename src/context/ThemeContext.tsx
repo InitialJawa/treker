@@ -3,6 +3,7 @@ import { ThemeColors, THEME_PRESETS, DEFAULT_THEME } from '../types/theme';
 import { useAuth } from './AuthContext';
 import { db } from '../services/firebase';
 import { doc, getDoc, setDoc } from 'firebase/firestore';
+import { isFirestoreQuotaExhausted, handleFirestoreError } from '../services/firestoreService';
 
 interface ThemeContextType {
   presetId: string;
@@ -108,8 +109,8 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       console.warn('LocalStorage save error:', err);
     }
 
-    // Save to Firestore if logged in
-    if (user) {
+    // Save to Firestore if logged in and quota is available
+    if (user && !isFirestoreQuotaExhausted()) {
       try {
         const userDocRef = doc(db, 'userSettings', user.uid);
         await setDoc(userDocRef, {
@@ -122,7 +123,7 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           }
         }, { merge: true });
       } catch (err) {
-        console.warn('Firestore save theme warning:', err);
+        handleFirestoreError(err, 'saveThemeSettings');
       }
     }
 

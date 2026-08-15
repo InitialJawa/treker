@@ -54,7 +54,7 @@ export interface ItineraryItem {
   sortOrder: number;
 }
 
-export type PlaceStatus = 'wishlist' | 'planned' | 'visited';
+export type PlaceStatus = 'wishlist' | 'planned' | 'visited' | 'want_to_visit';
 
 export interface Place {
   id: string;
@@ -62,17 +62,21 @@ export interface Place {
   tripId?: string;
   userId?: string;
   name: string;
-  location: string;
-  latitude: number;
-  longitude: number;
+  location?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  lat?: number;
+  lng?: number;
   category: string;
   rating: number;
-  estimatedCost: number;
-  description: string;
+  estimatedCost?: number;
+  priceEstimate?: number;
+  description?: string;
   openingHours?: string;
   website?: string;
   notes?: string;
-  photos: string[];
+  photos?: string[];
   status: PlaceStatus;
   isFavorite?: boolean;
 }

@@ -6,6 +6,7 @@ import {
   INITIAL_TRIPS, INITIAL_ITINERARY_DAYS, INITIAL_ITINERARY_ITEMS, INITIAL_PLACES, 
   INITIAL_EXPENSES, INITIAL_BOOKINGS, INITIAL_PACKING_ITEMS, INITIAL_TRANSPORTS, INITIAL_NOTES 
 } from '../data/mockData';
+import { banyuwangiTrip, banyuwangiDays, banyuwangiItems, banyuwangiPlaces } from '../data/banyuwangiTemplate';
 import { generateItineraryWithAI, generatePackingListWithAI } from '../services/aiService';
 import { syncItineraryDaysDates } from '../utils/formatters';
 import { useAuth } from './AuthContext';
@@ -17,6 +18,7 @@ import { initializeUserTemplates } from '../services/onboardingService';
 import { 
   saveTripToFirestore, deleteTripFromFirestore, addCollaboratorToTrip, removeCollaboratorFromTrip, saveItemToFirestore, deleteItemFromFirestore 
 } from '../services/firestoreService';
+import { fetchAllDataFromSql, seedBanyuwangiToSql } from '../services/sqlService';
 
 interface TripContextType {
   trips: Trip[];
@@ -104,15 +106,45 @@ const TripContext = createContext<TripContextType | undefined>(undefined);
 export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
 
-  const [trips, setTrips] = useState<Trip[]>([]);
-  const [itineraryDays, setItineraryDays] = useState<ItineraryDay[]>([]);
-  const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>([]);
+  const [trips, setTrips] = useState<Trip[]>(() => {
+    try {
+      const saved = localStorage.getItem('traveler_trips');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return [banyuwangiTrip];
+  });
+  
+  const [itineraryDays, setItineraryDays] = useState<ItineraryDay[]>(() => {
+    try {
+      const saved = localStorage.getItem('traveler_days');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return banyuwangiDays;
+  });
+
+  const [itineraryItems, setItineraryItems] = useState<ItineraryItem[]>(() => {
+    try {
+      const saved = localStorage.getItem('traveler_items');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
+    } catch (e) {}
+    return banyuwangiItems;
+  });
+
   const [places, setPlaces] = useState<Place[]>(() => {
     try {
       const saved = localStorage.getItem('traveler_places');
       if (saved) return JSON.parse(saved);
     } catch (e) {}
-    return INITIAL_PLACES;
+    return banyuwangiPlaces;
   });
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -121,22 +153,55 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [notes, setNotes] = useState<Note[]>([]);
   const [moodboardItems, setMoodboardItems] = useState<MoodboardItem[]>([]);
 
-  const [activeTripId, setActiveTripId] = useState<string | null>(null);
+  const [activeTripId, setActiveTripId] = useState<string | null>(() => {
+    try {
+      const saved = localStorage.getItem('traveler_active_trip_id');
+      if (saved) return saved;
+    } catch (e) {}
+    return banyuwangiTrip.id;
+  });
   const [currency, setCurrency] = useState<CurrencyCode>('IDR');
   const [activeTab, setActiveTab] = useState<string>('Overview');
 
-  // Firestore Realtime Synchronization when User is logged in
+  // Cloud SQL & Firestore Realtime Synchronization
   useEffect(() => {
+    // 1. Hydrate from Cloud SQL (PostgreSQL)
+    fetchAllDataFromSql(user ? user.uid : 'guest').then(sqlData => {
+      if (sqlData && sqlData.trips && sqlData.trips.length > 0) {
+        setTrips(sqlData.trips);
+        if (sqlData.itineraryDays && sqlData.itineraryDays.length > 0) setItineraryDays(sqlData.itineraryDays);
+        if (sqlData.itineraryItems && sqlData.itineraryItems.length > 0) setItineraryItems(sqlData.itineraryItems);
+        if (sqlData.places && sqlData.places.length > 0) setPlaces(sqlData.places);
+        if (sqlData.expenses && sqlData.expenses.length > 0) setExpenses(sqlData.expenses);
+        if (sqlData.bookings && sqlData.bookings.length > 0) setBookings(sqlData.bookings);
+        if (sqlData.packingItems && sqlData.packingItems.length > 0) setPackingItems(sqlData.packingItems);
+        if (sqlData.transports && sqlData.transports.length > 0) setTransports(sqlData.transports);
+        if (sqlData.notes && sqlData.notes.length > 0) setNotes(sqlData.notes);
+        if (sqlData.moodboardItems && sqlData.moodboardItems.length > 0) setMoodboardItems(sqlData.moodboardItems);
+        if (!activeTripId || !sqlData.trips.some(t => t.id === activeTripId)) {
+          setActiveTripId(sqlData.trips[0].id);
+        }
+      } else {
+        // Seed Banyuwangi 5H4M to PostgreSQL if empty
+        seedBanyuwangiToSql(user ? user.uid : 'guest').catch(() => {});
+      }
+    }).catch(err => {
+      console.warn('Cloud SQL initial fetch notice:', err);
+    });
+
     if (!user) {
-      setTrips([]);
-      setActiveTripId(null);
+      // Guest mode: ensure Banyuwangi trip is active
+      setTrips([banyuwangiTrip]);
+      setItineraryDays(banyuwangiDays);
+      setItineraryItems(banyuwangiItems);
+      setPlaces(banyuwangiPlaces);
+      setActiveTripId(banyuwangiTrip.id);
       return;
     }
 
     const userEmail = user.email ? user.email.toLowerCase() : '';
 
     // Realtime listener for trips where userId == uid OR collaborators contains email OR isTemplate == true
-    
     initializeUserTemplates(user.uid);
 
     const tripsCol = collection(db, 'trips');
@@ -144,25 +209,34 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     const unsubTrips = onSnapshot(
       qTrips,
       (snapshot) => {
-        const fetchedTrips = [];
+        const fetchedTrips: Trip[] = [];
         snapshot.forEach(docSnap => {
-          fetchedTrips.push({ ...docSnap.data(), id: docSnap.id });
+          fetchedTrips.push({ ...docSnap.data(), id: docSnap.id } as Trip);
         });
-        setTrips(fetchedTrips);
-        
-        // Only set active if none is set and we have trips
-        setTrips(prev => {
-          if (!activeTripId && fetchedTrips.length > 0) {
-            // Need a tiny delay to ensure it doesn't cause render loops, but direct setting here is okay.
-            setTimeout(() => {
-               // Only update if still no active
-               setActiveTripId((curr) => curr ? curr : fetchedTrips[0].id);
-            }, 0);
+
+        if (fetchedTrips.length > 0) {
+          setTrips(fetchedTrips);
+          try { localStorage.setItem('traveler_trips', JSON.stringify(fetchedTrips)); } catch (e) {}
+          if (!activeTripId || !fetchedTrips.some(t => t.id === activeTripId)) {
+            setActiveTripId(fetchedTrips[0].id);
           }
-          return fetchedTrips;
-        });
+        } else {
+          // If 0 trips exist in firestore yet, seed the default Banyuwangi trip
+          setTrips([banyuwangiTrip]);
+          setItineraryDays(banyuwangiDays);
+          setItineraryItems(banyuwangiItems);
+          setPlaces(banyuwangiPlaces);
+          setActiveTripId(banyuwangiTrip.id);
+        }
       },
-      (err) => console.warn('Trips snapshot error:', err)
+      (err) => {
+        console.warn('Trips snapshot notice (using local fallback):', err);
+        setTrips([banyuwangiTrip]);
+        setItineraryDays(banyuwangiDays);
+        setItineraryItems(banyuwangiItems);
+        setPlaces(banyuwangiPlaces);
+        setActiveTripId(banyuwangiTrip.id);
+      }
     );
 
 
@@ -174,9 +248,17 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       (snap) => {
         const list: ItineraryDay[] = [];
         snap.forEach(d => list.push({ ...d.data(), id: d.id } as ItineraryDay));
-        setItineraryDays(list);
+        if (list.length > 0) {
+          setItineraryDays(list);
+          try { localStorage.setItem('traveler_days', JSON.stringify(list)); } catch (e) {}
+        } else {
+          setItineraryDays(banyuwangiDays);
+        }
       },
-      (err) => console.warn('ItineraryDays snapshot error:', err)
+      (err) => {
+        console.warn('ItineraryDays snapshot error:', err);
+        setItineraryDays(banyuwangiDays);
+      }
     );
 
     const unsubItems = onSnapshot(
@@ -184,9 +266,17 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       (snap) => {
         const list: ItineraryItem[] = [];
         snap.forEach(d => list.push({ ...d.data(), id: d.id } as ItineraryItem));
-        setItineraryItems(list);
+        if (list.length > 0) {
+          setItineraryItems(list);
+          try { localStorage.setItem('traveler_items', JSON.stringify(list)); } catch (e) {}
+        } else {
+          setItineraryItems(banyuwangiItems);
+        }
       },
-      (err) => console.warn('ItineraryItems snapshot error:', err)
+      (err) => {
+        console.warn('ItineraryItems snapshot error:', err);
+        setItineraryItems(banyuwangiItems);
+      }
     );
 
     const unsubExpenses = onSnapshot(

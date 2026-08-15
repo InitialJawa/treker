@@ -3,11 +3,16 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 import { defineConfig, Plugin } from 'vite';
 import { GoogleGenAI } from '@google/genai';
+import { sqlDevMiddleware } from './src/server/expressMiddleware';
 
-function aiProxyPlugin(): Plugin {
+function apiProxyPlugin(): Plugin {
   return {
-    name: 'ai-proxy-plugin',
+    name: 'api-proxy-plugin',
     configureServer(server) {
+      // 1. Cloud SQL routes
+      server.middlewares.use(sqlDevMiddleware);
+
+      // 2. AI endpoints
       server.middlewares.use(async (req, res, next) => {
         if (!req.url?.startsWith('/api/ai/')) {
           return next();
@@ -88,100 +93,9 @@ Provide 12 to 18 essential items in Bahasa Indonesia.`;
   };
 }
 
-function cloudflareProxyPlugin(): Plugin {
-  const memoryD1 = {
-    trips: new Map<string, any>(),
-    themes: new Map<string, any>()
-  };
-
-  return {
-    name: 'cloudflare-proxy-plugin',
-    configureServer(server) {
-      server.middlewares.use(async (req, res, next) => {
-        if (!req.url?.startsWith('/api/cloudflare/')) {
-          return next();
-        }
-
-        res.setHeader('Content-Type', 'application/json');
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
-        res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization, X-User-Uid');
-
-        if (req.method === 'OPTIONS') {
-          res.statusCode = 204;
-          res.end();
-          return;
-        }
-
-        const userUid = (req.headers['x-user-uid'] as string) || 'guest';
-        const urlPath = req.url.split('?')[0];
-
-        if (urlPath === '/api/cloudflare/health') {
-          res.end(JSON.stringify({
-            status: 'ok',
-            engine: 'Cloudflare Workers (Dev Proxy)',
-            region: 'Edge Local Simulation',
-            timestamp: new Date().toISOString()
-          }));
-          return;
-        }
-
-        let body = '';
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', () => {
-          try {
-            if (urlPath === '/api/cloudflare/trips' && req.method === 'GET') {
-              const trips = Array.from(memoryD1.trips.values()).filter(t => t.userId === userUid);
-              res.end(JSON.stringify({ success: true, trips, count: trips.length }));
-              return;
-            }
-
-            if (urlPath === '/api/cloudflare/trips' && req.method === 'POST') {
-              const tripData = JSON.parse(body || '{}');
-              if (tripData.id) {
-                memoryD1.trips.set(tripData.id, { ...tripData, userId: userUid, updatedAt: new Date().toISOString() });
-              }
-              res.end(JSON.stringify({ success: true, id: tripData.id }));
-              return;
-            }
-
-            if (urlPath.startsWith('/api/cloudflare/trips/') && req.method === 'DELETE') {
-              const tripId = urlPath.split('/')[4];
-              if (tripId) {
-                memoryD1.trips.delete(tripId);
-              }
-              res.end(JSON.stringify({ success: true, deletedTripId: tripId }));
-              return;
-            }
-
-            if (urlPath === '/api/cloudflare/theme' && req.method === 'GET') {
-              const theme = memoryD1.themes.get(userUid) || null;
-              res.end(JSON.stringify({ success: true, theme }));
-              return;
-            }
-
-            if (urlPath === '/api/cloudflare/theme' && req.method === 'POST') {
-              const themeData = JSON.parse(body || '{}');
-              memoryD1.themes.set(userUid, themeData);
-              res.end(JSON.stringify({ success: true, userId: userUid }));
-              return;
-            }
-
-            res.statusCode = 404;
-            res.end(JSON.stringify({ error: 'Cloudflare endpoint not found' }));
-          } catch (err: any) {
-            res.statusCode = 500;
-            res.end(JSON.stringify({ error: err.message || 'Cloudflare plugin error' }));
-          }
-        });
-      });
-    }
-  };
-}
-
 export default defineConfig(() => {
   return {
-    plugins: [react(), tailwindcss(), aiProxyPlugin(), cloudflareProxyPlugin()],
+    plugins: [react(), tailwindcss(), apiProxyPlugin()],
     define: {
       'process.env.GOOGLE_MAPS_PLATFORM_KEY': JSON.stringify(process.env.GOOGLE_MAPS_PLATFORM_KEY || '')
     },

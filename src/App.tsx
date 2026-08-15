@@ -63,19 +63,28 @@ function MainApp() {
         {currentView === 'Workspace' && trips.length === 0 && (
            <div className="flex-1 flex flex-col items-center justify-center p-8 text-center min-h-[60vh]">
              <Compass className="w-16 h-16 text-primary-pink mb-4 opacity-50" />
-             <h2 className="text-2xl font-black text-dark mb-2">Belum Ada Project Trip</h2>
-             <p className="text-sm text-gray-custom mb-6 max-w-md">Mulai rencanakan liburan Anda. Buat project baru atau pilih dari katalog template publik kami.</p>
-             <div className="flex items-center gap-3">
+             <h2 className="text-2xl font-black text-dark mb-2">Belum Ada Project Trip Aktif</h2>
+             <p className="text-sm text-gray-custom mb-6 max-w-md">Mulai rencanakan liburan Anda atau buka paket lengkap Explore Banyuwangi 4H3M.</p>
+             <div className="flex flex-wrap items-center justify-center gap-3">
+               <button 
+                  onClick={() => {
+                    handleSelectTrip('template-banyuwangi-explore-3d2n');
+                    window.location.reload();
+                  }}
+                  className="bg-emerald-600 text-white px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-emerald-700 transition-all shadow-md active:scale-95 cursor-pointer"
+               >
+                  <span>⚡ Buka Trip Banyuwangi 4H3M</span>
+               </button>
                <button 
                   onClick={() => setIsCreateModalOpen(true)}
-                  className="bg-primary-pink text-white px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-md active:scale-95"
+                  className="bg-primary-pink text-white px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2 hover:opacity-90 transition-all shadow-md active:scale-95 cursor-pointer"
                >
                   <PlusCircle className="w-5 h-5" />
                   Buat Project Baru
                </button>
                <button 
                   onClick={() => setIsPublicTemplatesModalOpen(true)}
-                  className="bg-soft-pink text-primary-pink px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-pink-100 transition-all shadow-xs active:scale-95 border border-primary-pink/10"
+                  className="bg-soft-pink text-primary-pink px-6 py-3 rounded-full text-sm font-bold flex items-center gap-2 hover:bg-pink-100 transition-all shadow-xs active:scale-95 border border-primary-pink/10 cursor-pointer"
                >
                   <BookOpen className="w-5 h-5 text-primary-pink" />
                   Template Publik

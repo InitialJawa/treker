@@ -5,6 +5,7 @@ import { useTripContext } from '../context/TripContext';
 import { useAuth } from '../context/AuthContext';
 import { formatDateRange, formatCurrency } from '../utils/formatters';
 import { resizeImage } from '../utils/imageUtils';
+import { banyuwangiTrip, banyuwangiDays, banyuwangiItems, banyuwangiPlaces } from '../data/banyuwangiTemplate';
 
 // Tabs
 import { TabOverview } from './workspace/TabOverview';
@@ -261,17 +262,23 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
     if (!targetTripId) return false;
     if (targetTripId === currentTripId) return true;
     if (currentTripId.startsWith(targetTripId) || targetTripId.startsWith(currentTripId)) return true;
+    if (targetTripId.toLowerCase().includes('banyuwangi') && currentTripId.toLowerCase().includes('banyuwangi')) return true;
     return false;
   };
 
   const tripMoodboards = moodboardItems.filter(m => matchesTripId(m.tripId, trip.id));
-  const tripDays = itineraryDays.filter(d => matchesTripId(d.tripId, trip.id)).sort((a, b) => Number(a.dayNumber) - Number(b.dayNumber));
-  const tripItems = itineraryItems.filter(i => matchesTripId(i.tripId, trip.id));
+  const rawTripDays = itineraryDays.filter(d => matchesTripId(d.tripId, trip.id)).sort((a, b) => Number(a.dayNumber) - Number(b.dayNumber));
+  const tripDays = rawTripDays.length > 0 ? rawTripDays : (trip.id.toLowerCase().includes('banyuwangi') ? banyuwangiDays : []);
+  
+  const rawTripItems = itineraryItems.filter(i => matchesTripId(i.tripId, trip.id));
+  const tripItems = rawTripItems.length > 0 ? rawTripItems : (trip.id.toLowerCase().includes('banyuwangi') ? banyuwangiItems : []);
+  
   const tripBookings = bookings.filter(b => matchesTripId(b.tripId, trip.id));
   const tripPacking = packingItems.filter(p => matchesTripId(p.tripId, trip.id));
   const tripExpenses = expenses.filter(e => matchesTripId(e.tripId, trip.id));
   const tripTransports = transports.filter(t => matchesTripId(t.tripId, trip.id));
-  const tripPlaces = places.filter(p => !p.tripId || matchesTripId(p.tripId, trip.id));
+  const rawTripPlaces = places.filter(p => !p.tripId || matchesTripId(p.tripId, trip.id));
+  const tripPlaces = rawTripPlaces.length > 0 ? rawTripPlaces : (trip.id.toLowerCase().includes('banyuwangi') ? banyuwangiPlaces : []);
   const tripNotes = notes.filter(n => !n.tripId || matchesTripId(n.tripId, trip.id));
 
   const tabs = [
