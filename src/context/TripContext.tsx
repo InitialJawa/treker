@@ -16,10 +16,10 @@ import {
   addCollaboratorToTrip, 
   removeCollaboratorFromTrip, 
   saveItemToSupabase, 
-  deleteItemFromSupabase 
+  deleteItemFromSupabase, 
+  fetchAllDataFromSupabase 
 } from '../services/supabaseService';
-import { supabase, isSupabaseConfigured } from '../services/supabase';
-import { fetchAllDataFromSql, seedBanyuwangiToSql } from '../services/sqlService';
+import { loadBanyuwangiTemplateToSupabase } from '../scripts/loadTemplate';
 
 interface TripContextType {
   trips: Trip[];
@@ -164,72 +164,39 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [currency, setCurrency] = useState<CurrencyCode>('IDR');
   const [activeTab, setActiveTab] = useState<string>('Overview');
 
-  // Synchronization with Supabase / Cloud SQL / Local
+  // Synchronization with Supabase
   useEffect(() => {
-    // 1. Hydrate from Cloud SQL (PostgreSQL)
-    fetchAllDataFromSql(user ? user.uid : 'guest').then(sqlData => {
-      if (sqlData && sqlData.trips && sqlData.trips.length > 0) {
-        setTrips(sqlData.trips);
-        if (sqlData.itineraryDays && sqlData.itineraryDays.length > 0) setItineraryDays(sqlData.itineraryDays);
-        if (sqlData.itineraryItems && sqlData.itineraryItems.length > 0) setItineraryItems(sqlData.itineraryItems);
-        if (sqlData.places && sqlData.places.length > 0) setPlaces(sqlData.places);
-        if (sqlData.expenses && sqlData.expenses.length > 0) setExpenses(sqlData.expenses);
-        if (sqlData.bookings && sqlData.bookings.length > 0) setBookings(sqlData.bookings);
-        if (sqlData.packingItems && sqlData.packingItems.length > 0) setPackingItems(sqlData.packingItems);
-        if (sqlData.transports && sqlData.transports.length > 0) setTransports(sqlData.transports);
-        if (sqlData.notes && sqlData.notes.length > 0) setNotes(sqlData.notes);
-        if (sqlData.moodboardItems && sqlData.moodboardItems.length > 0) setMoodboardItems(sqlData.moodboardItems);
-        if (!activeTripId || !sqlData.trips.some(t => t.id === activeTripId)) {
-          setActiveTripId(sqlData.trips[0].id);
-        }
-      } else {
-        // Seed Banyuwangi 5H4M to PostgreSQL if empty
-        seedBanyuwangiToSql(user ? user.uid : 'guest').catch(() => {});
-      }
-    }).catch(err => {
-      console.warn('Cloud SQL initial fetch notice:', err);
-    });
-
-    // 2. Fetch from Supabase if configured
-    if (user && isSupabaseConfigured) {
-      supabase
-        .from('trips')
-        .select('*')
-        .or(`user_id.eq.${user.uid},collaborators.cs.{"${user.email || ''}"}`)
-        .then(({ data, error }) => {
-          if (!error && data && data.length > 0) {
-            const mappedTrips: Trip[] = data.map((t: any) => ({
-              id: t.id,
-              name: t.name,
-              destination: t.destination,
-              startDate: t.start_date,
-              endDate: t.end_date,
-              travelersCount: t.travelers_count,
-              currency: t.currency,
-              budget: t.budget,
-              actualSpent: t.actual_spent,
-              description: t.description,
-              coverImage: t.cover_image,
-              status: t.status,
-              isTemplate: t.is_template,
-              isFavorite: t.is_favorite,
-              userId: t.user_id,
-              collaborators: t.collaborators || [],
-              memberIds: t.member_ids || [],
-              createdAt: t.created_at || t.start_date,
-            }));
-            setTrips(mappedTrips);
-          }
-        });
-    }
-
     if (!user) {
       setTrips([banyuwangiTrip]);
       setItineraryDays(banyuwangiDays);
       setItineraryItems(banyuwangiItems);
       setPlaces(banyuwangiPlaces);
       setActiveTripId(banyuwangiTrip.id);
+      return;
     }
+
+    fetchAllDataFromSupabase(user.uid).then(data => {
+      if (data && data.trips && data.trips.length > 0) {
+        setTrips(data.trips);
+        if (data.itineraryDays.length > 0) setItineraryDays(data.itineraryDays);
+        if (data.itineraryItems.length > 0) setItineraryItems(data.itineraryItems);
+        if (data.places.length > 0) setPlaces(data.places);
+        if (data.expenses.length > 0) setExpenses(data.expenses);
+        if (data.bookings.length > 0) setBookings(data.bookings);
+        if (data.packingItems.length > 0) setPackingItems(data.packingItems);
+        if (data.transports.length > 0) setTransports(data.transports);
+        if (data.notes.length > 0) setNotes(data.notes);
+        if (data.moodboardItems.length > 0) setMoodboardItems(data.moodboardItems);
+        if (!activeTripId || !data.trips.some(t => t.id === activeTripId)) {
+          setActiveTripId(data.trips[0].id);
+        }
+      } else {
+        // Seed template Banyuwangi sebagai trip milik user (opsional)
+        loadBanyuwangiTemplateToSupabase(user.uid);
+      }
+    }).catch(err => {
+      console.warn('Supabase initial fetch notice:', err);
+    });
   }, [user]);
 
   // Recalculate actual spent for trips whenever expenses change
