@@ -238,3 +238,72 @@ export const deleteTripFromFirestore = deleteTripFromSupabase;
 export const saveItemToFirestore = saveItemToSupabase;
 export const deleteItemFromFirestore = deleteItemFromSupabase;
 export const fetchPublicTemplatesFromFirestore = fetchPublicTemplatesFromSupabase;
+
+// ===== Hydrate semua data user dari Supabase =====
+
+export interface AllSupabaseData {
+  trips: Trip[];
+  itineraryDays: ItineraryDay[];
+  itineraryItems: ItineraryItem[];
+  places: Place[];
+  expenses: Expense[];
+  bookings: Booking[];
+  packingItems: PackingItem[];
+  transports: TransportLeg[];
+  notes: Note[];
+  moodboardItems: MoodboardItem[];
+}
+
+const ITEM_TABLES = [
+  'itinerary_days', 'itinerary_items', 'places', 'expenses', 'bookings',
+  'packing_items', 'transports', 'notes', 'moodboard_items',
+] as const;
+
+/** Baca semua data user dari Supabase. `data` kolom jsonb di-parse kembali. */
+export async function fetchAllDataFromSupabase(userId: string): Promise<AllSupabaseData | null> {
+  if (!isSupabaseConfigured) return null;
+  try {
+    const { data: trips, error: tripsError } = await supabase
+      .from('trips')
+      .select('*')
+      .or(`user_id.eq.${userId},is_template.eq.true,allow_public_view.eq.true`);
+    if (tripsError) throw tripsError;
+
+    const result: AllSupabaseData = {
+      trips: (trips || []).map(mapTripRow),
+      itineraryDays: [], itineraryItems: [], places: [], expenses: [],
+      bookings: [], packingItems: [], transports: [], notes: [], moodboardItems: [],
+    };
+
+    await Promise.all(ITEM_TABLES.map(async (table) => {
+      const { data, error } = await supabase.from(table).select('data').eq('user_id', userId);
+      if (error) return;
+      const rows = (data || []).map((r: any) => r.data).filter(Boolean);
+      (result as any)[camelTableName(table)] = rows;
+    }));
+
+    return result;
+  } catch (err) {
+    console.warn('fetchAllDataFromSupabase notice:', err);
+    return null;
+  }
+}
+
+function camelTableName(snake: string): string {
+  return snake.replace(/_([a-z])/g, (_, c) => c.toUpperCase());
+}
+
+function mapTripRow(t: any): Trip {
+  return {
+    id: t.id, name: t.name, destination: t.destination,
+    startDate: t.start_date, endDate: t.end_date,
+    travelersCount: t.travelers_count ?? 1,
+    currency: t.currency ?? 'IDR', budget: Number(t.budget || 0),
+    actualSpent: Number(t.actual_spent || 0), description: t.description || '',
+    coverImage: t.cover_image || '', status: t.status || 'upcoming',
+    isTemplate: !!t.is_template, isFavorite: !!t.is_favorite,
+    userId: t.user_id, collaborators: t.collaborators || [],
+    memberIds: t.member_ids || [], allowPublicView: !!t.allow_public_view,
+    createdAt: t.created_at || t.start_date || '',
+  };
+}
