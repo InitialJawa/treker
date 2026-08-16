@@ -1,4 +1,4 @@
-import { banyuwangiTrip, banyuwangiDays, banyuwangiItems } from '../data/banyuwangiTemplate';
+import { banyuwangiTrip, banyuwangiDays, banyuwangiItems, banyuwangiPlaces } from '../data/banyuwangiTemplate';
 import { saveTripToSupabase, saveItemToSupabase } from '../services/supabaseService';
 
 export const loadBanyuwangiTemplateToSupabase = async (userId: string) => {
@@ -28,6 +28,15 @@ export const loadBanyuwangiTemplateToSupabase = async (userId: string) => {
       id: newItemId,
       tripId: newTripId,
       dayId: newDayId,
+    });
+  }
+
+  for (const place of banyuwangiPlaces) {
+    const newPlaceId = place.id + '-' + userId.substring(0, 6);
+    await saveItemToSupabase('places', newPlaceId, {
+      ...place,
+      id: newPlaceId,
+      tripId: newTripId,
     });
   }
 };

@@ -175,8 +175,22 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       return;
     }
 
-    fetchAllDataFromSupabase(user.uid).then(data => {
-      if (data && data.trips && data.trips.length > 0) {
+    const loadUserData = async () => {
+      let data = await fetchAllDataFromSupabase(user.uid);
+      if (!data) return;
+
+      if (data.trips.length === 0) {
+        // User baru: seed template Banyuwangi sebagai trip milik user
+        try {
+          await loadBanyuwangiTemplateToSupabase(user.uid);
+        } catch (err) {
+          console.warn('Supabase seed template notice:', err);
+        }
+        data = await fetchAllDataFromSupabase(user.uid);
+        if (!data) return;
+      }
+
+      if (data.trips.length > 0) {
         setTrips(data.trips);
         if (data.itineraryDays.length > 0) setItineraryDays(data.itineraryDays);
         if (data.itineraryItems.length > 0) setItineraryItems(data.itineraryItems);
@@ -190,11 +204,10 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         if (!activeTripId || !data.trips.some(t => t.id === activeTripId)) {
           setActiveTripId(data.trips[0].id);
         }
-      } else {
-        // Seed template Banyuwangi sebagai trip milik user (opsional)
-        loadBanyuwangiTemplateToSupabase(user.uid);
       }
-    }).catch(err => {
+    };
+
+    loadUserData().catch(err => {
       console.warn('Supabase initial fetch notice:', err);
     });
   }, [user]);
@@ -885,12 +898,12 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       createdAt: new Date().toISOString()
     };
     setMoodboardItems(prev => [...prev, newItem]);
-    await saveItemToSupabase('moodboards', newItem.id, newItem);
+    await saveItemToSupabase('moodboardItems', newItem.id, newItem);
   };
 
   const deleteMoodboardItem = async (id: string) => {
     setMoodboardItems(prev => prev.filter(m => m.id !== id));
-    await deleteItemFromSupabase('moodboards', id);
+    await deleteItemFromSupabase('moodboardItems', id);
   };
 
   const updateMoodboardItem = async (id: string, updates: Partial<MoodboardItem>) => {
@@ -898,7 +911,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     if (existing) {
       const updated = { ...existing, ...updates };
       setMoodboardItems(prev => prev.map(m => m.id === id ? updated : m));
-      await saveItemToSupabase('moodboards', id, updated);
+      await saveItemToSupabase('moodboardItems', id, updated);
     }
   };
 

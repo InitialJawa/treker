@@ -106,6 +106,15 @@ function getTableName(collectionName: string): string {
 /**
  * Save generic item to Supabase table
  */
+async function getCurrentUserId(): Promise<string> {
+  try {
+    const { data } = await supabase.auth.getUser();
+    return data?.user?.id || 'guest';
+  } catch {
+    return 'guest';
+  }
+}
+
 export async function saveItemToSupabase(collectionName: string, itemId: string, data: any): Promise<void> {
   cacheLocally(`${collectionName}_${itemId}`, data);
 
@@ -113,10 +122,11 @@ export async function saveItemToSupabase(collectionName: string, itemId: string,
 
   try {
     const tableName = getTableName(collectionName);
+    const ownerId = data.userId || await getCurrentUserId();
     const payload = {
       id: itemId,
       trip_id: data.tripId,
-      user_id: data.userId || 'guest',
+      user_id: ownerId,
       data: data,
       updated_at: new Date().toISOString(),
     };
@@ -266,7 +276,7 @@ export async function fetchAllDataFromSupabase(userId: string): Promise<AllSupab
     const { data: trips, error: tripsError } = await supabase
       .from('trips')
       .select('*')
-      .or(`user_id.eq.${userId},is_template.eq.true,allow_public_view.eq.true`);
+      .eq('user_id', userId);
     if (tripsError) throw tripsError;
 
     const result: AllSupabaseData = {
