@@ -50,4 +50,30 @@
 @media print {
   .no-print { display: none !important; }
   body { background: white !important; }
+
+  .print-modal {
+    position: static !important;
+    inset: auto !important;
+    padding: 0 !important;
+    overflow: visible !important;
+    background: white !important;
+    backdrop-filter: none !important;
+    display: block !important;
+    z-index: auto !important;
+  }
+
+  .print-modal-card {
+    max-width: none !important;
+    max-height: none !important;
+    overflow: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  .print-modal .overflow-y-auto,
+  .print-modal .max-h-[90vh] {
+    max-height: none !important;
+    overflow: visible !important;
+  }
 }
