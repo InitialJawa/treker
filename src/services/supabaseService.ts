@@ -264,19 +264,21 @@ export interface AllSupabaseData {
   moodboardItems: MoodboardItem[];
 }
 
-const ITEM_TABLES = [
-  'itinerary_days', 'itinerary_items', 'places', 'expenses', 'bookings',
-  'packing_items', 'transports', 'notes', 'moodboard_items',
-] as const;
-
 /** Baca semua data user dari Supabase. `data` kolom jsonb di-parse kembali. */
 export async function fetchAllDataFromSupabase(userId: string): Promise<AllSupabaseData | null> {
   if (!isSupabaseConfigured) return null;
   try {
+    const { data: authUser } = await supabase.auth.getUser();
+    const userEmail = (authUser?.user?.email || '').toLowerCase();
+
+    const tripOr = userEmail
+      ? `user_id.eq.${userId},collaborators.cs.["${userEmail}"]`
+      : `user_id.eq.${userId}`;
+
     const { data: trips, error: tripsError } = await supabase
       .from('trips')
       .select('*')
-      .eq('user_id', userId);
+      .or(tripOr);
     if (tripsError) throw tripsError;
 
     const result: AllSupabaseData = {
@@ -285,8 +287,20 @@ export async function fetchAllDataFromSupabase(userId: string): Promise<AllSupab
       bookings: [], packingItems: [], transports: [], notes: [], moodboardItems: [],
     };
 
-    await Promise.all(ITEM_TABLES.map(async (table) => {
-      const { data, error } = await supabase.from(table).select('data').eq('user_id', userId);
+    const tripIds = (trips || []).map((t: any) => t.id);
+    const myTables: string[] = tripIds.length > 0
+      ? ['itinerary_days', 'itinerary_items', 'places', 'expenses', 'bookings',
+         'packing_items', 'transports', 'notes', 'moodboard_items']
+      : [];
+
+    await Promise.all(myTables.map(async (table) => {
+      let q = supabase.from(table).select('data');
+      if (tripIds.length === 1) {
+        q = q.eq('trip_id', tripIds[0]);
+      } else if (tripIds.length > 1) {
+        q = q.in('trip_id', tripIds);
+      }
+      const { data, error } = await q;
       if (error) return;
       const rows = (data || []).map((r: any) => r.data).filter(Boolean);
       (result as any)[camelTableName(table)] = rows;

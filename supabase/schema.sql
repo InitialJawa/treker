@@ -116,12 +116,38 @@ alter table public.transports enable row level security;
 alter table public.notes enable row level security;
 alter table public.moodboard_items enable row level security;
 
+-- ---------- HELPER: akses kolaborator ----------
+-- true bila trip dimiliki user ATAU user_id ada di member_ids
+-- ATAU email user ada di collaborators (jsonb array email)
+create or replace function public.can_access_trip(p_trip_id text)
+returns boolean
+language sql
+stable
+security definer
+set search_path = public
+as $$
+  select exists (
+    select 1 from public.trips t
+    where t.id = p_trip_id
+      and (
+        t.user_id = auth.uid()::text
+        or t.member_ids ? auth.uid()::text
+        or t.collaborators ? (auth.jwt() ->> 'email')
+        or t.allow_public_view = true
+        or t.is_template = true
+      )
+  );
+$$;
+
 -- ---------- POLICY trips ----------
--- select: user pemilik ATAU template publik ATAU trip publik
+-- select: user pemilik ATAU kolaborator ATAU template publik ATAU trip publik
 drop policy if exists "trips_select" on public.trips;
 create policy "trips_select" on public.trips
   for select using (
-    user_id = auth.uid()::text or is_template = true or allow_public_view = true
+    user_id = auth.uid()::text
+    or collaborators ? (auth.jwt() ->> 'email')
+    or is_template = true
+    or allow_public_view = true
   );
 
 drop policy if exists "trips_insert" on public.trips;
@@ -139,152 +165,152 @@ create policy "trips_delete" on public.trips
 -- ---------- POLICY itinerary_days ----------
 drop policy if exists "days_select" on public.itinerary_days;
 create policy "days_select" on public.itinerary_days
-  for select using (user_id = auth.uid()::text);
+  for select using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "days_insert" on public.itinerary_days;
 create policy "days_insert" on public.itinerary_days
-  for insert with check (user_id = auth.uid()::text);
+  for insert with check (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "days_update" on public.itinerary_days;
 create policy "days_update" on public.itinerary_days
-  for update using (user_id = auth.uid()::text);
+  for update using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "days_delete" on public.itinerary_days;
 create policy "days_delete" on public.itinerary_days
-  for delete using (user_id = auth.uid()::text);
+  for delete using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 -- ---------- POLICY itinerary_items ----------
 drop policy if exists "items_select" on public.itinerary_items;
 create policy "items_select" on public.itinerary_items
-  for select using (user_id = auth.uid()::text);
+  for select using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "items_insert" on public.itinerary_items;
 create policy "items_insert" on public.itinerary_items
-  for insert with check (user_id = auth.uid()::text);
+  for insert with check (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "items_update" on public.itinerary_items;
 create policy "items_update" on public.itinerary_items
-  for update using (user_id = auth.uid()::text);
+  for update using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "items_delete" on public.itinerary_items;
 create policy "items_delete" on public.itinerary_items
-  for delete using (user_id = auth.uid()::text);
+  for delete using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 -- ---------- POLICY places ----------
 drop policy if exists "places_select" on public.places;
 create policy "places_select" on public.places
-  for select using (user_id = auth.uid()::text);
+  for select using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "places_insert" on public.places;
 create policy "places_insert" on public.places
-  for insert with check (user_id = auth.uid()::text);
+  for insert with check (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "places_update" on public.places;
 create policy "places_update" on public.places
-  for update using (user_id = auth.uid()::text);
+  for update using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "places_delete" on public.places;
 create policy "places_delete" on public.places
-  for delete using (user_id = auth.uid()::text);
+  for delete using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 -- ---------- POLICY expenses ----------
 drop policy if exists "expenses_select" on public.expenses;
 create policy "expenses_select" on public.expenses
-  for select using (user_id = auth.uid()::text);
+  for select using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "expenses_insert" on public.expenses;
 create policy "expenses_insert" on public.expenses
-  for insert with check (user_id = auth.uid()::text);
+  for insert with check (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "expenses_update" on public.expenses;
 create policy "expenses_update" on public.expenses
-  for update using (user_id = auth.uid()::text);
+  for update using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "expenses_delete" on public.expenses;
 create policy "expenses_delete" on public.expenses
-  for delete using (user_id = auth.uid()::text);
+  for delete using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 -- ---------- POLICY bookings ----------
 drop policy if exists "bookings_select" on public.bookings;
 create policy "bookings_select" on public.bookings
-  for select using (user_id = auth.uid()::text);
+  for select using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "bookings_insert" on public.bookings;
 create policy "bookings_insert" on public.bookings
-  for insert with check (user_id = auth.uid()::text);
+  for insert with check (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "bookings_update" on public.bookings;
 create policy "bookings_update" on public.bookings
-  for update using (user_id = auth.uid()::text);
+  for update using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "bookings_delete" on public.bookings;
 create policy "bookings_delete" on public.bookings
-  for delete using (user_id = auth.uid()::text);
+  for delete using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 -- ---------- POLICY packing_items ----------
 drop policy if exists "packing_select" on public.packing_items;
 create policy "packing_select" on public.packing_items
-  for select using (user_id = auth.uid()::text);
+  for select using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "packing_insert" on public.packing_items;
 create policy "packing_insert" on public.packing_items
-  for insert with check (user_id = auth.uid()::text);
+  for insert with check (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "packing_update" on public.packing_items;
 create policy "packing_update" on public.packing_items
-  for update using (user_id = auth.uid()::text);
+  for update using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "packing_delete" on public.packing_items;
 create policy "packing_delete" on public.packing_items
-  for delete using (user_id = auth.uid()::text);
+  for delete using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 -- ---------- POLICY transports ----------
 drop policy if exists "transports_select" on public.transports;
 create policy "transports_select" on public.transports
-  for select using (user_id = auth.uid()::text);
+  for select using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "transports_insert" on public.transports;
 create policy "transports_insert" on public.transports
-  for insert with check (user_id = auth.uid()::text);
+  for insert with check (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "transports_update" on public.transports;
 create policy "transports_update" on public.transports
-  for update using (user_id = auth.uid()::text);
+  for update using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "transports_delete" on public.transports;
 create policy "transports_delete" on public.transports
-  for delete using (user_id = auth.uid()::text);
+  for delete using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 -- ---------- POLICY notes ----------
 drop policy if exists "notes_select" on public.notes;
 create policy "notes_select" on public.notes
-  for select using (user_id = auth.uid()::text);
+  for select using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "notes_insert" on public.notes;
 create policy "notes_insert" on public.notes
-  for insert with check (user_id = auth.uid()::text);
+  for insert with check (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "notes_update" on public.notes;
 create policy "notes_update" on public.notes
-  for update using (user_id = auth.uid()::text);
+  for update using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "notes_delete" on public.notes;
 create policy "notes_delete" on public.notes
-  for delete using (user_id = auth.uid()::text);
+  for delete using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 -- ---------- POLICY moodboard_items ----------
 drop policy if exists "moodboard_select" on public.moodboard_items;
 create policy "moodboard_select" on public.moodboard_items
-  for select using (user_id = auth.uid()::text);
+  for select using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "moodboard_insert" on public.moodboard_items;
 create policy "moodboard_insert" on public.moodboard_items
-  for insert with check (user_id = auth.uid()::text);
+  for insert with check (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "moodboard_update" on public.moodboard_items;
 create policy "moodboard_update" on public.moodboard_items
-  for update using (user_id = auth.uid()::text);
+  for update using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
 
 drop policy if exists "moodboard_delete" on public.moodboard_items;
 create policy "moodboard_delete" on public.moodboard_items
-  for delete using (user_id = auth.uid()::text);
+  for delete using (user_id = auth.uid()::text or public.can_access_trip(trip_id));
