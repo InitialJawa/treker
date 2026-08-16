@@ -519,6 +519,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
         bookings={tripBookings}
         expenses={tripExpenses}
         packing={tripPacking}
+        transports={tripTransports}
       />
 
       {/* Share / Collaboration Modal */}
