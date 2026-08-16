@@ -32,18 +32,6 @@ export const LoginView: React.FC = () => {
     }
   };
 
-  const handleQuickGuestLogin = async () => {
-    setErrorMsg(null);
-    setLoading(true);
-    try {
-      await loginWithEmail('imamnasrulloh02@gmail.com', 'password123');
-    } catch (err) {
-      console.warn('Quick login notice:', err);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleEmailAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email || !password) {
@@ -164,17 +152,6 @@ export const LoginView: React.FC = () => {
             <span className="truncate">
               {loading ? 'Memproses...' : 'Masuk dengan Akun Google'}
             </span>
-          </button>
-
-          {/* QUICK 1-CLICK DEMO LOGIN */}
-          <button
-            type="button"
-            onClick={handleQuickGuestLogin}
-            disabled={loading}
-            className="w-full py-2.5 px-4 rounded-2xl bg-amber-50 hover:bg-amber-100 border border-amber-200 text-amber-900 font-bold text-xs transition-all flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
-            <span>Masuk Cepat Instan (1-Klik)</span>
           </button>
 
           {/* Divider */}
