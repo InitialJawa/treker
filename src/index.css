@@ -51,6 +51,8 @@
   .no-print { display: none !important; }
   body { background: white !important; }
 
+  body > #root { display: none !important; }
+
   .print-modal {
     position: static !important;
     inset: auto !important;
@@ -75,5 +77,11 @@
   .print-modal .max-h-[90vh] {
     max-height: none !important;
     overflow: visible !important;
+  }
+
+  .print-modal,
+  .print-modal * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
   }
 }

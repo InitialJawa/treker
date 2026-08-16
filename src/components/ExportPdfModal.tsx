@@ -1,4 +1,5 @@
 import React from 'react';
+import { createPortal } from 'react-dom';
 import { X, Printer, Share2, Download, CheckCircle, Copy, MapPin, Calendar, DollarSign, Users } from 'lucide-react';
 import { Trip, ItineraryDay, ItineraryItem, Booking, Expense, PackingItem } from '../types/travel';
 import { formatCurrency, formatDateRange } from '../utils/formatters';
@@ -39,7 +40,7 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
     setTimeout(() => setIsCopied(false), 3000);
   };
 
-  return (
+  return createPortal(
     <div className="print-modal fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="print-modal-card bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative border border-[#E8EBEF] overflow-hidden">
         {/* Top Action Header */}
@@ -187,5 +188,5 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
         </div>
       </div>
     </div>
-  );
+  , document.body);
 };
