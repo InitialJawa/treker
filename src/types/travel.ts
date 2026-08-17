@@ -50,6 +50,8 @@ export interface ItineraryItem {
   description?: string;
   notes?: string;
   imageUrl?: string;
+  spotImageUrl?: string;
+  outfitImageUrl?: string;
   transportType?: string;
   sortOrder: number;
 }

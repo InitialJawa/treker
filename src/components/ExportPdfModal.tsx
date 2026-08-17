@@ -1,6 +1,6 @@
 import React from 'react';
 import { createPortal } from 'react-dom';
-import { X, Printer, Share2, CheckCircle, MapPin, Calendar, Users, Clock, Wallet, Landmark, Luggage, Route, Plane, Train, Car, Bus, Footprints } from 'lucide-react';
+import { X, Printer, Share2, CheckCircle, MapPin, Calendar, Users, Clock, Wallet, Landmark, Luggage, Route, Plane, Train, Car, Bus, Footprints, Shirt } from 'lucide-react';
 import { Trip, ItineraryDay, ItineraryItem, Booking, Expense, PackingItem, TransportLeg } from '../types/travel';
 import { formatCurrency, formatDateRange, calculateTripDurationDays } from '../utils/formatters';
 
@@ -219,6 +219,22 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
                                 </div>
                                 {item.location && <p className="text-[11px] text-[#6F7787] mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" /> {item.location}</p>}
                                 {item.description && <p className="text-[11px] text-gray-500 mt-0.5">{item.description}</p>}
+                                {(item.spotImageUrl || item.imageUrl || item.outfitImageUrl) && (
+                                  <div className="mt-1.5 flex flex-wrap gap-1.5 items-center">
+                                    {(item.spotImageUrl || item.imageUrl) && (
+                                      <span className="inline-flex items-center gap-1">
+                                        <img src={item.spotImageUrl || item.imageUrl} alt={`Spot ${item.title}`} className="h-10 w-14 rounded-md object-cover border border-gray-200" />
+                                        <span className="flex items-center gap-0.5 text-[9px] font-bold text-[#6F7787]"><MapPin className="w-2.5 h-2.5" />Spot</span>
+                                      </span>
+                                    )}
+                                    {item.outfitImageUrl && (
+                                      <span className="inline-flex items-center gap-1">
+                                        <img src={item.outfitImageUrl} alt={`Outfit ${item.title}`} className="h-10 w-14 rounded-md object-cover border border-gray-200" />
+                                        <span className="flex items-center gap-0.5 text-[9px] font-bold text-[#6F7787]"><Shirt className="w-2.5 h-2.5" />Outfit</span>
+                                      </span>
+                                    )}
+                                  </div>
+                                )}
                               </div>
                               <span className="shrink-0 text-[11px] font-bold text-gray-600">{formatCurrency(item.estimatedCost, trip.currency)}</span>
                             </div>

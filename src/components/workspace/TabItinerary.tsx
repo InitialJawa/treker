@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
-import { Plus, Clock, MapPin, DollarSign, Edit3, Trash2, Copy, ChevronUp, ChevronDown, Utensils, Car, Hotel, Compass, ShoppingBag, Coffee, MoreHorizontal, MoveRight, Image as ImageIcon, Upload, X } from 'lucide-react';
+import { Plus, Clock, MapPin, DollarSign, Edit3, Trash2, Copy, ChevronUp, ChevronDown, Utensils, Car, Hotel, Compass, ShoppingBag, Coffee, MoreHorizontal, MoveRight, Image as ImageIcon, Upload, X, Shirt } from 'lucide-react';
 import { Trip, ItineraryDay, ItineraryItem, ItineraryCategory } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
 import { formatCurrency } from '../../utils/formatters';
-import { resizeImage } from '../../utils/imageUtils';
 import { ImagePickerField } from '../ImagePickerField';
 
 interface TabItineraryProps {
@@ -32,6 +31,8 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
   const [description, setDescription] = useState('');
   const [notes, setNotes] = useState('');
   const [imageUrl, setImageUrl] = useState('');
+  const [spotImageUrl, setSpotImageUrl] = useState('');
+  const [outfitImageUrl, setOutfitImageUrl] = useState('');
   const [transportType, setTransportType] = useState('Car');
   const [isUploading, setIsUploading] = useState(false);
 
@@ -67,6 +68,8 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
     setDescription('');
     setNotes('');
     setImageUrl('');
+    setSpotImageUrl('');
+    setOutfitImageUrl('');
     setIsModalOpen(true);
   };
 
@@ -142,20 +145,6 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
     setItemToMove(null);
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    try {
-      setIsUploading(true);
-      const resizedDataUrl = await resizeImage(file, 1000);
-      setImageUrl(resizedDataUrl);
-    } catch (err) {
-      console.error('Failed to process image:', err);
-    } finally {
-      setIsUploading(false);
-    }
-  };
-
   const handleOpenEdit = (item: ItineraryItem) => {
     setEditingItem(item);
     setTitle(item.title);
@@ -167,6 +156,8 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
     setDescription(item.description || '');
     setNotes(item.notes || '');
     setImageUrl(item.imageUrl || '');
+    setSpotImageUrl(item.spotImageUrl || '');
+    setOutfitImageUrl(item.outfitImageUrl || '');
     setIsModalOpen(true);
   };
 
@@ -224,6 +215,8 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
         description,
         notes,
         imageUrl: imageUrl.trim(),
+        spotImageUrl: spotImageUrl.trim(),
+        outfitImageUrl: outfitImageUrl.trim(),
         transportType,
       });
     } else {
@@ -239,6 +232,8 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
         description,
         notes,
         imageUrl: imageUrl.trim(),
+        spotImageUrl: spotImageUrl.trim(),
+        outfitImageUrl: outfitImageUrl.trim(),
         transportType,
       });
     }
@@ -507,23 +502,49 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     </p>
                   )}
 
-                  {/* Activity Photo Attachment */}
-                  {item.imageUrl && (
-                    <div className="mt-2">
-                      <div 
-                        onClick={() => setPreviewImage(item.imageUrl!)} 
-                        className="relative group/img cursor-pointer inline-block rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 shadow-xs max-w-xs"
-                      >
-                        <img 
-                          src={item.imageUrl} 
-                          alt={item.title} 
-                          className="h-28 md:h-36 w-full object-cover group-hover/img:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
-                          <ImageIcon className="w-4 h-4" />
-                          <span>Lihat Foto</span>
+                  {/* Spot & Outfit Media Strip */}
+                  {(item.spotImageUrl || item.imageUrl || item.outfitImageUrl) && (
+                    <div className="mt-2 flex flex-wrap gap-2">
+                      {(item.spotImageUrl || item.imageUrl) && (
+                        <div
+                          onClick={() => setPreviewImage(item.spotImageUrl || item.imageUrl!)}
+                          className="relative group/img cursor-pointer rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 shadow-xs h-24 md:h-28 w-40 shrink-0"
+                        >
+                          <span className="absolute top-1.5 left-1.5 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-sm text-white text-[10px] font-bold">
+                            <MapPin className="w-3 h-3 text-pink-300" />
+                            Spot
+                          </span>
+                          <img
+                            src={item.spotImageUrl || item.imageUrl}
+                            alt={`Spot ${item.title}`}
+                            className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
+                            <ImageIcon className="w-4 h-4" />
+                            <span>Lihat Foto</span>
+                          </div>
                         </div>
-                      </div>
+                      )}
+                      {item.outfitImageUrl && (
+                        <div
+                          onClick={() => setPreviewImage(item.outfitImageUrl!)}
+                          className="relative group/img cursor-pointer rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 shadow-xs h-24 md:h-28 w-40 shrink-0"
+                        >
+                          <span className="absolute top-1.5 left-1.5 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-sm text-white text-[10px] font-bold">
+                            <Shirt className="w-3 h-3 text-pink-300" />
+                            Outfit
+                          </span>
+                          <img
+                            src={item.outfitImageUrl}
+                            alt={`Outfit ${item.title}`}
+                            className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-300"
+                          />
+                          <div className="absolute inset-0 bg-black/30 opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-bold gap-1">
+                            <ImageIcon className="w-4 h-4" />
+                            <span>Lihat Foto</span>
+                          </div>
+                        </div>
+                      )}
                     </div>
                   )}
                 </div>
@@ -849,11 +870,16 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               </div>
 
               {/* Image Attachment Field */}
-              <div className="pt-1 border-t border-gray-100">
+              <div className="pt-1 space-y-4 border-t border-gray-100">
                 <ImagePickerField
-                  value={imageUrl}
-                  onChange={setImageUrl}
-                  label="Foto Aktivitas / Lokasi"
+                  value={spotImageUrl}
+                  onChange={setSpotImageUrl}
+                  label="Foto Spot / Lokasi"
+                />
+                <ImagePickerField
+                  value={outfitImageUrl}
+                  onChange={setOutfitImageUrl}
+                  label="Rekomendasi Outfit"
                 />
               </div>
 

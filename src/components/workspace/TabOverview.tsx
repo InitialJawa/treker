@@ -144,6 +144,24 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
           sourceType: 'itinerary'
         });
       }
+      if (item.spotImageUrl) {
+        list.push({
+          id: `item-${item.id}-spot`,
+          url: item.spotImageUrl,
+          title: `${item.title} · Spot`,
+          category: `Spot ${item.time || ''}`,
+          sourceType: 'itinerary'
+        });
+      }
+      if (item.outfitImageUrl) {
+        list.push({
+          id: `item-${item.id}-outfit`,
+          url: item.outfitImageUrl,
+          title: `${item.title} · Outfit`,
+          category: `Outfit ${item.time || ''}`,
+          sourceType: 'itinerary'
+        });
+      }
     });
 
     // Moodboards
