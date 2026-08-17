@@ -10,6 +10,7 @@
   --color-dark: #20263D;
   --color-gray-custom: #64748B;
   --color-border-soft: #E8EBEF;
+  --color-surface-muted: #F1F5F9;
   --color-selection: rgba(225, 29, 72, 0.2);
   --color-selection-text: #E11D48;
 }
@@ -25,6 +26,7 @@
     --color-dark: #20263D;
     --color-gray-custom: #64748B;
     --color-border-soft: #E8EBEF;
+    --color-surface-muted: #F1F5F9;
     --color-selection: rgba(225, 29, 72, 0.2);
     --color-selection-text: #E11D48;
   }
