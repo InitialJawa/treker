@@ -44,7 +44,6 @@ function MainApp() {
         currentView={currentView}
         onNavigate={handleNavigateView}
         openCreateTripModal={() => setIsCreateModalOpen(true)}
-        openPublicTemplatesModal={() => setIsPublicTemplatesModalOpen(true)}
         trips={trips}
         activeTripId={selectedTrip?.id || ''}
         onSelectTrip={handleSelectTrip}

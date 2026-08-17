@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useAuth } from '../context/AuthContext';
-import { Compass, LogOut, PlusCircle, Settings, User as UserIcon, ChevronDown, Check, Users, FolderKanban, BookOpen } from 'lucide-react';
+import { Compass, LogOut, PlusCircle, Settings, User as UserIcon, ChevronDown, Check, Users, FolderKanban, Home, Lock } from 'lucide-react';
 import { Trip } from '../types/travel';
+import { getBadgeData, isTemplateReadOnly } from '../utils/tripBadges';
 
 interface TopNavProps {
   currentView: string;
@@ -10,7 +11,6 @@ interface TopNavProps {
   trips: Trip[];
   activeTripId: string;
   onSelectTrip: (id: string) => void;
-  openPublicTemplatesModal?: () => void;
 }
 
 export const TopNav: React.FC<TopNavProps> = ({ 
@@ -20,7 +20,6 @@ export const TopNav: React.FC<TopNavProps> = ({
   trips,
   activeTripId,
   onSelectTrip,
-  openPublicTemplatesModal
 }) => {
   const { user, logout } = useAuth();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -68,9 +67,10 @@ export const TopNav: React.FC<TopNavProps> = ({
                 <span className="text-[11px] md:text-sm font-extrabold text-dark group-hover:text-primary-pink transition-colors truncate">
                   {activeTrip ? activeTrip.name : 'Pilih Project'}
                 </span>
-                {activeTrip && activeTrip.userId && user && activeTrip.userId !== user.uid && (
-                  <span className="bg-purple-100 text-purple-700 text-[9px] font-extrabold px-1.5 py-0.2 rounded-md shrink-0 flex items-center gap-0.5">
-                    <Users className="w-2.5 h-2.5" /> Shared
+                {activeTrip && getBadgeData(activeTrip, user).type !== 'pribadi' && (
+                  <span className={`${getBadgeData(activeTrip, user).bgClass} ${getBadgeData(activeTrip, user).textClass} text-[9px] font-extrabold px-1.5 py-0.2 rounded-md shrink-0 flex items-center gap-0.5`}>
+                    {getBadgeData(activeTrip, user).type === 'shared' ? <Users className="w-2.5 h-2.5" /> : <Lock className="w-2.5 h-2.5" />}
+                    {getBadgeData(activeTrip, user).label}
                   </span>
                 )}
               </div>
@@ -111,10 +111,13 @@ export const TopNav: React.FC<TopNavProps> = ({
                              <span className={`text-xs font-extrabold truncate ${activeTripId === trip.id ? 'text-primary-pink' : 'text-dark group-hover:text-primary-pink'}`}>
                                {trip.name}
                              </span>
-                             {trip.isTemplate && (
-                               <span className="bg-soft-pink text-primary-pink text-[9px] font-extrabold px-1.5 py-0.2 rounded-md shrink-0 border border-primary-pink/20">
-                                 Template
+                             {getBadgeData(trip, user).type !== 'pribadi' && (
+                               <span className={`text-[9px] font-extrabold px-1.5 py-0.2 rounded-md shrink-0 border ${getBadgeData(trip, user).bgClass} ${getBadgeData(trip, user).textClass}`}>
+                                 {getBadgeData(trip, user).label}
                                </span>
+                             )}
+                             {isTemplateReadOnly(trip, user) && (
+                               <Lock className="w-3 h-3 text-amber-600 shrink-0" />
                              )}
                            </div>
                            <span className="text-[10px] text-gray-400 font-medium truncate">{trip.destination}</span>
@@ -148,9 +151,14 @@ export const TopNav: React.FC<TopNavProps> = ({
                              <span className={`text-xs font-extrabold truncate ${activeTripId === trip.id ? 'text-purple-700' : 'text-dark group-hover:text-purple-700'}`}>
                                {trip.name}
                              </span>
-                             <span className="bg-purple-100 text-purple-700 text-[9px] font-bold px-1.5 py-0.2 rounded-md shrink-0">
-                               Shared
-                             </span>
+                             {getBadgeData(trip, user).type === 'shared' && (
+                               <span className={`text-[9px] font-bold px-1.5 py-0.2 rounded-md shrink-0 border ${getBadgeData(trip, user).bgClass} ${getBadgeData(trip, user).textClass}`}>
+                                 {getBadgeData(trip, user).label}
+                               </span>
+                             )}
+                             {isTemplateReadOnly(trip, user) && (
+                               <Lock className="w-3 h-3 text-amber-600 shrink-0" />
+                             )}
                            </div>
                            <span className="text-[10px] text-gray-400 font-medium truncate">{trip.destination}</span>
                         </div>
@@ -171,18 +179,6 @@ export const TopNav: React.FC<TopNavProps> = ({
                 >
                   <PlusCircle className="w-4 h-4" /> Buat Project Baru
                 </button>
-
-                {openPublicTemplatesModal && (
-                  <button
-                    onClick={() => {
-                      openPublicTemplatesModal();
-                      setIsDropdownOpen(false);
-                    }}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-primary-pink bg-soft-pink hover:bg-pink-100 rounded-xl transition-colors border border-primary-pink/10"
-                  >
-                    <BookOpen className="w-4 h-4 text-primary-pink" /> Katalog Template Publik
-                  </button>
-                )}
               </div>
             </div>
           )}
@@ -193,6 +189,7 @@ export const TopNav: React.FC<TopNavProps> = ({
       <div className="flex items-center gap-2 md:gap-3 shrink-0 ml-auto">
         <nav className="hidden md:flex items-center gap-2">
           {[
+            { id: 'Dashboard', label: 'Home', icon: Home },
             { id: 'Workspace', label: 'Tracker', icon: Compass },
             { id: 'Account', label: 'Account & Settings', icon: Settings }
           ].map(nav => (
