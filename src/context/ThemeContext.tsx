@@ -1,12 +1,14 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { ThemeColors, THEME_PRESETS, DEFAULT_THEME } from '../types/theme';
+import { ThemeColors, ThemeMode, THEME_PRESETS, DEFAULT_THEME, DEFAULT_DARK_THEME } from '../types/theme';
 import { useAuth } from './AuthContext';
 import { supabase, isSupabaseConfigured } from '../services/supabase';
 
 interface ThemeContextType {
   presetId: string;
+  mode: ThemeMode;
   colors: ThemeColors;
   setPreset: (id: string) => Promise<void>;
+  setMode: (mode: ThemeMode) => Promise<void>;
   updateColor: (key: keyof ThemeColors, value: string) => Promise<void>;
   resetToDefault: () => Promise<void>;
   isSaving: boolean;
@@ -15,6 +17,16 @@ interface ThemeContextType {
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 const LOCAL_STORAGE_KEY = 'treker_user_theme';
+
+const getPalette = (presetId: string, mode: ThemeMode): ThemeColors => {
+  const preset = THEME_PRESETS.find((p) => p.id === presetId);
+  if (!preset) return mode === 'dark' ? DEFAULT_DARK_THEME : DEFAULT_THEME;
+  return mode === 'dark' ? preset.darkColors : preset.colors;
+};
+
+const resolveMode = (storedMode: unknown): ThemeMode => (storedMode === 'dark' ? 'dark' : 'light');
+const resolvePreset = (storedPreset: unknown): string =>
+  storedPreset === 'dark' ? 'rose' : typeof storedPreset === 'string' ? storedPreset : 'custom';
 
 const applyColorsToDOM = (colors: ThemeColors) => {
   const root = document.documentElement;
@@ -28,12 +40,14 @@ const applyColorsToDOM = (colors: ThemeColors) => {
   root.style.setProperty('--color-border-soft', colors.border);
   root.style.setProperty('--color-selection', colors.selection || `${colors.primary}33`);
   root.style.setProperty('--color-selection-text', colors.selectionText || colors.primary);
+  root.style.setProperty('--color-surface-muted', colors.surfaceMuted);
 };
 
 export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { user } = useAuth();
   const [presetId, setPresetId] = useState<string>('rose');
   const [colors, setColors] = useState<ThemeColors>(DEFAULT_THEME);
+  const [mode, setModeState] = useState<ThemeMode>('light');
   const [isSaving, setIsSaving] = useState<boolean>(false);
 
   // 1. Initial load from LocalStorage
@@ -43,9 +57,16 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       if (cached) {
         const parsed = JSON.parse(cached);
         if (parsed.colors) {
-          setColors(parsed.colors);
-          setPresetId(parsed.presetId || 'custom');
-          applyColorsToDOM(parsed.colors);
+          const loadedMode = resolveMode(parsed.mode);
+          const loadedPreset = resolvePreset(parsed.presetId);
+          const mergedColors: ThemeColors = {
+            ...getPalette(loadedPreset, loadedMode),
+            ...(parsed.colors || {}),
+          };
+          setModeState(loadedMode);
+          setPresetId(loadedPreset);
+          setColors(mergedColors);
+          applyColorsToDOM(mergedColors);
         }
       } else {
         applyColorsToDOM(DEFAULT_THEME);
@@ -70,20 +91,22 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
 
         if (!error && data?.theme) {
           const userTheme = data.theme;
+          const loadedMode = resolveMode(userTheme.mode);
+          const loadedPreset = resolvePreset(userTheme.presetId);
           const mergedColors: ThemeColors = {
-            ...DEFAULT_THEME,
-            ...(userTheme.colors || {})
+            ...getPalette(loadedPreset, loadedMode),
+            ...(userTheme.colors || {}),
           };
-          const loadedPreset = userTheme.presetId || 'custom';
 
-          setColors(mergedColors);
+          setModeState(loadedMode);
           setPresetId(loadedPreset);
+          setColors(mergedColors);
           applyColorsToDOM(mergedColors);
 
-          // Update cache
           localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
             presetId: loadedPreset,
-            colors: mergedColors
+            mode: loadedMode,
+            colors: mergedColors,
           }));
         }
       } catch (error) {
@@ -95,17 +118,19 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   }, [user]);
 
   // Save helper to Supabase + LocalStorage
-  const saveThemeSettings = async (newPresetId: string, newColors: ThemeColors) => {
+  const saveThemeSettings = async (newPresetId: string, newMode: ThemeMode, newColors: ThemeColors) => {
     setIsSaving(true);
     setColors(newColors);
     setPresetId(newPresetId);
+    setModeState(newMode);
     applyColorsToDOM(newColors);
 
     // Save to LocalStorage
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify({
         presetId: newPresetId,
-        colors: newColors
+        mode: newMode,
+        colors: newColors,
       }));
     } catch (err) {
       console.warn('LocalStorage save error:', err);
@@ -120,8 +145,9 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
           updated_at: new Date().toISOString(),
           theme: {
             presetId: newPresetId,
-            colors: newColors
-          }
+            mode: newMode,
+            colors: newColors,
+          },
         });
       } catch (err) {
         console.warn('Supabase theme save notice:', err);
@@ -132,9 +158,20 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
   };
 
   const setPreset = async (id: string) => {
-    const foundPreset = THEME_PRESETS.find(p => p.id === id);
+    const foundPreset = THEME_PRESETS.find((p) => p.id === id);
     if (foundPreset) {
-      await saveThemeSettings(id, foundPreset.colors);
+      const palette = mode === 'dark' ? foundPreset.darkColors : foundPreset.colors;
+      await saveThemeSettings(id, mode, palette);
+    }
+  };
+
+  const setMode = async (m: ThemeMode) => {
+    const foundPreset = THEME_PRESETS.find((p) => p.id === presetId);
+    if (foundPreset) {
+      const palette = m === 'dark' ? foundPreset.darkColors : foundPreset.colors;
+      await saveThemeSettings(presetId, m, palette);
+    } else {
+      await saveThemeSettings('custom', m, colors);
     }
   };
 
@@ -144,25 +181,27 @@ export const ThemeProvider: React.FC<{ children: ReactNode }> = ({ children }) =
       [key]: value,
       ...(key === 'primary' ? {
         selection: `${value}33`,
-        selectionText: value
+        selectionText: value,
       } : {})
     };
-    await saveThemeSettings('custom', updatedColors);
+    await saveThemeSettings('custom', mode, updatedColors);
   };
 
   const resetToDefault = async () => {
-    await saveThemeSettings('rose', DEFAULT_THEME);
+    await saveThemeSettings('rose', 'light', DEFAULT_THEME);
   };
 
   return (
     <ThemeContext.Provider
       value={{
         presetId,
+        mode,
         colors,
         setPreset,
+        setMode,
         updateColor,
         resetToDefault,
-        isSaving
+        isSaving,
       }}
     >
       {children}
