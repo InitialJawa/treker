@@ -77,7 +77,7 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
 
   return createPortal(
     <div className="print-modal fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="print-modal-card bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative border border-card-pink overflow-hidden">
+      <div className="print-modal-card bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative border border-card-pink overflow-hidden">
         {/* Top Action Header */}
         <div className="p-4 md:p-6 border-b border-card-pink flex items-center justify-between bg-white z-10 no-print">
           <div>

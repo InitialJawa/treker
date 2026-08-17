@@ -136,7 +136,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-white p-3 md:p-5 rounded-[24px] border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
+      <div className="bg-white p-3 md:p-5 rounded-2xl border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div>
           <span className="text-[10px] md:text-xs font-extrabold text-primary-pink tracking-wider uppercase">Reservations</span>
           <h2 className="text-base md:text-lg md:text-xl font-extrabold text-dark">Booking Manager</h2>
@@ -156,7 +156,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
 
       {/* Booking Cards Grid */}
       {bookings.length === 0 ? (
-        <div className="bg-white rounded-[32px] border border-card-pink p-12 text-center text-gray-custom shadow-sm">
+        <div className="bg-white rounded-3xl border border-card-pink p-12 text-center text-gray-custom shadow-sm">
           <Hotel className="w-12 h-12 mx-auto mb-2 text-soft-pink" />
           <h3 className="font-bold text-sm md:text-base text-dark">Belum ada reservasi tersimpan</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Simpan bukti voucher hotel, tiket pesawat, atau penyewaan kendaraan.</p>
@@ -274,7 +274,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+          <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
             <h3 className="font-bold text-sm md:text-base text-dark mb-4">
               {editingBooking ? 'Edit Booking' : 'Add Booking'}
             </h3>

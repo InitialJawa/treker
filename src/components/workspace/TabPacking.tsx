@@ -52,7 +52,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
   return (
     <div className="space-y-6">
       {/* Header Bar */}
-      <div className="bg-white p-3 md:p-6 rounded-[32px] border border-card-pink shadow-sm">
+      <div className="bg-white p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4 mb-4">
           <div>
             <span className="text-xs font-extrabold text-primary-pink tracking-wider uppercase">Checklist</span>
@@ -93,7 +93,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
 
       {/* Category Groups */}
       {tripPacking.length === 0 ? (
-        <div className="bg-white rounded-[32px] border border-card-pink p-12 text-center text-gray-custom shadow-sm">
+        <div className="bg-white rounded-3xl border border-card-pink p-12 text-center text-gray-custom shadow-sm">
           <CheckSquare className="w-12 h-12 mx-auto mb-2 text-soft-pink" />
           <h3 className="font-bold text-sm md:text-base text-dark">Belum ada item barang bawaan</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Klik AI Auto-Fill untuk menghasilkan daftar barang bawaan otomatis.</p>
@@ -112,7 +112,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
             if (catItems.length === 0) return null;
 
             return (
-              <div key={cat} className="bg-white rounded-[32px] border border-card-pink overflow-hidden shadow-sm">
+              <div key={cat} className="bg-white rounded-3xl border border-card-pink overflow-hidden shadow-sm">
                 <div className="p-3 md:p-5 bg-offwhite border-b border-card-pink flex items-center justify-between">
                   <h3 className="font-extrabold text-sm text-dark">{cat}</h3>
                   <span className="text-xs font-semibold text-gray-custom">
@@ -167,7 +167,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+          <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
             <h3 className="font-bold text-sm md:text-base text-dark mb-4">Add Packing Item</h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">

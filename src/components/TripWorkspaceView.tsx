@@ -373,7 +373,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       </div>
 
       {/* Hero Image Banner Card */}
-      <div className="relative rounded-[32px] overflow-hidden shadow-lg h-64 md:h-80 group border-[6px] border-white">
+      <div className="relative rounded-3xl overflow-hidden shadow-lg h-64 md:h-80 group border-[6px] border-white">
         <img
           src={trip.coverImage}
           alt={trip.name}

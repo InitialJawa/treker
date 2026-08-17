@@ -71,7 +71,7 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
-      <div className="bg-white rounded-3xl max-w-3xl w-full p-6 md:p-8 shadow-2xl relative border border-card-pink max-h-[90vh] flex flex-col">
+      <div className="bg-white rounded-2xl max-w-3xl w-full p-6 md:p-8 shadow-2xl relative border border-card-pink max-h-[90vh] flex flex-col">
         {/* Header */}
         <div className="flex items-center justify-between pb-4 border-b border-gray-100 shrink-0">
           <div className="flex items-center gap-3">

@@ -44,7 +44,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-white p-3 md:p-5 rounded-[24px] border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
+      <div className="bg-white p-3 md:p-5 rounded-2xl border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div>
           <span className="text-xs font-extrabold text-primary-pink tracking-wider uppercase">Route Flow</span>
           <h2 className="text-lg md:text-xl font-extrabold text-dark">Transport Planner</h2>
@@ -64,12 +64,12 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
 
       {/* Visual Route Diagram Flow */}
       {tripTransports.length > 0 && (
-        <div className="bg-white p-3 md:p-6 rounded-[32px] border border-card-pink shadow-sm">
+        <div className="bg-white p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
           <h3 className="font-extrabold text-sm text-dark mb-4">Route Sequential Flow</h3>
           <div className="flex items-center gap-2 overflow-x-auto pb-4 pt-2 no-scrollbar">
             {tripTransports.map((leg, idx) => (
               <React.Fragment key={leg.id}>
-                <div className="bg-soft-pink/50 border border-card-pink p-2 md:p-4 rounded-[20px] shrink-0 text-center min-w-[130px]">
+                <div className="bg-soft-pink/50 border border-card-pink p-2 md:p-4 rounded-2xl shrink-0 text-center min-w-[130px]">
                   <span className="text-[10px] font-bold text-primary-pink uppercase">Point {idx + 1}</span>
                   <p className="font-bold text-xs text-dark truncate">{leg.origin}</p>
                 </div>
@@ -83,7 +83,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
                 </div>
 
                 {idx === tripTransports.length - 1 && (
-                  <div className="bg-soft-pink/50 border border-card-pink p-2 md:p-4 rounded-[20px] shrink-0 text-center min-w-[130px]">
+                  <div className="bg-soft-pink/50 border border-card-pink p-2 md:p-4 rounded-2xl shrink-0 text-center min-w-[130px]">
                     <span className="text-[10px] font-bold text-primary-pink uppercase">Point {idx + 2}</span>
                     <p className="font-bold text-xs text-dark truncate">{leg.destination}</p>
                   </div>
@@ -95,7 +95,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
       )}
 
       {/* Detailed List */}
-      <div className="bg-white rounded-[32px] border border-card-pink overflow-hidden shadow-sm">
+      <div className="bg-white rounded-3xl border border-card-pink overflow-hidden shadow-sm">
         <div className="p-3 md:p-5 border-b border-card-pink font-extrabold text-sm text-dark">
           Transport Legs Details ({tripTransports.length})
         </div>
@@ -143,7 +143,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+          <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
             <h3 className="font-bold text-sm md:text-base text-dark mb-4">Add Transport Leg</h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">

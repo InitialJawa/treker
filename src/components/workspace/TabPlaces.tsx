@@ -161,7 +161,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
   return (
     <div className="space-y-6">
       {/* Top Bar Filter */}
-      <div className="bg-white p-3 md:p-5 rounded-[24px] border border-card-pink flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4 shadow-sm">
+      <div className="bg-white p-3 md:p-5 rounded-2xl border border-card-pink flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {['all', 'wishlist', 'planned', 'visited'].map((st) => (
             <button
@@ -189,7 +189,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
 
       {/* Places Cards Grid */}
       {filteredPlaces.length === 0 ? (
-        <div className="bg-white rounded-[32px] border border-card-pink p-12 text-center text-gray-custom shadow-sm">
+        <div className="bg-white rounded-3xl border border-card-pink p-12 text-center text-gray-custom shadow-sm">
           <Compass className="w-12 h-12 mx-auto mb-2 text-soft-pink" />
           <h3 className="font-bold text-sm md:text-base text-dark">Tidak ada tempat ditemukan</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Simpan tempat menarik atau gunakan tempat favorit dari Explore.</p>
@@ -203,7 +203,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
             >
               <div>
                 {/* Photo & Heart Favorite Badge */}
-                <div className="relative h-44 overflow-hidden bg-soft-pink m-2 rounded-[20px]">
+                <div className="relative h-44 overflow-hidden bg-soft-pink m-2 rounded-2xl">
                   <img
                     src={place.photos[0]}
                     alt={place.name}
@@ -310,7 +310,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
       {/* Day Picker Modal */}
       {selectedPlaceForItinerary && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-[32px] p-3 md:p-6 max-w-sm w-full shadow-2xl border border-card-pink space-y-4 animate-scale-up">
+          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-card-pink space-y-4 animate-scale-up">
             <h3 className="font-extrabold text-sm text-dark">
               Tambahkan "{selectedPlaceForItinerary.name}" ke Itinerary
             </h3>
@@ -351,7 +351,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+          <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
             <h3 className="font-bold text-sm md:text-base text-dark mb-4">{editingPlaceId ? "Edit Place" : "Add Place"}</h3>
 
             <form onSubmit={handleAddPlace} className="space-y-3 text-xs">

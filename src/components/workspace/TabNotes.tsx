@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { Plus, StickyNote, Edit3, Trash2, Calendar, Image as ImageIcon, Upload, X } from 'lucide-react';
+import { Plus, StickyNote, Edit3, Trash2, Calendar, Image as ImageIcon, X } from 'lucide-react';
 import { Trip, Note } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
 import { resizeImage } from '../../utils/imageUtils';
 import { ImagePickerField } from '../ImagePickerField';
+import { Button, Modal, EmptyState, Field } from '../ui';
 
 interface TabNotesProps {
   trip: Trip;
@@ -91,39 +92,34 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-white p-5 rounded-2xl border border-card-pink flex items-center justify-between gap-4 shadow-xs">
+      <div className="bg-white p-3 md:p-5 rounded-2xl border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div>
-          <span className="text-xs font-extrabold text-[var(--color-primary-pink)] tracking-wider uppercase">Trip Notes</span>
+          <span className="text-xs font-extrabold text-primary-pink tracking-wider uppercase">Trip Notes</span>
           <h2 className="text-xl font-extrabold text-dark">Important Reminders & Contacts</h2>
           <p className="text-xs text-gray-custom mt-0.5">
             Catatan penting, instruksi driver, dan reminder khusus perjalanan
           </p>
         </div>
 
-        <button
-          onClick={handleOpenAdd}
-          className="bg-[var(--color-primary-pink)] hover:bg-opacity-90 text-white px-5 py-2.5 rounded-xl font-bold text-xs flex items-center gap-2 shadow-sm"
-        >
+        <Button size="sm" onClick={handleOpenAdd} className="shrink-0 self-start sm:self-auto">
           <Plus className="w-4 h-4" />
           <span>New Note</span>
-        </button>
+        </Button>
       </div>
 
       {/* Sticky Notes Cards Grid */}
       {tripNotes.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-card-pink p-12 text-center text-gray-400">
-          <StickyNote className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-          <h3 className="font-bold text-base text-dark">Belum ada catatan tersimpan</h3>
-          <p className="text-xs text-gray-custom mt-1 mb-4">Catat nomor kontak driver, rekomendasi kuliner, atau reminder jeep.</p>
-          <button
-            onClick={handleOpenAdd}
-            className="bg-[var(--color-primary-pink)] text-white px-5 py-2 rounded-xl font-bold text-xs"
-          >
-            + New Note
-          </button>
-        </div>
+        <EmptyState
+          icon={<StickyNote className="w-12 h-12 mx-auto text-gray-300" />}
+          title="Belum ada catatan tersimpan"
+          description="Catat nomor kontak driver, rekomendasi kuliner, atau reminder jeep."
+        >
+          <Button size="sm" onClick={handleOpenAdd}>
+            <Plus className="w-4 h-4" /> New Note
+          </Button>
+        </EmptyState>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-5">
           {tripNotes.map((note) => (
             <div
               key={note.id}
@@ -136,12 +132,14 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => handleOpenEdit(note)}
+                      aria-label={`Edit catatan ${note.title}`}
                       className="p-1 hover:bg-black/5 rounded text-gray-700"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => deleteNote(note.id)}
+                      aria-label={`Hapus catatan ${note.title}`}
                       className="p-1 hover:bg-black/5 rounded text-red-600"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
@@ -187,84 +185,77 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
       )}
 
       {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-card-pink">
-            <h3 className="font-bold text-base text-dark mb-4">
-              {editingNote ? 'Edit Note' : 'Create Note'}
-            </h3>
+      <Modal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        size="sm"
+        title={editingNote ? 'Edit Note' : 'Create Note'}
+      >
+        <form onSubmit={handleSave} className="space-y-3 text-xs">
+          <Field label="Title" required>
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              placeholder="e.g. Booking Jeep H-7"
+              required
+              className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink focus:outline-none focus:border-primary-pink"
+            />
+          </Field>
 
-            <form onSubmit={handleSave} className="space-y-3 text-xs">
-              <div>
-                <label className="block font-semibold text-dark mb-1">Title</label>
-                <input
-                  type="text"
-                  value={title}
-                  onChange={(e) => setTitle(e.target.value)}
-                  placeholder="e.g. Booking Jeep H-7"
-                  required
-                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
-                />
-              </div>
+          <Field label="Content" required>
+            <textarea
+              value={content}
+              onChange={(e) => setContent(e.target.value)}
+              rows={4}
+              placeholder="Tulis catatan penting..."
+              required
+              className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink focus:outline-none focus:border-primary-pink"
+            />
+          </Field>
 
-              <div>
-                <label className="block font-semibold text-dark mb-1">Content</label>
-                <textarea
-                  value={content}
-                  onChange={(e) => setContent(e.target.value)}
-                  rows={4}
-                  placeholder="Tulis catatan penting..."
-                  required
-                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
-                />
-              </div>
-
-              <div>
-                <label className="block font-semibold text-dark mb-1">Card Color</label>
-                <div className="flex gap-2">
-                  {colors.map((c) => (
-                    <button
-                      key={c.hex}
-                      type="button"
-                      onClick={() => setColor(c.hex)}
-                      style={{ backgroundColor: c.hex }}
-                      className={`w-7 h-7 rounded-full border ${
-                        color === c.hex ? 'ring-2 ring-black' : 'border-gray-300'
-                      }`}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* Attachment / Image Field */}
-              <div className="pt-1 border-t border-gray-100">
-                <ImagePickerField
-                  value={imageUrl}
-                  onChange={setImageUrl}
-                  label="Lampiran Foto / Gambar"
-                />
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2">
+          <div>
+            <label className="block font-semibold text-dark mb-1">Card Color</label>
+            <div className="flex gap-2">
+              {colors.map((c) => (
                 <button
+                  key={c.hex}
                   type="button"
-                  onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={isUploading}
-                  className="px-5 py-2 rounded-xl bg-[var(--color-primary-pink)] text-white font-bold disabled:opacity-50"
-                >
-                  Save Note
-                </button>
-              </div>
-            </form>
+                  onClick={() => setColor(c.hex)}
+                  aria-label={c.name}
+                  title={c.name}
+                  style={{ backgroundColor: c.hex }}
+                  className={`w-7 h-7 rounded-full border cursor-pointer ${
+                    color === c.hex ? 'ring-2 ring-black' : 'border-gray-300'
+                  }`}
+                />
+              ))}
+            </div>
           </div>
-        </div>
-      )}
+
+          {/* Attachment / Image Field */}
+          <div className="pt-1 border-t border-gray-100">
+            <ImagePickerField
+              value={imageUrl}
+              onChange={setImageUrl}
+              label="Lampiran Foto / Gambar"
+            />
+          </div>
+
+          <div className="flex justify-end gap-2 pt-2">
+            <Button
+              variant="secondary"
+              type="button"
+              onClick={() => setIsModalOpen(false)}
+            >
+              Cancel
+            </Button>
+            <Button type="submit" loading={isUploading} disabled={isUploading}>
+              Save Note
+            </Button>
+          </div>
+        </form>
+      </Modal>
 
       {/* Lightbox Preview Modal */}
       {previewImage && (
@@ -275,11 +266,12 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
           <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-black" onClick={e => e.stopPropagation()}>
             <button
               onClick={() => setPreviewImage(null)}
+              aria-label="Tutup pratinjau"
               className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black text-white rounded-full z-10 transition-colors"
             >
               <X className="w-5 h-5" />
             </button>
-            <img src={previewImage} alt="Enlarged note preview" className="max-w-full max-h-[85vh] object-contain" />
+            <img src={previewImage} alt="Pratinjau catatan" className="max-w-full max-h-[85vh] object-contain" />
           </div>
         </div>
       )}

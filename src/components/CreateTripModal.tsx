@@ -93,7 +93,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 border border-card-pink">
+      <div className="bg-white rounded-2xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 border border-card-pink">
         {/* Close Button */}
         <button
           onClick={onClose}

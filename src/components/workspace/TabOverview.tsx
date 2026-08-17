@@ -426,7 +426,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
   return (
     <div className="space-y-6">
       {/* 🌟 Top Section: Customizable Instagram Travel Gallery Showcase */}
-      <div className="bg-white rounded-[32px] p-4 md:p-6 border border-card-pink shadow-xs space-y-4">
+      <div className="bg-white rounded-3xl p-4 md:p-6 border border-card-pink shadow-xs space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -595,7 +595,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
       {/* 4 Core Quick Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {/* Stat 1: Duration */}
-        <div className="bg-white p-4 md:p-5 rounded-[24px] border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
+        <div className="bg-white p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
           <div>
             <span className="text-[11px] font-bold text-gray-custom uppercase tracking-wider">Durasi Perjalanan</span>
             <h3 className="text-lg md:text-xl font-black text-dark mt-0.5">{duration} Hari</h3>
@@ -610,7 +610,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         </div>
 
         {/* Stat 2: Budget */}
-        <div className="bg-white p-4 md:p-5 rounded-[24px] border border-card-pink shadow-xs flex flex-col justify-between hover:border-primary-pink/50 transition-all">
+        <div className="bg-white p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex flex-col justify-between hover:border-primary-pink/50 transition-all">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-[11px] font-bold text-gray-custom uppercase tracking-wider">Pengeluaran Trip</span>
@@ -630,7 +630,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         </div>
 
         {/* Stat 3: Bookings */}
-        <div className="bg-white p-4 md:p-5 rounded-[24px] border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
+        <div className="bg-white p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
           <div>
             <span className="text-[11px] font-bold text-gray-custom uppercase tracking-wider">Status Reservasi</span>
             <h3 className="text-lg md:text-xl font-black text-dark mt-0.5">{confirmedBookingsCount} Terkonfirmasi</h3>
@@ -642,7 +642,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         </div>
 
         {/* Stat 4: Travelers */}
-        <div className="bg-white p-4 md:p-5 rounded-[24px] border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
+        <div className="bg-white p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
           <div>
             <span className="text-[11px] font-bold text-gray-custom uppercase tracking-wider">Peserta Trip</span>
             <h3 className="text-lg md:text-xl font-black text-dark mt-0.5">{trip.travelersCount} Orang</h3>
@@ -655,7 +655,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
       </div>
 
       {/* Preparation Progress Bar Widget */}
-      <div className="bg-white p-4 md:p-6 rounded-[32px] border border-card-pink shadow-xs">
+      <div className="bg-white p-4 md:p-6 rounded-3xl border border-card-pink shadow-xs">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="font-extrabold text-sm md:text-base text-dark">Trip Preparation Checklist</h3>
@@ -718,7 +718,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
       {/* Grid: Upcoming Schedule & Visual Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Left 2 Cols: Upcoming Activities Schedule */}
-        <div className="lg:col-span-2 bg-white p-4 md:p-6 rounded-[32px] border border-card-pink shadow-xs">
+        <div className="lg:col-span-2 bg-white p-4 md:p-6 rounded-3xl border border-card-pink shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-soft-pink text-primary-pink flex items-center justify-center">
@@ -813,7 +813,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         </div>
 
         {/* Right Col: Quick Action Visual Cards */}
-        <div className="bg-white p-4 md:p-6 rounded-[32px] border border-card-pink shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-white p-4 md:p-6 rounded-3xl border border-card-pink shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
@@ -903,7 +903,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
       {/* ⚙️ Customize Photo Gallery Manager Modal */}
       {isCustomizeModalOpen && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 md:p-5 animate-fade-in">
-          <div className="bg-white rounded-[32px] max-w-2xl w-full p-5 md:p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-3xl max-w-2xl w-full p-5 md:p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-gray-100 pb-3">
               <div className="flex items-center gap-2">

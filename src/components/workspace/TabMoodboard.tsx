@@ -259,7 +259,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
       {/* Upload/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in" style={{ zIndex: 999999 }}>
-          <div className="bg-white rounded-[24px] w-full max-w-md overflow-hidden shadow-2xl animate-scale-up">
+          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-scale-up">
             <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-soft-pink/30">
               <h3 className="font-bold text-dark">
                 {modalMode === 'add' ? 'Detail Foto Moodboard' : 'Edit Foto Moodboard'}
