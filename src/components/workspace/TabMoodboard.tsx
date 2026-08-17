@@ -107,6 +107,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
 
   const handleOpenEdit = (item: MoodboardItem, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
+    setLightboxItem(null); // Close full view / lightbox modal to prevent overlapping
     setModalMode('edit');
     setActiveItem(item);
     setTempImage(item.imageUrl);
@@ -480,7 +481,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
       {/* Lightbox / Pinterest Detail Modal */}
       {lightboxItem && (
         <div 
-          className="fixed inset-0 flex items-center justify-center p-3 md:p-6 bg-black/85 backdrop-blur-md animate-fade-in z-50" 
+          className="fixed inset-0 flex items-center justify-center p-3 md:p-6 bg-black/60 backdrop-blur-xs animate-fade-in z-50" 
           onClick={() => setLightboxItem(null)}
         >
           <button 

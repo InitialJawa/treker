@@ -12,7 +12,7 @@ interface TabItineraryProps {
 }
 
 export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items }) => {
-  const { addItineraryItem, updateItineraryItem, deleteItineraryItem, addItineraryDay, updateItineraryDay, deleteItineraryDay, reorderItineraryDays } = useTripContext();
+  const { addItineraryItem, updateItineraryItem, deleteItineraryItem, addItineraryDay, updateItineraryDay, deleteItineraryDay, reorderItineraryDays, addMoodboardItem } = useTripContext();
   const [selectedDayId, setSelectedDayId] = useState<string>(days[0]?.id || '');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<ItineraryItem | null>(null);
@@ -200,12 +200,49 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
     }
   };
 
-  const handleSaveItem = (e: React.FormEvent) => {
+  const handleSaveItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !activeDay) return;
 
+    const trimmedSpotUrl = spotImageUrl.trim() || imageUrl.trim();
+    const trimmedOutfitUrl = outfitImageUrl.trim();
+
+    // Map itinerary activity category to Moodboard category
+    let spotMoodboardCategory = 'Spot Foto';
+    if (category === 'Food') {
+      spotMoodboardCategory = 'Kuliner & Cafe';
+    } else if (category === 'Hotel' || category === 'Transport') {
+      spotMoodboardCategory = 'Destinasi';
+    } else if (category === 'Activity') {
+      spotMoodboardCategory = 'Spot Foto';
+    }
+
     if (editingItem) {
-      updateItineraryItem(editingItem.id, {
+      // If editing, check if new spot image is added or changed
+      const oldSpotUrl = editingItem.spotImageUrl || editingItem.imageUrl || '';
+      if (trimmedSpotUrl && trimmedSpotUrl !== oldSpotUrl) {
+        addMoodboardItem(
+          trip.id,
+          trimmedSpotUrl,
+          title,
+          `Foto lokasi dari itinerary: ${location || title}`,
+          spotMoodboardCategory
+        );
+      }
+
+      // Check if new outfit image is added or changed
+      const oldOutfitUrl = editingItem.outfitImageUrl || '';
+      if (trimmedOutfitUrl && trimmedOutfitUrl !== oldOutfitUrl) {
+        addMoodboardItem(
+          trip.id,
+          trimmedOutfitUrl,
+          `Outfit: ${title}`,
+          `Rekomendasi OOTD untuk ${title}`,
+          'OOTD & Fashion'
+        );
+      }
+
+      await updateItineraryItem(editingItem.id, {
         title,
         time,
         duration,
@@ -220,7 +257,28 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
         transportType,
       });
     } else {
-      addItineraryItem({
+      // Creating new activity
+      if (trimmedSpotUrl) {
+        addMoodboardItem(
+          trip.id,
+          trimmedSpotUrl,
+          title,
+          `Foto lokasi dari itinerary: ${location || title}`,
+          spotMoodboardCategory
+        );
+      }
+
+      if (trimmedOutfitUrl) {
+        addMoodboardItem(
+          trip.id,
+          trimmedOutfitUrl,
+          `Outfit: ${title}`,
+          `Rekomendasi OOTD untuk ${title}`,
+          'OOTD & Fashion'
+        );
+      }
+
+      await addItineraryItem({
         dayId: activeDay.id,
         tripId: trip.id,
         time,
