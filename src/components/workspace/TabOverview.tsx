@@ -3,7 +3,7 @@ import {
   Calendar, DollarSign, Users, Clock, MapPin, ArrowRight, 
   ShieldCheck, AlertCircle, Plus, Camera, Compass, Sun, 
   Utensils, Car, Hotel, ShoppingBag, X, ImageIcon, ChevronRight, Check,
-  Luggage, Settings, ArrowUp, ArrowDown, Trash2, Upload, Layout, Star, RotateCcw, FolderPlus
+  Luggage, Settings, ArrowUp, ArrowDown, Trash2, Upload, Layout, Star, RotateCcw, FolderPlus, StickyNote
 } from 'lucide-react';
 import { Trip, ItineraryDay, ItineraryItem, Booking, PackingItem, Expense, TransportLeg } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
@@ -41,7 +41,10 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
   transports,
   onNavigateTab,
 }) => {
-  const { moodboardItems, places, notes } = useTripContext();
+  const { moodboardItems, places, notes, addNote, deleteNote } = useTripContext();
+  const [newNoteTitle, setNewNoteTitle] = useState('');
+  const [newNoteContent, setNewNoteContent] = useState('');
+  const [isAddingNote, setIsAddingNote] = useState(false);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [isCustomizeModalOpen, setIsCustomizeModalOpen] = useState(false);
   const [activeCustomizeTab, setActiveCustomizeTab] = useState<'select' | 'import' | 'add' | 'layout'>('select');
@@ -898,6 +901,110 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
             <span>Unggah tiket & voucher di tab Bookings agar selalu siap di HP-mu!</span>
           </div>
         </div>
+      </div>
+
+      {/* Catatan Penting & Quick Notes Widget */}
+      <div className="bg-card-pink p-4 md:p-6 rounded-3xl border border-card-pink shadow-xs space-y-4">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center">
+              <StickyNote className="w-4 h-4" />
+            </div>
+            <div>
+              <h3 className="font-extrabold text-sm md:text-base text-dark">Catatan Penting & Pengingat</h3>
+              <p className="text-xs text-gray-custom">Kontak driver, nomor darurat, & catatan perjalanan</p>
+            </div>
+          </div>
+          <button
+            onClick={() => setIsAddingNote(!isAddingNote)}
+            className="bg-primary-pink text-white px-3 py-1.5 rounded-full text-xs font-bold flex items-center gap-1 shadow-2xs hover:bg-opacity-90 transition-all cursor-pointer"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Tambah Catatan</span>
+          </button>
+        </div>
+
+        {/* Add note input form */}
+        {isAddingNote && (
+          <div className="p-3 bg-surface-muted rounded-2xl border border-card-pink space-y-2 animate-fade-in">
+            <input
+              type="text"
+              placeholder="Judul Catatan (misal: Kontak Driver & Tour Guide)"
+              value={newNoteTitle}
+              onChange={(e) => setNewNoteTitle(e.target.value)}
+              className="w-full px-3 py-2 rounded-xl text-xs font-bold border border-card-pink bg-white focus:outline-none focus:border-primary-pink"
+            />
+            <textarea
+              placeholder="Isi catatan atau nomor penting..."
+              value={newNoteContent}
+              onChange={(e) => setNewNoteContent(e.target.value)}
+              rows={2}
+              className="w-full px-3 py-2 rounded-xl text-xs border border-card-pink bg-white focus:outline-none focus:border-primary-pink resize-none"
+            />
+            <div className="flex items-center justify-end gap-2 pt-1">
+              <button
+                type="button"
+                onClick={() => { setIsAddingNote(false); setNewNoteTitle(''); setNewNoteContent(''); }}
+                className="px-3 py-1 text-xs font-bold text-gray-custom hover:text-dark cursor-pointer"
+              >
+                Batal
+              </button>
+              <button
+                type="button"
+                onClick={async () => {
+                  if (!newNoteTitle.trim()) return;
+                  await addNote({
+                    tripId: trip.id,
+                    title: newNoteTitle.trim(),
+                    content: newNoteContent.trim(),
+                    color: '#FEF3C7'
+                  });
+                  setNewNoteTitle('');
+                  setNewNoteContent('');
+                  setIsAddingNote(false);
+                }}
+                className="px-4 py-1.5 bg-primary-pink text-white rounded-xl text-xs font-bold shadow-2xs hover:bg-opacity-90 cursor-pointer"
+              >
+                Simpan Catatan
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Notes List */}
+        {tripNotes.length === 0 ? (
+          <div className="p-4 rounded-2xl border border-dashed border-card-pink bg-surface-muted/50 text-center text-gray-custom text-xs">
+            Belum ada catatan. Klik tombol <span className="font-bold text-dark">"+ Tambah Catatan"</span> untuk menyimpan pengingat penting trip ini.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+            {tripNotes.map((note) => (
+              <div 
+                key={note.id} 
+                style={{ backgroundColor: note.color || '#FEF3C7' }} 
+                className="p-3.5 rounded-2xl border border-amber-200/80 shadow-2xs relative group flex flex-col justify-between min-h-[90px]"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-2 pr-5">
+                    <h4 className="font-bold text-xs text-dark">{note.title}</h4>
+                  </div>
+                  {note.content && (
+                    <p className="text-xs text-dark/80 mt-1 whitespace-pre-wrap leading-relaxed">
+                      {note.content}
+                    </p>
+                  )}
+                </div>
+                <button
+                  onClick={() => deleteNote(note.id)}
+                  title="Hapus Catatan"
+                  className="absolute top-2.5 right-2.5 text-gray-custom/60 hover:text-red-600 p-1 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {/* ⚙️ Customize Photo Gallery Manager Modal */}

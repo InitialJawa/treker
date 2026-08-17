@@ -104,6 +104,8 @@ export interface Expense {
   actualAmount: number;
   status: 'paid' | 'unpaid';
   date: string;
+  paidBy?: string;
+  paymentMethod?: 'Cash' | 'QRIS' | 'Kartu Kredit' | 'Transfer' | 'Other';
   notes?: string;
 }
 

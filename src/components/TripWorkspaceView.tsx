@@ -15,10 +15,7 @@ import { TabMoodboard } from './workspace/TabMoodboard';
 import { TabItinerary } from './workspace/TabItinerary';
 import { TabBudget } from './workspace/TabBudget';
 import { TabBookings } from './workspace/TabBookings';
-import { TabPlaces } from './workspace/TabPlaces';
-import { TabTransport } from './workspace/TabTransport';
 import { TabPacking } from './workspace/TabPacking';
-import { TabNotes } from './workspace/TabNotes';
 import { ExportPdfModal } from './ExportPdfModal';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -284,10 +281,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
     'Itinerary',
     'Budget',
     'Bookings',
-    'Places',
-    'Transport',
-    'Packing',
-    'Notes'
+    'Packing'
   ];
 
   return (
@@ -491,32 +485,10 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
         />
       )}
 
-      {activeTab === 'Places' && (
-        <TabPlaces
-          trip={trip}
-          places={places}
-          days={tripDays}
-        />
-      )}
-
-      {activeTab === 'Transport' && (
-        <TabTransport
-          trip={trip}
-          transports={transports}
-        />
-      )}
-
       {activeTab === 'Packing' && (
         <TabPacking
           trip={trip}
           packing={tripPacking}
-        />
-      )}
-
-      {activeTab === 'Notes' && (
-        <TabNotes
-          trip={trip}
-          notes={notes}
         />
       )}
         </motion.div>
