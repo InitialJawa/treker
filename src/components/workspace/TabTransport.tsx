@@ -144,11 +144,11 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
-            <h3 className="font-bold text-sm md:text-base text-dark mb-4">Add Transport Leg</h3>
+            <h3 className="font-bold text-sm md:text-base text-dark mb-4">Tambah Transport</h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-dark mb-1">Origin Location</label>
+                <label className="block font-semibold text-dark mb-1">Lokasi Asal</label>
                 <input
                   type="text"
                   value={origin}
@@ -160,7 +160,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
               </div>
 
               <div>
-                <label className="block font-semibold text-dark mb-1">Destination Location</label>
+                <label className="block font-semibold text-dark mb-1">Lokasi Tujuan</label>
                 <input
                   type="text"
                   value={destination}
@@ -173,7 +173,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Transport Mode</label>
+                  <label className="block font-semibold text-dark mb-1">Mode Transportasi</label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as TransportType)}
@@ -191,7 +191,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Estimated Cost ({trip.currency})</label>
+                  <label className="block font-semibold text-dark mb-1">Estimasi Biaya ({trip.currency})</label>
                   <input
                     type="number"
                     value={estimatedCost}
@@ -203,7 +203,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Distance</label>
+                  <label className="block font-semibold text-dark mb-1">Jarak</label>
                   <input
                     type="text"
                     value={distance}
@@ -214,7 +214,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Duration</label>
+                  <label className="block font-semibold text-dark mb-1">Durasi</label>
                   <input
                     type="text"
                     value={duration}

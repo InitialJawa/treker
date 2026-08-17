@@ -81,7 +81,7 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
         {/* Top Action Header */}
         <div className="p-4 md:p-6 border-b border-card-pink flex items-center justify-between bg-white z-10 no-print">
           <div>
-            <h3 className="text-lg font-bold text-dark">Export & Share Trip Summary</h3>
+            <h3 className="text-lg font-bold text-dark">Ekspor & Bagikan Ringkasan Trip</h3>
             <p className="text-xs text-gray-custom">Simpan dokumen PDF atau bagikan ke teman seperjalanan</p>
           </div>
           <div className="flex items-center gap-2">
@@ -131,7 +131,7 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
                   <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {trip.destination}</span>
                   <span className="flex items-center gap-1.5"><Calendar className="w-4 h-4" /> {formatDateRange(trip.startDate, trip.endDate)}</span>
                   <span className="flex items-center gap-1.5"><Clock className="w-4 h-4" /> {tripDuration} Hari</span>
-                  <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {trip.travelersCount} Travelers</span>
+                  <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {trip.travelersCount} Wisatawan</span>
                 </p>
                 {trip.description && (
                   <p className="text-xs text-white/80 mt-3 max-w-2xl leading-relaxed">{trip.description}</p>

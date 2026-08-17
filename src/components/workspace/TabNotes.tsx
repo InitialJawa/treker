@@ -95,7 +95,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
       <div className="bg-white p-3 md:p-5 rounded-2xl border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div>
           <span className="text-xs font-extrabold text-primary-pink tracking-wider uppercase">Trip Notes</span>
-          <h2 className="text-xl font-extrabold text-dark">Important Reminders & Contacts</h2>
+          <h2 className="text-xl font-extrabold text-dark">Pengingat Penting & Kontak</h2>
           <p className="text-xs text-gray-custom mt-0.5">
             Catatan penting, instruksi driver, dan reminder khusus perjalanan
           </p>
@@ -103,7 +103,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
 
         <Button size="sm" onClick={handleOpenAdd} className="shrink-0 self-start sm:self-auto">
           <Plus className="w-4 h-4" />
-          <span>New Note</span>
+          <span>Tambah Catatan</span>
         </Button>
       </div>
 
@@ -177,7 +177,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
                   <Calendar className="w-3 h-3" />
                   {note.updatedAt}
                 </span>
-                <span>Trip Note</span>
+                <span>Catatan Trip</span>
               </div>
             </div>
           ))}
@@ -189,7 +189,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
         open={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         size="sm"
-        title={editingNote ? 'Edit Note' : 'Create Note'}
+        title={editingNote ? 'Edit Catatan' : 'Buat Catatan'}
       >
         <form onSubmit={handleSave} className="space-y-3 text-xs">
           <Field label="Title" required>
@@ -215,7 +215,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
           </Field>
 
           <div>
-            <label className="block font-semibold text-dark mb-1">Card Color</label>
+            <label className="block font-semibold text-dark mb-1">Warna Kartu</label>
             <div className="flex gap-2">
               {colors.map((c) => (
                 <button

@@ -113,7 +113,7 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
               }`}
             >
               <Upload className="w-4 h-4 text-gray-500 shrink-0" />
-              <span>{isUploading ? 'Memproses...' : 'Upload File'}</span>
+              <span>{isUploading ? 'Memproses...' : 'Unggah File'}</span>
               <input
                 type="file"
                 accept="image/*"

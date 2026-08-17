@@ -725,7 +725,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                 <Clock className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="font-extrabold text-sm md:text-base text-dark">Upcoming Schedule</h3>
+                <h3 className="font-extrabold text-sm md:text-base text-dark">Jadwal Mendatang</h3>
                 <p className="text-[11px] text-gray-custom">Agenda terdekat sesuai urutan hari dan waktu</p>
               </div>
             </div>
@@ -819,7 +819,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
               <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
                 <Compass className="w-4 h-4" />
               </div>
-              <h3 className="font-extrabold text-sm md:text-base text-dark">Quick Action Cards</h3>
+              <h3 className="font-extrabold text-sm md:text-base text-dark">Kartu Aksi Cepat</h3>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-2.5">

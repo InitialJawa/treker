@@ -95,7 +95,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
       <div className="bg-white p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4 mb-4">
           <div>
-            <span className="text-[10px] md:text-xs font-extrabold text-primary-pink tracking-wider uppercase">Budget Overview</span>
+            <span className="text-[10px] md:text-xs font-extrabold text-primary-pink tracking-wider uppercase">Ringkasan Budget</span>
             <h2 className="text-lg md:text-xl md:text-2xl font-black text-dark">
               {formatCurrency(totalSpent, trip.currency)} / {formatCurrency(totalBudget, trip.currency)}
             </h2>
@@ -107,7 +107,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
             className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-4 py-1.5 md:px-5 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1.5 md:gap-2 shadow-sm self-start md:self-auto transition-all"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Expense</span>
+            <span>Tambah Pengeluaran</span>
           </button>
         </div>
 
@@ -124,7 +124,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
         {/* Spent vs Remaining Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 pt-4 border-t border-card-pink text-xs">
           <div className="bg-offwhite p-3 rounded-2xl border border-card-pink">
-            <span className="text-gray-custom font-semibold">Total Estimated (Incl. Itinerary)</span>
+            <span className="text-gray-custom font-semibold">Total Estimasi (Termasuk Itinerary)</span>
             <p className="text-sm font-extrabold text-dark">
               {formatCurrency(
                 totalEstimated,
@@ -134,12 +134,12 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
           </div>
 
           <div className="bg-soft-pink p-3 rounded-2xl border border-card-pink">
-            <span className="text-primary-pink font-semibold">Total Actual Paid</span>
+            <span className="text-primary-pink font-semibold">Total yang Dibayar</span>
             <p className="text-sm font-extrabold text-primary-pink">{formatCurrency(totalSpent, trip.currency)}</p>
           </div>
 
           <div className="bg-white p-3 rounded-2xl border border-card-pink">
-            <span className="text-gray-custom font-semibold">Remaining Budget</span>
+            <span className="text-gray-custom font-semibold">Sisa Budget</span>
             <p className="text-sm font-extrabold text-dark">{formatCurrency(remaining, trip.currency)}</p>
           </div>
         </div>
@@ -175,7 +175,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
       {/* Expenses Table / List */}
       <div className="bg-white rounded-3xl border border-card-pink overflow-hidden shadow-sm">
         <div className="p-3 md:p-5 border-b border-card-pink flex items-center justify-between">
-          <h3 className="font-extrabold text-sm md:text-base text-dark">Expense Items</h3>
+          <h3 className="font-extrabold text-sm md:text-base text-dark">Item Pengeluaran</h3>
           <span className="text-xs text-gray-custom font-semibold">{expenses.length} Transaksi</span>
         </div>
 
@@ -244,7 +244,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-dark mb-1">Expense Name</label>
+                <label className="block font-semibold text-dark mb-1">Nama Pengeluaran</label>
                 <input
                   type="text"
                   value={title}
@@ -256,7 +256,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
               </div>
 
               <div>
-                <label className="block font-semibold text-dark mb-1">Category</label>
+                <label className="block font-semibold text-dark mb-1">Kategori</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
@@ -268,7 +268,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Estimated Cost</label>
+                  <label className="block font-semibold text-dark mb-1">Estimasi Biaya</label>
                   <input
                     type="number"
                     value={estimatedAmount}
@@ -277,7 +277,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Actual Spent</label>
+                  <label className="block font-semibold text-dark mb-1">Terpakai</label>
                   <input
                     type="number"
                     value={actualAmount}
@@ -300,7 +300,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Date</label>
+                  <label className="block font-semibold text-dark mb-1">Tanggal</label>
                   <input
                     type="date"
                     value={date}

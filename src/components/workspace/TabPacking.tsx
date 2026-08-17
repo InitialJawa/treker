@@ -77,7 +77,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
               className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
             >
               <Plus className="w-4 h-4" />
-              <span>Add Item</span>
+              <span>Tambah Item</span>
             </button>
           </div>
         </div>
@@ -168,11 +168,11 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
-            <h3 className="font-bold text-sm md:text-base text-dark mb-4">Add Packing Item</h3>
+            <h3 className="font-bold text-sm md:text-base text-dark mb-4">Tambah Item Packing</h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-dark mb-1">Item Name</label>
+                <label className="block font-semibold text-dark mb-1">Nama Item</label>
                 <input
                   type="text"
                   value={name}
@@ -185,7 +185,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Category</label>
+                  <label className="block font-semibold text-dark mb-1">Kategori</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as PackingCategory)}

@@ -48,7 +48,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
       return;
     }
     if (step === 1 && !tripName) {
-      setTripName(`${destination} Vacation`);
+      setTripName(`${destination} Trip`);
     }
     setStep(prev => Math.min(prev + 1, 5));
   };
@@ -105,13 +105,13 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
         {/* Wizard Steps Progress Indicator */}
         <div className="flex items-center justify-between mb-8">
           <div>
-            <span className="text-xs font-bold text-primary-pink tracking-wider uppercase">Step {step} of 5</span>
+            <span className="text-xs font-bold text-primary-pink tracking-wider uppercase">Langkah {step} dari 5</span>
             <h2 className="text-xl md:text-2xl font-bold text-dark">
-              {step === 1 && 'Where are you going?'}
-              {step === 2 && 'When are you going?'}
-              {step === 3 && "Who's coming along?"}
-              {step === 4 && "What's your budget?"}
-              {step === 5 && 'Finalize your trip details'}
+              {step === 1 && 'Mau ke mana?'}
+              {step === 2 && 'Kapan berangkat?'}
+              {step === 3 && 'Siapa yang ikut?'}
+              {step === 4 && 'Berapa budget kamu?'}
+              {step === 5 && 'Detail terakhir perjalanan'}
             </h2>
           </div>
           <div className="flex items-center gap-1">
@@ -145,7 +145,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
           <div className="space-y-5">
             <div>
               <label className="block text-sm font-semibold text-dark mb-2">
-                Search or Enter Destination
+                Cari atau Masukkan Destinasi
               </label>
               <div className="relative">
                 <MapPin className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
@@ -160,7 +160,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
             </div>
 
             <div>
-              <p className="text-xs font-bold text-gray-custom mb-3">Or choose popular picks:</p>
+              <p className="text-xs font-bold text-gray-custom mb-3">Atau pilih destinasi populer:</p>
               <div className="grid grid-cols-2 gap-3">
                 {popularDestinations.map((dest) => (
                   <div
@@ -168,7 +168,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                     onClick={() => {
                       setDestination(dest.name);
                       setCoverImage(dest.img);
-                      setTripName(`${dest.name.split(',')[0]} Escape`);
+                      setTripName(`${dest.name.split(',')[0]} Trip`);
                     }}
                     className={`p-3 rounded-2xl border cursor-pointer flex items-center gap-3 transition-all ${
                       destination === dest.name
@@ -190,7 +190,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
           <div className="space-y-5">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-semibold text-dark mb-2">Start Date</label>
+                <label className="block text-sm font-semibold text-dark mb-2">Tanggal Mulai</label>
                 <div className="relative">
                   <Calendar className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
@@ -203,7 +203,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               </div>
 
               <div>
-                <label className="block text-sm font-semibold text-dark mb-2">End Date</label>
+                <label className="block text-sm font-semibold text-dark mb-2">Tanggal Selesai</label>
                 <div className="relative">
                   <Calendar className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
@@ -228,8 +228,8 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
           <div className="space-y-6">
             <div className="flex items-center justify-between p-4 rounded-2xl border border-card-pink bg-screen-pink">
               <div>
-                <h4 className="font-bold text-sm text-dark">Adults</h4>
-                <p className="text-xs text-gray-custom">Age 13 or above</p>
+                <h4 className="font-bold text-sm text-dark">Dewasa</h4>
+                <p className="text-xs text-gray-custom">Usia 13 tahun ke atas</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -252,8 +252,8 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
 
             <div className="flex items-center justify-between p-4 rounded-2xl border border-card-pink bg-screen-pink">
               <div>
-                <h4 className="font-bold text-sm text-dark">Children</h4>
-                <p className="text-xs text-gray-custom">Age 0 - 12</p>
+                <h4 className="font-bold text-sm text-dark">Anak-anak</h4>
+                <p className="text-xs text-gray-custom">Usia 0 - 12 tahun</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -297,7 +297,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-dark mb-2">Estimated Total Budget</label>
+              <label className="block text-sm font-semibold text-dark mb-2">Perkiraan Total Budget</label>
               <div className="relative">
                 <span className="text-gray-400 font-bold absolute left-4 top-1/2 -translate-y-1/2">{getCurrencySymbol(currency)}</span>
                 <input
@@ -316,7 +316,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
         {step === 5 && (
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-semibold text-dark mb-1">Trip Name</label>
+              <label className="block text-sm font-semibold text-dark mb-1">Nama Trip</label>
               <input
                 type="text"
                 value={tripName}
@@ -327,12 +327,12 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-dark mb-1">Description / Notes</label>
+              <label className="block text-sm font-semibold text-dark mb-1">Deskripsi / Catatan</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
-                placeholder="Optional notes or trip goals..."
+                placeholder="Catatan opsional atau tujuan perjalanan..."
                 className="w-full px-4 py-2.5 rounded-2xl border border-card-pink bg-screen-pink text-xs font-medium text-dark focus:outline-none focus:border-primary-pink"
               />
             </div>
@@ -350,7 +350,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                 <Wand2 className="w-3.5 h-3.5" />
               </div>
               <div className="flex-1">
-                <h4 className="font-bold text-sm text-dark">Generate Starter Itinerary with AI</h4>
+                <h4 className="font-bold text-sm text-dark">Hasilkan Itinerary Awal dengan AI</h4>
                 <p className="text-xs text-gray-custom mt-0.5">
                   Otomatis membuat rekomendasi aktivitas per hari, estimasi biaya, dan packing list untuk {destination}.
                 </p>
@@ -367,7 +367,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               className="px-5 py-3 rounded-xl border border-gray-300 font-bold text-xs text-dark hover:bg-gray-50 flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
-              Back
+              Kembali
             </button>
           ) : (
             <div />
@@ -378,7 +378,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               onClick={handleNextStep}
               className="bg-primary-pink hover:bg-primary-pink/90 text-white px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-md"
             >
-              Next Step
+              Lanjut
               <ArrowRight className="w-4 h-4" />
             </button>
           ) : (
@@ -390,12 +390,12 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 animate-spin" />
-                  Building Workspace...
+                  Menyiapkan Workspace...
                 </>
               ) : (
                 <>
                   <Check className="w-4 h-4" />
-                  Create Trip
+                  Buat Perjalanan
                 </>
               )}
             </button>

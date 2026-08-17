@@ -183,7 +183,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
           className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm self-start sm:self-auto shrink-0 transition-all"
         >
           <Plus className="w-4 h-4" />
-          <span>Add New Place</span>
+          <span>Tambah Tempat Baru</span>
         </button>
       </div>
 
@@ -352,11 +352,11 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
           <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
-            <h3 className="font-bold text-sm md:text-base text-dark mb-4">{editingPlaceId ? "Edit Place" : "Add Place"}</h3>
+            <h3 className="font-bold text-sm md:text-base text-dark mb-4">{editingPlaceId ? "Edit Tempat" : "Tambah Tempat"}</h3>
 
             <form onSubmit={handleAddPlace} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-dark mb-1">Place Name</label>
+                <label className="block font-semibold text-dark mb-1">Nama Tempat</label>
                 <input
                   type="text"
                   value={name}
@@ -368,7 +368,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
               </div>
 
               <div>
-                <label className="block font-semibold text-dark mb-1">Location</label>
+                <label className="block font-semibold text-dark mb-1">Lokasi</label>
                 <input
                   type="text"
                   value={location}
@@ -379,7 +379,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Category</label>
+                  <label className="block font-semibold text-dark mb-1">Kategori</label>
                   <input
                     type="text"
                     value={category}
@@ -388,7 +388,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Cost ({trip.currency})</label>
+                  <label className="block font-semibold text-dark mb-1">Biaya ({trip.currency})</label>
                   <input
                     type="number"
                     value={estimatedCost}
@@ -412,7 +412,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Opening Hours</label>
+                  <label className="block font-semibold text-dark mb-1">Jam Buka</label>
                   <input
                     type="text"
                     value={openingHours}
@@ -443,7 +443,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
               />
 
               <div>
-                <label className="block font-semibold text-dark mb-1">Description</label>
+                <label className="block font-semibold text-dark mb-1">Deskripsi</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}

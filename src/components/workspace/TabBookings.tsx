@@ -150,7 +150,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
           className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-4 py-1.5 md:px-5 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1.5 md:gap-2 shadow-sm transition-all"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Booking</span>
+          <span>Tambah Booking</span>
         </button>
       </div>
 
@@ -243,7 +243,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
               {/* Price & Actions Footer */}
               <div className="mt-4 pt-3 border-t border-card-pink flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] text-gray-custom block font-semibold">Total Price</span>
+                  <span className="text-[10px] text-gray-custom block font-semibold">Total Harga</span>
                   <span className="text-sm font-extrabold text-dark">
                     {formatCurrency(b.price, trip.currency)}
                   </span>
@@ -281,7 +281,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-dark mb-1">Booking Title</label>
+                <label className="block font-semibold text-dark mb-1">Judul Booking</label>
                 <input
                   type="text"
                   value={name}
@@ -294,7 +294,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Type</label>
+                  <label className="block font-semibold text-dark mb-1">Jenis</label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as BookingType)}
@@ -311,7 +311,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Provider</label>
+                  <label className="block font-semibold text-dark mb-1">Penyedia</label>
                   <input
                     type="text"
                     value={provider}
@@ -324,7 +324,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Code / Confirmation #</label>
+                  <label className="block font-semibold text-dark mb-1">Kode / Konfirmasi #</label>
                   <input
                     type="text"
                     value={confirmationNumber}
@@ -350,7 +350,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Price ({trip.currency})</label>
+                  <label className="block font-semibold text-dark mb-1">Harga ({trip.currency})</label>
                   <input
                     type="number"
                     value={price}
@@ -360,7 +360,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Date</label>
+                  <label className="block font-semibold text-dark mb-1">Tanggal</label>
                   <input
                     type="date"
                     value={date}
@@ -371,7 +371,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
               </div>
 
               <div>
-                <label className="block font-semibold text-dark mb-1">Location</label>
+                <label className="block font-semibold text-dark mb-1">Lokasi</label>
                 <input
                   type="text"
                   value={location}

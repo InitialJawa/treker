@@ -344,7 +344,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
           className="px-3.5 py-3 rounded-2xl bg-white border border-dashed border-gray-300 hover:border-primary-pink text-xs font-bold text-primary-pink whitespace-nowrap flex items-center gap-1.5 transition-colors shrink-0 shadow-sm"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Day</span>
+          <span>Tambah Hari</span>
         </button>
       </div>
 
@@ -434,7 +434,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
             className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0"
           >
             <Plus className="w-4 h-4" />
-            <span>Add Activity</span>
+            <span>Tambah Aktivitas</span>
           </button>
         </div>
       </div>
@@ -709,7 +709,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
 
             <form onSubmit={handleSaveItem} className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-dark mb-1">Activity Title</label>
+                <label className="block font-semibold text-dark mb-1">Judul Aktivitas</label>
                 <input
                   type="text"
                   value={title}
@@ -820,7 +820,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               </div>
 
               <div>
-                <label className="block font-semibold text-dark mb-1">Location</label>
+                <label className="block font-semibold text-dark mb-1">Lokasi</label>
                 <input
                   type="text"
                   value={location}
@@ -832,7 +832,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Category</label>
+                  <label className="block font-semibold text-dark mb-1">Kategori</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as ItineraryCategory)}
@@ -849,7 +849,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-dark mb-1">Estimated Cost ({trip.currency})</label>
+                  <label className="block font-semibold text-dark mb-1">Estimasi Biaya ({trip.currency})</label>
                   <input
                     type="number"
                     value={cost}
@@ -860,7 +860,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               </div>
 
               <div>
-                <label className="block font-semibold text-dark mb-1">Description</label>
+                <label className="block font-semibold text-dark mb-1">Deskripsi</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}

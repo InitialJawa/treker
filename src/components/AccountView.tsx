@@ -114,7 +114,7 @@ export const AccountView: React.FC = () => {
               className="px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-custom hover:bg-gray-50 transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Reset ke warna awal"
             >
-              <RotateCcw className="w-3.5 h-3.5" /> Reset Default
+              <RotateCcw className="w-3.5 h-3.5" /> Atur Ulang Warna
             </button>
           </div>
         </div>
@@ -164,7 +164,7 @@ export const AccountView: React.FC = () => {
         {/* Advanced Fine-Tuning Color Pickers */}
         <div className="pt-2 border-t border-gray-100 space-y-4">
           <label className="text-xs font-extrabold text-dark uppercase tracking-wider block">
-            Custom Color Fine-Tuning
+            Penyesuaian Warna Kustom
           </label>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
