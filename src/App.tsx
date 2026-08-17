@@ -11,6 +11,7 @@ import { PublicTemplatesModal } from './components/PublicTemplatesModal';
 import { DashboardView } from './components/DashboardView';
 import { LoginView } from './components/LoginView';
 import { Compass, PlusCircle, BookOpen } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 
 function MainApp() {
   const { trips, activeTripId, setActiveTripId } = useTripContext();
@@ -52,6 +53,15 @@ function MainApp() {
 
       {/* Main View Area */}
       <main className="flex-1 max-w-[1400px] mx-auto w-full overflow-x-hidden flex flex-col">
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentView}
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -12 }}
+            transition={{ duration: 0.2 }}
+            className="flex flex-col flex-1"
+          >
         {currentView === 'Dashboard' && (
           <div className="p-4 md:p-8">
             <DashboardView
@@ -109,6 +119,8 @@ function MainApp() {
             <AccountView />
           </div>
         )}
+          </motion.div>
+        </AnimatePresence>
       </main>
 
       {/* Global Create New Trip Modal */}

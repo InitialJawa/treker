@@ -20,6 +20,7 @@ import { TabTransport } from './workspace/TabTransport';
 import { TabPacking } from './workspace/TabPacking';
 import { TabNotes } from './workspace/TabNotes';
 import { ExportPdfModal } from './ExportPdfModal';
+import { motion, AnimatePresence } from 'motion/react';
 
 interface TripWorkspaceViewProps {
   trip: Trip;
@@ -437,7 +438,15 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       </div>
 
       {/* Active Tab View */}
-      {activeTab === 'Overview' && (
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={activeTab}
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -8 }}
+          transition={{ duration: 0.18 }}
+        >
+          {activeTab === 'Overview' && (
         <TabOverview
           trip={trip}
           days={tripDays}
@@ -510,6 +519,8 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
           notes={notes}
         />
       )}
+        </motion.div>
+      </AnimatePresence>
 
       {/* Export Modal */}
       <ExportPdfModal

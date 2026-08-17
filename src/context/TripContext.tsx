@@ -32,6 +32,7 @@ interface TripContextType {
   transports: TransportLeg[];
   notes: Note[];
   moodboardItems: MoodboardItem[];
+  loading: boolean;
   
   activeTripId: string | null;
   setActiveTripId: (id: string | null) => void;
@@ -153,6 +154,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [transports, setTransports] = useState<TransportLeg[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
   const [moodboardItems, setMoodboardItems] = useState<MoodboardItem[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const [activeTripId, setActiveTripId] = useState<string | null>(() => {
     try {
@@ -172,6 +174,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setItineraryItems(banyuwangiItems);
       setPlaces(banyuwangiPlaces);
       setActiveTripId(banyuwangiTrip.id);
+      setLoading(false);
       return;
     }
 
@@ -207,9 +210,11 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
     };
 
-    loadUserData().catch(err => {
-      console.warn('Supabase initial fetch notice:', err);
-    });
+    loadUserData()
+      .catch(err => {
+        console.warn('Supabase initial fetch notice:', err);
+      })
+      .finally(() => setLoading(false));
   }, [user]);
 
   // Recalculate actual spent for trips whenever expenses change
@@ -940,6 +945,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         transports,
         notes,
         moodboardItems,
+        loading,
         activeTripId,
         setActiveTripId,
         currency,

@@ -5,6 +5,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTripContext } from '../context/TripContext';
 import { INITIAL_TRIPS } from '../data/mockData';
 import { Trip } from '../types/travel';
+import { Skeleton } from './ui';
 
 interface DashboardViewProps {
   onSelectTrip: (tripId: string) => void;
@@ -14,11 +15,26 @@ interface DashboardViewProps {
 
 export const DashboardView: React.FC<DashboardViewProps> = ({ onSelectTrip, onCreateTrip, onOpenTemplates }) => {
   const { user } = useAuth();
-  const { trips, toggleTripFavorite } = useTripContext();
+  const { trips, toggleTripFavorite, loading } = useTripContext();
 
   const myTrips = trips.filter(t => !t.userId || (user && t.userId === user.uid));
   const sharedTrips = trips.filter(t => user && t.userId && t.userId !== user.uid);
   const publicTemplates = INITIAL_TRIPS.filter(t => t.isTemplate && !trips.some(tr => tr.id === t.id));
+
+  const renderSkeletonGrid = () => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div key={i} className="bg-white rounded-3xl border border-card-pink overflow-hidden shadow-sm">
+          <Skeleton className="h-36 w-full rounded-none" />
+          <div className="p-4 space-y-2">
+            <Skeleton className="h-4 w-3/4" />
+            <Skeleton className="h-3 w-1/2" />
+            <Skeleton className="h-3 w-2/3" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
 
   const renderSection = (
     icon: React.ReactNode,
@@ -59,48 +75,65 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onSelectTrip, onCr
         <div className="flex items-center gap-2">
           <button
             onClick={onOpenTemplates}
-            className="bg-white border border-gray-200 hover:border-primary-pink text-primary-pink px-3 py-2 rounded-full font-bold text-xs flex items-center gap-1.5 transition-colors shadow-sm"
+            className="bg-white border border-gray-200 hover:border-primary-pink text-primary-pink px-3 py-2 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
           >
             <BookOpen className="w-4 h-4" /> Template Publik
           </button>
           <button
             onClick={onCreateTrip}
-            className="bg-primary-pink hover:bg-opacity-90 text-white px-3 py-2 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm"
+            className="bg-primary-pink hover:bg-opacity-90 text-white px-3 py-2 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
           >
             <PlusCircle className="w-4 h-4" /> Buat Project
           </button>
         </div>
       </div>
 
-      {myTrips.length === 0 && sharedTrips.length === 0 && publicTemplates.length === 0 && (
+      {loading && (
+        <div className="space-y-8">
+          <section className="space-y-3">
+            <Skeleton className="h-5 w-40" />
+            {renderSkeletonGrid()}
+          </section>
+          <section className="space-y-3">
+            <Skeleton className="h-5 w-40" />
+            {renderSkeletonGrid()}
+          </section>
+          <section className="space-y-3">
+            <Skeleton className="h-5 w-40" />
+            {renderSkeletonGrid()}
+          </section>
+        </div>
+      )}
+
+      {!loading && myTrips.length === 0 && sharedTrips.length === 0 && publicTemplates.length === 0 && (
         <div className="bg-white rounded-3xl border border-card-pink p-12 text-center shadow-sm">
           <Compass className="w-12 h-12 text-soft-pink mx-auto mb-3" />
           <h3 className="font-bold text-sm md:text-base text-dark">Belum ada project</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Buat project baru atau gunakan template publik untuk memulai.</p>
           <button
             onClick={onCreateTrip}
-            className="bg-primary-pink hover:bg-opacity-90 text-white px-4 py-2.5 rounded-full font-bold text-xs inline-flex items-center gap-2 shadow-sm"
+            className="bg-primary-pink hover:bg-opacity-90 text-white px-4 py-2.5 rounded-full font-bold text-xs inline-flex items-center gap-2 shadow-sm active:scale-95"
           >
             <PlusCircle className="w-4 h-4" /> Buat Project Baru
           </button>
         </div>
       )}
 
-      {renderSection(
+      {!loading && renderSection(
         <FolderKanban className="w-4 h-4 text-primary-pink" />,
         'Project Saya',
         'bg-soft-pink text-primary-pink',
         myTrips
       )}
 
-      {renderSection(
+      {!loading && renderSection(
         <Users className="w-4 h-4 text-purple-600" />,
         'Di-share dengan Saya',
         'bg-purple-100 text-purple-700',
         sharedTrips
       )}
 
-      {renderSection(
+      {!loading && renderSection(
         <BookOpen className="w-4 h-4 text-amber-600" />,
         'Template Publik',
         'bg-amber-100 text-amber-700',

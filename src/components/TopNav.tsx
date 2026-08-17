@@ -175,7 +175,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                     openCreateTripModal();
                     setIsDropdownOpen(false);
                   }}
-                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-primary-pink bg-soft-pink hover:bg-pink-100 rounded-xl transition-colors"
+                  className="w-full flex items-center justify-center gap-2 px-3 py-2 text-xs font-bold text-primary-pink bg-soft-pink hover:bg-pink-100 rounded-xl transition-all active:scale-95"
                 >
                   <PlusCircle className="w-4 h-4" /> Buat Project Baru
                 </button>
