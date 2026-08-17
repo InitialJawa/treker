@@ -1,5 +1,19 @@
 @import "tailwindcss";
 
+@theme {
+  --color-primary-pink: #E11D48;
+  --color-primary-gradient: #E11D48;
+  --color-soft-pink: #FFF1F2;
+  --color-card-pink: #FFFFFF;
+  --color-screen-pink: #F7F8FA;
+  --color-offwhite: #FFFFFF;
+  --color-dark: #20263D;
+  --color-gray-custom: #64748B;
+  --color-border-soft: #E8EBEF;
+  --color-selection: rgba(225, 29, 72, 0.2);
+  --color-selection-text: #E11D48;
+}
+
 @layer base {
   :root {
     --color-primary-pink: #E11D48;
@@ -10,6 +24,7 @@
     --color-offwhite: #FFFFFF;
     --color-dark: #20263D;
     --color-gray-custom: #64748B;
+    --color-border-soft: #E8EBEF;
     --color-selection: rgba(225, 29, 72, 0.2);
     --color-selection-text: #E11D48;
   }
@@ -26,19 +41,10 @@
   }
 }
 
-.bg-primary-pink { background-color: var(--color-primary-pink) !important; }
-.bg-primary-gradient { background-color: var(--color-primary-gradient) !important; }
-.bg-soft-pink { background-color: var(--color-soft-pink) !important; }
-.bg-card-pink { background-color: var(--color-card-pink) !important; }
-.bg-screen-pink { background-color: var(--color-screen-pink) !important; }
-.bg-offwhite { background-color: var(--color-offwhite) !important; }
-.bg-icon-pink { background-color: var(--color-soft-pink) !important; }
-
-.text-dark { color: var(--color-dark) !important; }
-.text-gray-custom { color: var(--color-gray-custom) !important; }
-.text-primary-pink { color: var(--color-primary-pink) !important; }
-
-.border-card-pink { border-color: rgba(226, 232, 240, 0.6); }
+@layer utilities {
+  .bg-icon-pink { background-color: var(--color-soft-pink); }
+  .border-card-pink { border-color: var(--color-border-soft); }
+}
 
 .print-section-title {
   font-size: 14px;

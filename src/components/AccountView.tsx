@@ -220,6 +220,23 @@ export const AccountView: React.FC = () => {
               </div>
             </div>
 
+            {/* 4. Border */}
+            <div className="p-3.5 rounded-2xl border border-card-pink bg-gray-50/50 flex items-center justify-between">
+              <div>
+                <span className="text-xs font-bold text-dark block">Warna Border</span>
+                <span className="text-[10px] text-gray-custom">Garis kartu & input</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className="text-[11px] font-mono font-bold text-gray-500 uppercase">{colors.border}</span>
+                <input
+                  type="color"
+                  value={colors.border}
+                  onChange={(e) => handleColorChange('border', e.target.value)}
+                  className="w-8 h-8 rounded-xl border-0 cursor-pointer p-0 bg-transparent"
+                />
+              </div>
+            </div>
+
           </div>
         </div>
       </div>

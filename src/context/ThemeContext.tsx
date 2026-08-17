@@ -25,6 +25,7 @@ const applyColorsToDOM = (colors: ThemeColors) => {
   root.style.setProperty('--color-card-pink', colors.bgCard);
   root.style.setProperty('--color-dark', colors.textMain);
   root.style.setProperty('--color-gray-custom', colors.textMuted);
+  root.style.setProperty('--color-border-soft', colors.border);
   root.style.setProperty('--color-selection', colors.selection || `${colors.primary}33`);
   root.style.setProperty('--color-selection-text', colors.selectionText || colors.primary);
 };

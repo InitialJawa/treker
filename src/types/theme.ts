@@ -5,6 +5,7 @@ export interface ThemeColors {
   bgCard: string;          // E.g., #FFFFFF
   textMain: string;        // E.g., #20263D
   textMuted: string;       // E.g., #64748B
+  border: string;          // E.g., #E8EBEF
   selection: string;       // E.g., rgba(225, 29, 72, 0.2)
   selectionText: string;   // E.g., #E11D48
 }
@@ -24,6 +25,7 @@ export const DEFAULT_THEME: ThemeColors = {
   bgCard: '#FFFFFF',
   textMain: '#20263D',
   textMuted: '#64748B',
+  border: '#E8EBEF',
   selection: '#E11D4833',
   selectionText: '#E11D48',
 };
@@ -48,6 +50,7 @@ export const THEME_PRESETS: ThemePreset[] = [
       bgCard: '#FFFFFF',
       textMain: '#0F172A',
       textMuted: '#64748B',
+      border: '#E2E8F0',
       selection: '#0284C733',
       selectionText: '#0284C7',
     },
@@ -64,6 +67,7 @@ export const THEME_PRESETS: ThemePreset[] = [
       bgCard: '#FFFFFF',
       textMain: '#064E3B',
       textMuted: '#475569',
+      border: '#D1FAE5',
       selection: '#05966933',
       selectionText: '#059669',
     },
@@ -80,6 +84,7 @@ export const THEME_PRESETS: ThemePreset[] = [
       bgCard: '#FFFFFF',
       textMain: '#292524',
       textMuted: '#78716C',
+      border: '#FEF3C7',
       selection: '#D9770633',
       selectionText: '#D97706',
     },
@@ -96,6 +101,7 @@ export const THEME_PRESETS: ThemePreset[] = [
       bgCard: '#FFFFFF',
       textMain: '#1E1B4B',
       textMuted: '#6B7280',
+      border: '#EDE9FE',
       selection: '#7C3AED33',
       selectionText: '#7C3AED',
     },
@@ -112,6 +118,7 @@ export const THEME_PRESETS: ThemePreset[] = [
       bgCard: '#1E293B',
       textMain: '#F8FAFC',
       textMuted: '#94A3B8',
+      border: '#334155',
       selection: '#38BDF844',
       selectionText: '#38BDF8',
     },
