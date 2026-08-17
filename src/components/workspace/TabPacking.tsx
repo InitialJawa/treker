@@ -129,7 +129,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-6 h-6 rounded-lg flex items-center justify-center border transition-all ${
-                          item.isPacked ? 'bg-primary-pink border-primary-pink text-white' : 'border-card-pink bg-card-pink'
+                          item.isPacked ? 'bg-primary-pink border-primary-pink text-white' : 'border-white bg-card-pink'
                         }`}>
                           {item.isPacked && <CheckCircle2 className="w-4 h-4" />}
                         </div>
