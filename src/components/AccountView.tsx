@@ -3,12 +3,12 @@ import { User, Mail, Shield, Award, Camera, Save, Check, Bell, Globe, LogOut, Pa
 import { useTripContext } from '../context/TripContext';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
-import { THEME_PRESETS, ThemeColors } from '../types/theme';
+import { THEME_PRESETS, ThemeColors, ThemeMode } from '../types/theme';
 
 export const AccountView: React.FC = () => {
   const { trips } = useTripContext();
   const { user, logout } = useAuth();
-  const { presetId, colors, setPreset, updateColor, resetToDefault } = useTheme();
+  const { presetId, mode, colors, setPreset, setMode, updateColor, resetToDefault } = useTheme();
 
   const [userName, setUserName] = useState(user?.displayName || user?.email?.split('@')[0] || 'Traveler');
   const [userEmail] = useState(user?.email || '');
@@ -36,11 +36,15 @@ export const AccountView: React.FC = () => {
     setTimeout(() => setThemeSuccess(false), 3000);
   };
 
-  const handleResetTheme = async () => {
+const handleResetTheme = async () => {
     await resetToDefault();
     setThemeSuccess(true);
     setTimeout(() => setThemeSuccess(false), 3000);
-  };
+};
+
+const handleModeSelect = (m: ThemeMode) => {
+  setMode(m);
+};
 
   return (
     <div className="space-y-6 pb-12 max-w-5xl mx-auto">
@@ -121,11 +125,34 @@ export const AccountView: React.FC = () => {
 
         {/* Preset Cards Selector */}
         <div className="space-y-3">
-          <label className="text-xs font-extrabold text-dark uppercase tracking-wider flex items-center gap-1.5">
-            <Palette className="w-3.5 h-3.5 text-primary-pink" /> Pilihan Preset Warna Instan
-          </label>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <label className="text-xs font-extrabold text-dark uppercase tracking-wider flex items-center gap-1.5">
+              <Palette className="w-3.5 h-3.5 text-primary-pink" /> Pilihan Preset Warna Instan
+            </label>
+          </div>
 
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+          <div className="flex rounded-full border border-card-pink bg-screen-pink p-1 gap-1 w-fit">
+            <button
+              onClick={() => handleModeSelect('light')}
+              aria-pressed={mode === 'light'}
+              className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all active:scale-95 ${
+                mode === 'light' ? 'bg-primary-pink text-white shadow-sm' : 'text-gray-custom hover:text-dark'}
+              }`}
+            >
+              ☀️ Terang
+            </button>
+            <button
+              onClick={() => handleModeSelect('dark')}
+              aria-pressed={mode === 'dark'}
+              className={`px-4 py-1.5 rounded-full text-xs font-extrabold transition-all active:scale-95 ${
+                mode === 'dark' ? 'bg-primary-pink text-white shadow-sm' : 'text-gray-custom hover:text-dark'}
+              }`}
+            >
+              🌙 Gelap
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
             {THEME_PRESETS.map((p) => {
               const isActive = presetId === p.id;
               return (
@@ -150,9 +177,9 @@ export const AccountView: React.FC = () => {
                   <div>
                     <span className="text-xs font-extrabold text-dark block truncate">{p.name.split(' ')[0]}</span>
                     <div className="flex items-center gap-1 mt-1.5">
-                      <span className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: p.colors.primary }} />
-                      <span className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: p.colors.primarySoft }} />
-                      <span className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: p.colors.bgApp }} />
+                        <span className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: mode === 'dark' ? p.darkColors.primary : p.colors.primary }} />
+                        <span className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: mode === 'dark' ? p.darkColors.primarySoft : p.colors.primarySoft }} />
+                        <span className="w-3.5 h-3.5 rounded-full border border-black/10 shrink-0" style={{ backgroundColor: mode === 'dark' ? p.darkColors.bgApp : p.colors.bgApp }} />
                     </div>
                   </div>
                 </button>
