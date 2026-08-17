@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Calendar, DollarSign, Users, Clock, MapPin, ArrowRight, 
   ShieldCheck, AlertCircle, Plus, Camera, Compass, Sun, 
@@ -452,21 +452,21 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         {displayedPhotos.length > 0 ? (
           <div>
             {/* LAYOUT 1: HERO MOSAIC (1 Big Hero + 4 Balanced Cards on Right) */}
-            {layoutStyle === 'hero-mosaic' && (
+            {layoutStyle === 'hero-mosaic' && displayedPhotos[0] && (
               <div className="grid grid-cols-1 md:grid-cols-12 gap-3 pt-1">
                 {/* Hero Main Cover Photo (Index 0) */}
                 <div 
-                  onClick={() => setLightboxImage(displayedPhotos[0].url)}
+                  onClick={() => setLightboxImage(displayedPhotos[0]?.url)}
                   className="md:col-span-7 relative group rounded-3xl overflow-hidden cursor-pointer border border-card-pink shadow-sm h-64 md:h-[320px]"
                 >
                   <img
-                    src={displayedPhotos[0].url}
-                    alt={displayedPhotos[0].title}
+                    src={displayedPhotos[0]?.url}
+                    alt={displayedPhotos[0]?.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-90 group-hover:opacity-100 transition-opacity p-4 md:p-5 flex flex-col justify-end">
                     <h3 className="text-base md:text-lg font-black text-white drop-shadow-md">
-                      {displayedPhotos[0].title}
+                      {displayedPhotos[0]?.title}
                     </h3>
                   </div>
                 </div>
@@ -538,19 +538,19 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
             )}
 
             {/* LAYOUT 3: BANNER SHOWCASE */}
-            {layoutStyle === 'banner' && (
+            {layoutStyle === 'banner' && displayedPhotos[0] && (
               <div className="space-y-3 pt-1">
                 <div 
-                  onClick={() => setLightboxImage(displayedPhotos[0].url)}
+                  onClick={() => setLightboxImage(displayedPhotos[0]?.url)}
                   className="relative group rounded-3xl overflow-hidden cursor-pointer border border-card-pink shadow-sm h-56 md:h-72 w-full"
                 >
                   <img
-                    src={displayedPhotos[0].url}
-                    alt={displayedPhotos[0].title}
+                    src={displayedPhotos[0]?.url}
+                    alt={displayedPhotos[0]?.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-4 md:p-6 flex flex-col justify-end">
-                    <h3 className="text-lg md:text-2xl font-black text-white">{displayedPhotos[0].title}</h3>
+                    <h3 className="text-lg md:text-2xl font-black text-white">{displayedPhotos[0]?.title}</h3>
                   </div>
                 </div>
 

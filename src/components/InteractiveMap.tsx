@@ -136,7 +136,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({ places, onPlaceS
           <div className="absolute bottom-3 left-3 right-3 bg-card-pink/95 backdrop-blur-md rounded-xl p-3 border border-card-pink shadow-lg flex items-center justify-between gap-3 z-30">
             <div className="flex items-center gap-3">
               <img
-                src={selectedPlace.photos[0]}
+                src={selectedPlace.photos?.[0] || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'}
                 alt={selectedPlace.name}
                 className="w-12 h-12 rounded-lg object-cover shrink-0"
               />

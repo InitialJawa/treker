@@ -83,6 +83,7 @@ interface TripContextType {
 
   // Packing
   addPackingItem: (item: Omit<PackingItem, 'id' | 'isPacked'>) => Promise<void>;
+  updatePackingItem: (id: string, updates: Partial<PackingItem>) => Promise<void>;
   togglePackingItem: (id: string) => Promise<void>;
   deletePackingItem: (id: string) => Promise<void>;
   generateAIPackingListForTrip: (tripId: string) => Promise<void>;
@@ -95,7 +96,7 @@ interface TripContextType {
   addNote: (note: Omit<Note, 'id' | 'createdAt' | 'updatedAt'>) => Promise<void>;
   updateNote: (id: string, updates: Partial<Note>) => Promise<void>;
   deleteNote: (id: string) => Promise<void>;
-  addMoodboardItem: (tripId: string, imageUrl: string, title?: string, caption?: string) => Promise<void>;
+  addMoodboardItem: (tripId: string, imageUrl: string, title?: string, caption?: string, category?: string) => Promise<void>;
   deleteMoodboardItem: (id: string) => Promise<void>;
   updateMoodboardItem: (id: string, updates: Partial<MoodboardItem>) => Promise<void>;
 
@@ -812,6 +813,15 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await saveItemToSupabase('packingItems', newItem.id, newItem);
   };
 
+  const updatePackingItem = async (id: string, updates: Partial<PackingItem>) => {
+    const existing = packingItems.find(p => p.id === id);
+    if (existing) {
+      const updated = { ...existing, ...updates };
+      setPackingItems(prev => prev.map(p => p.id === id ? updated : p));
+      await saveItemToSupabase('packingItems', id, updated);
+    }
+  };
+
   const togglePackingItem = async (id: string) => {
     const existing = packingItems.find(p => p.id === id);
     if (existing) {
@@ -888,13 +898,14 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await deleteItemFromSupabase('notes', id);
   };
 
-  const addMoodboardItem = async (tripId: string, imageUrl: string, title?: string, caption?: string) => {
+  const addMoodboardItem = async (tripId: string, imageUrl: string, title?: string, caption?: string, category?: string) => {
     const newItem: MoodboardItem = {
       id: 'mb-' + Date.now(),
       tripId,
       imageUrl,
       title: title || '',
       caption: caption || '',
+      category: category || 'Spot Foto',
       x: Math.floor(Math.random() * 100),
       y: Math.floor(Math.random() * 100),
       width: 250,
@@ -981,6 +992,7 @@ export const TripProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         updateBooking,
         deleteBooking,
         addPackingItem,
+        updatePackingItem,
         togglePackingItem,
         deletePackingItem,
         generateAIPackingListForTrip,

@@ -1,10 +1,10 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, User as UserIcon, AlertCircle, CheckCircle2, ArrowRight, Sparkles, Key, Check } from 'lucide-react';
 import { saveCustomSupabaseCredentials, isSupabaseConfigured } from '../services/supabase';
 
 export const LoginView: React.FC = () => {
-  const { signInWithGoogle, loginWithEmail, registerWithEmail } = useAuth();
+  const { signInWithGoogle, loginWithEmail, registerWithEmail, signInAsGuest } = useAuth();
   
   const [isRegisterMode, setIsRegisterMode] = useState(false);
   const [email, setEmail] = useState('');
@@ -12,6 +12,7 @@ export const LoginView: React.FC = () => {
   const [displayName, setDisplayName] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [invalidCredentials, setInvalidCredentials] = useState(false);
 
   // Custom Supabase credentials configuration
   const [showConfig, setShowConfig] = useState(false);
@@ -27,6 +28,18 @@ export const LoginView: React.FC = () => {
     } catch (err: any) {
       console.warn('Google Sign In:', err);
       // Fallback is handled inside signInWithGoogle
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleGuestAuth = async () => {
+    setErrorMsg(null);
+    setLoading(true);
+    try {
+      await signInAsGuest();
+    } catch (err: any) {
+      console.warn('Guest Sign In:', err);
     } finally {
       setLoading(false);
     }
@@ -152,6 +165,17 @@ export const LoginView: React.FC = () => {
             <span className="truncate">
               {loading ? 'Memproses...' : 'Masuk dengan Akun Google'}
             </span>
+          </button>
+
+          {/* SECONDARY ACTION: Guest Login (Mode Demo) */}
+          <button
+            type="button"
+            onClick={handleGuestAuth}
+            disabled={loading}
+            className="w-full py-3 px-4 rounded-2xl bg-soft-pink border border-pink-200/80 hover:border-primary-pink hover:bg-pink-100/60 text-dark font-extrabold text-xs shadow-2xs transition-all flex items-center justify-center gap-2.5 active:scale-98 group cursor-pointer"
+          >
+            <Sparkles className="w-4 h-4 text-primary-pink shrink-0 animate-pulse" />
+            <span className="truncate">Masuk sebagai Tamu (Guest / Mode Demo)</span>
           </button>
 
           {/* Divider */}

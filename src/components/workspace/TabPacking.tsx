@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, CheckSquare, Square, Trash2, Wand2, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Plus, CheckSquare, Trash2, Wand2, CheckCircle2, Pencil } from 'lucide-react';
 import { Trip, PackingItem, PackingCategory } from '../../types/travel';
 import { useTripContext } from '../../context/TripContext';
 
@@ -9,9 +9,10 @@ interface TabPackingProps {
 }
 
 export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
-  const { addPackingItem, togglePackingItem, deletePackingItem, generateAIPackingListForTrip } = useTripContext();
+  const { addPackingItem, updatePackingItem, togglePackingItem, deletePackingItem, generateAIPackingListForTrip } = useTripContext();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [editingItem, setEditingItem] = useState<PackingItem | null>(null);
 
   // Form
   const [name, setName] = useState('');
@@ -25,17 +26,43 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
 
   const categories: PackingCategory[] = ['Documents', 'Clothing', 'Electronics', 'Toiletries', 'Other'];
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleOpenAddModal = () => {
+    setEditingItem(null);
+    setName('');
+    setCategory('Clothing');
+    setQuantity(1);
+    setIsModalOpen(true);
+  };
+
+  const handleOpenEditModal = (item: PackingItem, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setEditingItem(item);
+    setName(item.name);
+    setCategory(item.category);
+    setQuantity(item.quantity);
+    setIsModalOpen(true);
+  };
+
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) return;
 
-    addPackingItem({
-      tripId: trip.id,
-      name,
-      category,
-      quantity,
-    });
+    if (editingItem) {
+      await updatePackingItem(editingItem.id, {
+        name,
+        category,
+        quantity,
+      });
+    } else {
+      await addPackingItem({
+        tripId: trip.id,
+        name,
+        category,
+        quantity,
+      });
+    }
     setName('');
+    setEditingItem(null);
     setIsModalOpen(false);
   };
 
@@ -73,8 +100,8 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
             </button>
 
             <button
-              onClick={() => setIsModalOpen(true)}
-              className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm transition-all"
+              onClick={handleOpenAddModal}
+              className="bg-primary-pink hover:bg-opacity-90 text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 shadow-sm transition-all cursor-pointer"
             >
               <Plus className="w-4 h-4" />
               <span>Tambah Item</span>
@@ -99,7 +126,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
           <p className="text-xs text-gray-custom mt-1 mb-4">Klik AI Auto-Fill untuk menghasilkan daftar barang bawaan otomatis.</p>
           <button
             onClick={handleGenerateAI}
-            className="bg-primary-pink text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs inline-flex items-center gap-2 hover:bg-opacity-90 transition-all"
+            className="bg-primary-pink text-white px-3 md:px-5 py-2.5 rounded-full font-bold text-xs inline-flex items-center gap-2 hover:bg-opacity-90 transition-all cursor-pointer"
           >
             <Wand2 className="w-4 h-4" />
             <span>Generate Packing List AI</span>
@@ -141,17 +168,30 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
                         </span>
                       </div>
 
-                      <div className="flex items-center gap-3">
-                        <span className="bg-surface-muted font-bold px-3 py-1 rounded-full text-dark border border-card-pink">
+                      <div className="flex items-center gap-2">
+                        <span className="bg-surface-muted font-bold px-3 py-1 rounded-full text-dark border border-card-pink mr-1">
                           x{item.quantity}
                         </span>
+
                         <button
+                          type="button"
+                          onClick={(e) => handleOpenEditModal(item, e)}
+                          aria-label={`Edit item ${item.name}`}
+                          title="Edit item"
+                          className="p-1.5 hover:bg-pink-100/80 text-gray-custom/70 hover:text-primary-pink rounded-full transition-colors cursor-pointer"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+
+                        <button
+                          type="button"
                           onClick={(e) => {
                             e.stopPropagation();
                             deletePackingItem(item.id);
                           }}
                           aria-label={`Hapus item ${item.name}`}
-                          className="p-1.5 hover:bg-red-50 text-gray-custom/70 hover:text-red-500 rounded-full transition-colors"
+                          title="Hapus item"
+                          className="p-1.5 hover:bg-red-50 text-gray-custom/70 hover:text-red-500 rounded-full transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -169,7 +209,9 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
           <div className="bg-card-pink rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
-            <h3 className="font-bold text-sm md:text-base text-dark mb-4">Tambah Item Packing</h3>
+            <h3 className="font-bold text-sm md:text-base text-dark mb-4">
+              {editingItem ? 'Edit Item Packing' : 'Tambah Item Packing'}
+            </h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
@@ -180,7 +222,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Powerbank 20000mAh"
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink focus:outline-hidden focus:border-primary-pink"
                 />
               </div>
 
@@ -190,7 +232,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as PackingCategory)}
-                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink focus:outline-hidden focus:border-primary-pink"
                   >
                     {categories.map(c => <option key={c} value={c}>{c}</option>)}
                   </select>
@@ -203,7 +245,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
                     value={quantity}
                     onChange={(e) => setQuantity(Number(e.target.value))}
                     min={1}
-                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink focus:outline-hidden focus:border-primary-pink"
                   />
                 </div>
               </div>
@@ -212,15 +254,15 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-3 md:px-4 py-2 rounded-xl border border-card-pink font-bold text-gray-custom"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-card-pink font-bold text-gray-custom hover:bg-surface-muted transition-colors cursor-pointer"
                 >
-                  Cancel
+                  Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-3 md:px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90 transition-all"
+                  className="px-3 md:px-5 py-2.5 rounded-full bg-primary-pink text-white font-bold hover:bg-opacity-90 transition-all cursor-pointer shadow-xs"
                 >
-                  Save Item
+                  {editingItem ? 'Simpan Perubahan' : 'Tambah Item'}
                 </button>
               </div>
             </form>

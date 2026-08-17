@@ -47,6 +47,21 @@ export function formatSupabaseUser(user: SupabaseUser | null): AppUser | null {
 }
 
 /**
+ * Sign in as a Guest (Tamu)
+ */
+export async function signInAsGuest(): Promise<AppUser> {
+  const guestUser: AppUser = {
+    uid: 'guest',
+    id: 'guest',
+    email: null,
+    displayName: 'Tamu (Guest)',
+    photoURL: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=120&auto=format&fit=crop&q=80',
+  };
+  localStorage.setItem('supabase_mock_user', JSON.stringify(guestUser));
+  return guestUser;
+}
+
+/**
  * Sign in using Google OAuth via Supabase (or instant Google profile fallback if keys not configured)
  */
 export async function signInWithGoogle(): Promise<AppUser | null> {

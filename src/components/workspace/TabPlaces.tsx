@@ -205,7 +205,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                 {/* Photo & Heart Favorite Badge */}
                 <div className="relative h-44 overflow-hidden bg-soft-pink m-2 rounded-2xl">
                   <img
-                    src={place.photos[0]}
+                    src={place.photos?.[0] || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=800&q=80'}
                     alt={place.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   />

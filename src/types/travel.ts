@@ -174,6 +174,7 @@ export interface MoodboardItem {
   imageUrl: string;
   title?: string;
   caption?: string;
+  category?: string;
   x?: number;
   y?: number;
   width?: number;

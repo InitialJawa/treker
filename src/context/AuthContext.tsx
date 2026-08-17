@@ -6,6 +6,7 @@ import {
   signInWithGoogle, 
   loginWithEmail, 
   registerWithEmail, 
+  signInAsGuest,
   logoutUser 
 } from '../services/supabase';
 
@@ -16,6 +17,7 @@ interface AuthContextType {
   signInWithGoogleRedirect: () => Promise<any>;
   loginWithEmail: (email: string, pass: string) => Promise<AppUser | null>;
   registerWithEmail: (email: string, pass: string, name?: string) => Promise<AppUser | null>;
+  signInAsGuest: () => Promise<AppUser>;
   logout: () => Promise<void>;
 }
 
@@ -102,6 +104,12 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     return userResult;
   };
 
+  const handleSignInAsGuest = async () => {
+    const guestUser = await signInAsGuest();
+    setUser(guestUser);
+    return guestUser;
+  };
+
   const handleLogout = async () => {
     await logoutUser();
     setUser(null);
@@ -116,6 +124,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         signInWithGoogleRedirect: handleSignInGoogleRedirect,
         loginWithEmail: handleLoginEmail,
         registerWithEmail: handleRegisterEmail,
+        signInAsGuest: handleSignInAsGuest,
         logout: handleLogout
       }}
     >
