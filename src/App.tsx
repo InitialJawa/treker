@@ -7,12 +7,13 @@ import { AccountView } from './components/AccountView';
 import { TripWorkspaceView } from './components/TripWorkspaceView';
 import { CreateTripModal } from './components/CreateTripModal';
 import { PublicTemplatesModal } from './components/PublicTemplatesModal';
+import { DashboardView } from './components/DashboardView';
 import { LoginView } from './components/LoginView';
 import { Compass, PlusCircle, BookOpen } from 'lucide-react';
 
 function MainApp() {
   const { trips, activeTripId, setActiveTripId } = useTripContext();
-  const [currentView, setCurrentView] = useState<string>('Workspace');
+  const [currentView, setCurrentView] = useState<string>('Dashboard');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isPublicTemplatesModalOpen, setIsPublicTemplatesModalOpen] = useState(false);
 
@@ -51,6 +52,16 @@ function MainApp() {
 
       {/* Main View Area */}
       <main className="flex-1 max-w-[1400px] mx-auto w-full overflow-x-hidden flex flex-col">
+        {currentView === 'Dashboard' && (
+          <div className="p-4 md:p-8">
+            <DashboardView
+              onSelectTrip={handleSelectTrip}
+              onCreateTrip={() => setIsCreateModalOpen(true)}
+              onOpenTemplates={() => setIsPublicTemplatesModalOpen(true)}
+            />
+          </div>
+        )}
+
         {currentView === 'Workspace' && selectedTrip && (
           <div className="p-4 md:p-8">
             <TripWorkspaceView
