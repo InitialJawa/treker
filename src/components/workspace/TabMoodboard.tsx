@@ -173,7 +173,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
           </button>
         </div>
       ) : (
-        <div className={`relative w-full h-[600px] md:h-[800px] rounded-3xl border overflow-hidden shadow-inner transition-colors ${
+        <div className={`relative w-full min-h-[55vh] md:min-h-[70vh] rounded-3xl border overflow-hidden shadow-inner transition-colors ${
           isLocked ? 'bg-gray-100/50 border-gray-200' : 'bg-gray-50/50 border-dashed border-gray-300'
         }`}>
           {items.map((item) => (

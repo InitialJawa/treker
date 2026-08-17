@@ -143,7 +143,7 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
           {/* Ringkasan Budget */}
           <section className="print-section avoid-break">
             <h3 className="print-section-title"><Wallet className="w-4 h-4" /> Ringkasan Budget</h3>
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="rounded-2xl border border-card-pink bg-screen-pink p-4">
                 <span className="text-[10px] font-bold text-gray-custom uppercase tracking-wide">Total Budget</span>
                 <p className="text-lg font-extrabold text-dark mt-1">{formatCurrency(trip.budget, trip.currency)}</p>

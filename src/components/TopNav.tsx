@@ -79,7 +79,7 @@ export const TopNav: React.FC<TopNavProps> = ({
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute top-full left-0 mt-2 w-80 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-fade-in">
+            <div className="absolute top-full left-0 mt-2 w-80 max-w-[90vw] bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-fade-in">
               <div className="px-4 py-2 border-b border-gray-50 mb-1 flex items-center justify-between">
                 <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Daftar Project</span>
                 <span className="text-[10px] font-bold bg-soft-pink text-primary-pink px-2 py-0.5 rounded-full">{trips.length} Total</span>
@@ -210,13 +210,22 @@ export const TopNav: React.FC<TopNavProps> = ({
 
         {/* Mobile quick nav */}
         <button
+          onClick={() => onNavigate('Dashboard')}
+          aria-label="Ke Home"
+          className={`md:hidden p-2 rounded-xl ${currentView === 'Dashboard' ? 'bg-soft-pink text-primary-pink' : 'text-gray-400'}`}
+        >
+          <Home className="w-4 h-4 md:w-5 md:h-5" />
+        </button>
+        <button
           onClick={() => onNavigate('Workspace')}
+          aria-label="Ke Tracker"
           className={`md:hidden p-2 rounded-xl ${currentView === 'Workspace' ? 'bg-soft-pink text-primary-pink' : 'text-gray-400'}`}
         >
           <Compass className="w-4 h-4 md:w-5 md:h-5" />
         </button>
         <button
           onClick={() => onNavigate('Account')}
+          aria-label="Ke Akun & Pengaturan"
           className={`md:hidden p-2 rounded-xl ${currentView === 'Account' ? 'bg-soft-pink text-primary-pink' : 'text-gray-400'}`}
         >
           <Settings className="w-4 h-4 md:w-5 md:h-5" />
