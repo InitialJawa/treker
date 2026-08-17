@@ -1,10 +1,11 @@
 import React, { useState, useRef } from 'react';
-import { ArrowLeft, Share2, Printer, Edit3, Calendar, MapPin, Users, DollarSign, Heart, Trash2, Copy, AlertTriangle, Check, UserPlus, X, Globe, Shield, Upload } from 'lucide-react';
+import { ArrowLeft, Share2, Printer, Edit3, Calendar, MapPin, Users, DollarSign, Heart, Trash2, Copy, AlertTriangle, Check, UserPlus, X, Globe, Shield, Upload, Lock } from 'lucide-react';
 import { Trip } from '../types/travel';
 import { useTripContext } from '../context/TripContext';
 import { useAuth } from '../context/AuthContext';
 import { formatDateRange, formatCurrency } from '../utils/formatters';
 import { resizeImage } from '../utils/imageUtils';
+import { getBadgeData, getTripTimeStatus, getTripStatusLabel, isTemplateReadOnly } from '../utils/tripBadges';
 import { banyuwangiTrip, banyuwangiDays, banyuwangiItems, banyuwangiPlaces } from '../data/banyuwangiTemplate';
 
 // Tabs
@@ -385,6 +386,20 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
         
 
         <div className="absolute bottom-6 left-6 right-6 text-white space-y-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[10px] font-extrabold border ${getBadgeData(trip, user).bgClass} ${getBadgeData(trip, user).textClass}`}>
+              {getBadgeData(trip, user).type === 'shared' ? <Users className="w-3 h-3" /> : <Lock className="w-3 h-3" />}
+              {getBadgeData(trip, user).label}
+            </span>
+            {isTemplateReadOnly(trip, user) && (
+              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 text-white text-[10px] font-bold">
+                <Lock className="w-3 h-3" /> Hanya Bisa Dikopi
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/20 text-white text-[10px] font-bold backdrop-blur-sm">
+              {getTripStatusLabel(getTripTimeStatus(trip))}
+            </span>
+          </div>
           <h1 className="text-base md:text-lg md:text-4xl font-black tracking-tight flex items-center gap-3">
             {trip.name}
             {hasEditAccess && (
