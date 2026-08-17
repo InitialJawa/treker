@@ -49,7 +49,7 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="block font-semibold text-[#20263D] text-xs flex items-center justify-between">
+        <label className="block font-semibold text-dark text-xs flex items-center justify-between">
           <span className="flex items-center gap-1.5">
             <ImageIcon className="w-4 h-4 text-primary-pink" />
             <span>{label}</span>
@@ -108,7 +108,7 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
 
             {/* Choice 2: Upload Device File */}
             <label
-              className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl border border-gray-200 bg-[#F7F8FA] hover:bg-gray-100 text-dark font-extrabold text-xs cursor-pointer transition-all ${
+              className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl border border-gray-200 bg-screen-pink hover:bg-gray-100 text-dark font-extrabold text-xs cursor-pointer transition-all ${
                 isUploading ? 'opacity-50 pointer-events-none' : ''
               }`}
             >
@@ -140,7 +140,7 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className="flex-1 px-3 py-2 rounded-xl border border-gray-200 bg-[#F7F8FA] font-medium text-xs text-dark focus:bg-white focus:border-primary-pink focus:outline-none"
+                className="flex-1 px-3 py-2 rounded-xl border border-gray-200 bg-screen-pink font-medium text-xs text-dark focus:bg-white focus:border-primary-pink focus:outline-none"
               />
             </div>
           )}

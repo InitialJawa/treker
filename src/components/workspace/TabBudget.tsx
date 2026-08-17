@@ -237,30 +237,30 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-[#E8EBEF]">
-            <h3 className="font-bold text-sm md:text-base text-[#20263D] mb-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+            <h3 className="font-bold text-sm md:text-base text-dark mb-4">
               {editingExpense ? 'Edit Expense' : 'Add Expense'}
             </h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Expense Name</label>
+                <label className="block font-semibold text-dark mb-1">Expense Name</label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Tiket Masuk Kawah Ijen"
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Category</label>
+                <label className="block font-semibold text-dark mb-1">Category</label>
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value as ExpenseCategory)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 >
                   {categoriesList.map(c => <option key={c} value={c}>{c}</option>)}
                 </select>
@@ -268,44 +268,44 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Estimated Cost</label>
+                  <label className="block font-semibold text-dark mb-1">Estimated Cost</label>
                   <input
                     type="number"
                     value={estimatedAmount}
                     onChange={(e) => setEstimatedAmount(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Actual Spent</label>
+                  <label className="block font-semibold text-dark mb-1">Actual Spent</label>
                   <input
                     type="number"
                     value={actualAmount}
                     onChange={(e) => setActualAmount(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Status</label>
+                  <label className="block font-semibold text-dark mb-1">Status</label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as 'paid' | 'unpaid')}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   >
                     <option value="paid">Paid</option>
                     <option value="unpaid">Unpaid</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Date</label>
+                  <label className="block font-semibold text-dark mb-1">Date</label>
                   <input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
               </div>

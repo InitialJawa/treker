@@ -221,7 +221,7 @@ export const LoginView: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-2xl bg-primary-pink hover:bg-[#DB2777] text-white font-bold text-xs shadow-md shadow-pink-500/20 transition-all flex items-center justify-center gap-2 active:scale-98 mt-2 cursor-pointer"
+              className="w-full py-3 rounded-2xl bg-primary-pink hover:bg-primary-pink/90 text-white font-bold text-xs shadow-md shadow-pink-500/20 transition-all flex items-center justify-center gap-2 active:scale-98 mt-2 cursor-pointer"
             >
               <span>{loading ? 'Memproses...' : isRegisterMode ? 'Daftar Akun Baru' : 'Masuk dengan Email'}</span>
               <ArrowRight className="w-4 h-4" />

@@ -93,7 +93,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 border border-[#E8EBEF]">
+      <div className="bg-white rounded-3xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 border border-card-pink">
         {/* Close Button */}
         <button
           onClick={onClose}
@@ -154,13 +154,13 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                   placeholder="e.g. Banyuwangi, Bali, Tokyo, Paris..."
-                  className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-dark focus:outline-none focus:border-primary-pink"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-card-pink bg-screen-pink font-medium text-dark focus:outline-none focus:border-primary-pink"
                 />
               </div>
             </div>
 
             <div>
-              <p className="text-xs font-bold text-[#6F7787] mb-3">Or choose popular picks:</p>
+              <p className="text-xs font-bold text-gray-custom mb-3">Or choose popular picks:</p>
               <div className="grid grid-cols-2 gap-3">
                 {popularDestinations.map((dest) => (
                   <div
@@ -172,8 +172,8 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                     }}
                     className={`p-3 rounded-2xl border cursor-pointer flex items-center gap-3 transition-all ${
                       destination === dest.name
-                        ? 'border-primary-pink bg-soft-pink/50 ring-2 ring-[#EC4899]/20'
-                        : 'border-[#E8EBEF] hover:border-gray-300 bg-white'
+                        ? 'border-primary-pink bg-soft-pink/50 ring-2 ring-primary-pink/20'
+                        : 'border-card-pink hover:border-gray-300 bg-white'
                     }`}
                   >
                     <img src={dest.img} alt={dest.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
@@ -197,7 +197,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                     type="date"
                     value={startDate}
                     onChange={(e) => setStartDate(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-dark focus:outline-none focus:border-primary-pink"
+                    className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-card-pink bg-screen-pink font-medium text-dark focus:outline-none focus:border-primary-pink"
                   />
                 </div>
               </div>
@@ -210,7 +210,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                     type="date"
                     value={endDate}
                     onChange={(e) => setEndDate(e.target.value)}
-                    className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-dark focus:outline-none focus:border-primary-pink"
+                    className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-card-pink bg-screen-pink font-medium text-dark focus:outline-none focus:border-primary-pink"
                   />
                 </div>
               </div>
@@ -226,10 +226,10 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
         {/* STEP 3: TRAVELERS */}
         {step === 3 && (
           <div className="space-y-6">
-            <div className="flex items-center justify-between p-4 rounded-2xl border border-[#E8EBEF] bg-[#F7F8FA]">
+            <div className="flex items-center justify-between p-4 rounded-2xl border border-card-pink bg-screen-pink">
               <div>
                 <h4 className="font-bold text-sm text-dark">Adults</h4>
-                <p className="text-xs text-[#6F7787]">Age 13 or above</p>
+                <p className="text-xs text-gray-custom">Age 13 or above</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -250,10 +250,10 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               </div>
             </div>
 
-            <div className="flex items-center justify-between p-4 rounded-2xl border border-[#E8EBEF] bg-[#F7F8FA]">
+            <div className="flex items-center justify-between p-4 rounded-2xl border border-card-pink bg-screen-pink">
               <div>
                 <h4 className="font-bold text-sm text-dark">Children</h4>
-                <p className="text-xs text-[#6F7787]">Age 0 - 12</p>
+                <p className="text-xs text-gray-custom">Age 0 - 12</p>
               </div>
               <div className="flex items-center gap-3">
                 <button
@@ -288,7 +288,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                     currency === c
                       ? 'bg-primary-pink text-white shadow-xs'
-                      : 'bg-gray-100 text-[#6F7787] hover:bg-gray-200'
+                      : 'bg-gray-100 text-gray-custom hover:bg-gray-200'
                   }`}
                 >
                   {c}
@@ -305,7 +305,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                   value={budget}
                   onChange={(e) => setBudget(Number(e.target.value))}
                   step={currency === 'IDR' ? 100000 : 50}
-                  className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-[#E8EBEF] bg-[#F7F8FA] font-bold text-lg text-dark focus:outline-none focus:border-primary-pink"
+                  className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-card-pink bg-screen-pink font-bold text-lg text-dark focus:outline-none focus:border-primary-pink"
                 />
               </div>
             </div>
@@ -322,7 +322,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                 value={tripName}
                 onChange={(e) => setTripName(e.target.value)}
                 placeholder="e.g. Banyuwangi Trip 2026"
-                className="w-full px-4 py-3 rounded-2xl border border-[#E8EBEF] bg-[#F7F8FA] font-semibold text-dark focus:outline-none focus:border-primary-pink"
+                className="w-full px-4 py-3 rounded-2xl border border-card-pink bg-screen-pink font-semibold text-dark focus:outline-none focus:border-primary-pink"
               />
             </div>
 
@@ -333,7 +333,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                 onChange={(e) => setDescription(e.target.value)}
                 rows={2}
                 placeholder="Optional notes or trip goals..."
-                className="w-full px-4 py-2.5 rounded-2xl border border-[#E8EBEF] bg-[#F7F8FA] text-xs font-medium text-dark focus:outline-none focus:border-primary-pink"
+                className="w-full px-4 py-2.5 rounded-2xl border border-card-pink bg-screen-pink text-xs font-medium text-dark focus:outline-none focus:border-primary-pink"
               />
             </div>
 
@@ -341,7 +341,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
             <div 
               onClick={() => setGenerateAI(!generateAI)}
               className={`p-4 rounded-2xl border cursor-pointer transition-all flex items-start gap-3.5 ${
-                generateAI ? 'border-primary-pink bg-soft-pink/60' : 'border-[#E8EBEF] bg-[#F7F8FA]'
+                generateAI ? 'border-primary-pink bg-soft-pink/60' : 'border-card-pink bg-screen-pink'
               }`}
             >
               <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
@@ -351,7 +351,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               </div>
               <div className="flex-1">
                 <h4 className="font-bold text-sm text-dark">Generate Starter Itinerary with AI</h4>
-                <p className="text-xs text-[#6F7787] mt-0.5">
+                <p className="text-xs text-gray-custom mt-0.5">
                   Otomatis membuat rekomendasi aktivitas per hari, estimasi biaya, dan packing list untuk {destination}.
                 </p>
               </div>
@@ -376,7 +376,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
           {step < 5 ? (
             <button
               onClick={handleNextStep}
-              className="bg-primary-pink hover:bg-[#DB2777] text-white px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-md"
+              className="bg-primary-pink hover:bg-primary-pink/90 text-white px-6 py-3 rounded-xl font-bold text-xs flex items-center gap-2 transition-all shadow-md"
             >
               Next Step
               <ArrowRight className="w-4 h-4" />
@@ -385,7 +385,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
             <button
               onClick={handleFinalSubmit}
               disabled={isSubmitting}
-              className="bg-primary-pink hover:bg-[#DB2777] text-white px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-md active:scale-95"
+              className="bg-primary-pink hover:bg-primary-pink/90 text-white px-8 py-3 rounded-xl font-bold text-sm flex items-center gap-2 transition-all shadow-md active:scale-95"
             >
               {isSubmitting ? (
                 <>

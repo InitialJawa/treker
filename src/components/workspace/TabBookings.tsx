@@ -274,31 +274,31 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-[#E8EBEF]">
-            <h3 className="font-bold text-sm md:text-base text-[#20263D] mb-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+            <h3 className="font-bold text-sm md:text-base text-dark mb-4">
               {editingBooking ? 'Edit Booking' : 'Add Booking'}
             </h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Booking Title</label>
+                <label className="block font-semibold text-dark mb-1">Booking Title</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Ketapang Indah Hotel"
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Type</label>
+                  <label className="block font-semibold text-dark mb-1">Type</label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as BookingType)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   >
                     <option value="Hotel">Hotel</option>
                     <option value="Flight">Flight</option>
@@ -311,34 +311,34 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Provider</label>
+                  <label className="block font-semibold text-dark mb-1">Provider</label>
                   <input
                     type="text"
                     value={provider}
                     onChange={(e) => setProvider(e.target.value)}
                     placeholder="e.g. Tiket.com, Traveloka"
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Code / Confirmation #</label>
+                  <label className="block font-semibold text-dark mb-1">Code / Confirmation #</label>
                   <input
                     type="text"
                     value={confirmationNumber}
                     onChange={(e) => setConfirmationNumber(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Status</label>
+                  <label className="block font-semibold text-dark mb-1">Status</label>
                   <select
                     value={status}
                     onChange={(e) => setStatus(e.target.value as BookingStatus)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   >
                     <option value="Confirmed">Confirmed</option>
                     <option value="Pending">Pending</option>
@@ -350,33 +350,33 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Price ({trip.currency})</label>
+                  <label className="block font-semibold text-dark mb-1">Price ({trip.currency})</label>
                   <input
                     type="number"
                     value={price}
                     onChange={(e) => setPrice(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Date</label>
+                  <label className="block font-semibold text-dark mb-1">Date</label>
                   <input
                     type="date"
                     value={date}
                     onChange={(e) => setDate(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Location</label>
+                <label className="block font-semibold text-dark mb-1">Location</label>
                 <input
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 />
               </div>
 

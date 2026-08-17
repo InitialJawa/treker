@@ -571,7 +571,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                 <button
                   type="submit"
                   disabled={shareLoading}
-                  className="shrink-0 bg-primary-pink hover:bg-[#DB2777] text-white px-3 md:px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-pink-500/20 active:scale-95 shrink-0"
+                  className="shrink-0 bg-primary-pink hover:bg-primary-pink/90 text-white px-3 md:px-4 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md shadow-pink-500/20 active:scale-95 shrink-0"
                 >
                   {shareLoading ? 'Menambahkan...' : 'Undang'}
                 </button>

@@ -143,41 +143,41 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-[#E8EBEF]">
-            <h3 className="font-bold text-sm md:text-base text-[#20263D] mb-4">Add Transport Leg</h3>
+          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+            <h3 className="font-bold text-sm md:text-base text-dark mb-4">Add Transport Leg</h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Origin Location</label>
+                <label className="block font-semibold text-dark mb-1">Origin Location</label>
                 <input
                   type="text"
                   value={origin}
                   onChange={(e) => setOrigin(e.target.value)}
                   placeholder="e.g. Ketapang Indah Hotel"
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Destination Location</label>
+                <label className="block font-semibold text-dark mb-1">Destination Location</label>
                 <input
                   type="text"
                   value={destination}
                   onChange={(e) => setDestination(e.target.value)}
                   placeholder="e.g. Kawah Ijen"
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Transport Mode</label>
+                  <label className="block font-semibold text-dark mb-1">Transport Mode</label>
                   <select
                     value={type}
                     onChange={(e) => setType(e.target.value as TransportType)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   >
                     <option value="Car">Car</option>
                     <option value="Motorcycle">Motorcycle</option>
@@ -191,36 +191,36 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Estimated Cost ({trip.currency})</label>
+                  <label className="block font-semibold text-dark mb-1">Estimated Cost ({trip.currency})</label>
                   <input
                     type="number"
                     value={estimatedCost}
                     onChange={(e) => setEstimatedCost(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Distance</label>
+                  <label className="block font-semibold text-dark mb-1">Distance</label>
                   <input
                     type="text"
                     value={distance}
                     onChange={(e) => setDistance(e.target.value)}
                     placeholder="e.g. 28 km"
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Duration</label>
+                  <label className="block font-semibold text-dark mb-1">Duration</label>
                   <input
                     type="text"
                     value={duration}
                     onChange={(e) => setDuration(e.target.value)}
                     placeholder="e.g. 45 min"
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
               </div>

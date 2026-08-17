@@ -115,8 +115,8 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
               onClick={() => setIsLocked(!isLocked)}
               className={`px-3 md:px-5 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 shrink-0 border ${
                 isLocked 
-                  ? 'bg-[#20263D] text-white border-[#20263D]' 
-                  : 'bg-white text-[#20263D] border-[#E8EBEF] hover:border-gray-400'
+                  ? 'bg-dark text-white border-dark' 
+                  : 'bg-white text-dark border-card-pink hover:border-gray-400'
               }`}
             >
               {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
@@ -166,7 +166,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
           </p>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="bg-white border border-[#E8EBEF] hover:border-primary-pink text-[#20263D] hover:text-primary-pink px-3 md:px-5 py-2.5 rounded-full font-bold text-xs inline-flex items-center gap-2 transition-all shadow-sm active:scale-95"
+            className="bg-white border border-card-pink hover:border-primary-pink text-dark hover:text-primary-pink px-3 md:px-5 py-2.5 rounded-full font-bold text-xs inline-flex items-center gap-2 transition-all shadow-sm active:scale-95"
           >
             <Plus className="w-4 h-4" />
             <span>Upload Foto Pertama</span>

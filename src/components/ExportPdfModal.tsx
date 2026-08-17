@@ -77,17 +77,17 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
 
   return createPortal(
     <div className="print-modal fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="print-modal-card bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative border border-[#E8EBEF] overflow-hidden">
+      <div className="print-modal-card bg-white rounded-3xl max-w-3xl w-full max-h-[90vh] flex flex-col shadow-2xl relative border border-card-pink overflow-hidden">
         {/* Top Action Header */}
-        <div className="p-4 md:p-6 border-b border-[#E8EBEF] flex items-center justify-between bg-white z-10 no-print">
+        <div className="p-4 md:p-6 border-b border-card-pink flex items-center justify-between bg-white z-10 no-print">
           <div>
             <h3 className="text-lg font-bold text-dark">Export & Share Trip Summary</h3>
-            <p className="text-xs text-[#6F7787]">Simpan dokumen PDF atau bagikan ke teman seperjalanan</p>
+            <p className="text-xs text-gray-custom">Simpan dokumen PDF atau bagikan ke teman seperjalanan</p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={handleCopyShareLink}
-              className="px-3 py-2 rounded-xl border border-[#E8EBEF] hover:bg-gray-50 text-xs font-bold text-dark flex items-center gap-1.5 transition-colors"
+              className="px-3 py-2 rounded-xl border border-card-pink hover:bg-gray-50 text-xs font-bold text-dark flex items-center gap-1.5 transition-colors"
             >
               <Share2 className="w-3.5 h-3.5 text-[var(--color-primary-pink)]" />
               {isCopied ? 'Copied!' : 'Share Link'}
@@ -117,7 +117,7 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
               {trip.coverImage ? (
                 <>
                   <img src={trip.coverImage} alt={trip.name} className="absolute inset-0 w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#4a0415] via-[#7a0c22]/70 to-[#E11D48]/20" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#4a0415] via-[#7a0c22]/70 to-primary-pink/20" />
                 </>
               ) : (
                 <div className="absolute inset-0 bg-gradient-to-br from-[#E11D48] via-[#be123c] to-[#7a0c22]" />
@@ -144,13 +144,13 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
           <section className="print-section avoid-break">
             <h3 className="print-section-title"><Wallet className="w-4 h-4" /> Ringkasan Budget</h3>
             <div className="grid grid-cols-3 gap-3">
-              <div className="rounded-2xl border border-[#E8EBEF] bg-[#F7F8FA] p-4">
-                <span className="text-[10px] font-bold text-[#6F7787] uppercase tracking-wide">Total Budget</span>
+              <div className="rounded-2xl border border-card-pink bg-screen-pink p-4">
+                <span className="text-[10px] font-bold text-gray-custom uppercase tracking-wide">Total Budget</span>
                 <p className="text-lg font-extrabold text-dark mt-1">{formatCurrency(trip.budget, trip.currency)}</p>
               </div>
-              <div className="rounded-2xl border border-[#E11D48]/20 bg-[#FFF1F2] p-4">
-                <span className="text-[10px] font-bold text-[#E11D48] uppercase tracking-wide">Terpakai</span>
-                <p className="text-lg font-extrabold text-[#E11D48] mt-1">{formatCurrency(trip.actualSpent, trip.currency)}</p>
+              <div className="rounded-2xl border border-primary-pink/20 bg-soft-pink p-4">
+                <span className="text-[10px] font-bold text-primary-pink uppercase tracking-wide">Terpakai</span>
+                <p className="text-lg font-extrabold text-primary-pink mt-1">{formatCurrency(trip.actualSpent, trip.currency)}</p>
               </div>
               <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4">
                 <span className="text-[10px] font-bold text-amber-700 uppercase tracking-wide">Sisa</span>
@@ -159,7 +159,7 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
             </div>
             {topCategories.length > 0 && (
               <div className="mt-4">
-                <div className="flex items-center justify-between text-[11px] font-bold text-[#6F7787] uppercase tracking-wide mb-2">
+                <div className="flex items-center justify-between text-[11px] font-bold text-gray-custom uppercase tracking-wide mb-2">
                   <span>Breakdown per Kategori</span>
                   <span>{formatCurrency(totalExpense, trip.currency)}</span>
                 </div>
@@ -202,7 +202,7 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
                         </span>
                         <div>
                           <h4 className="font-extrabold text-sm text-dark leading-tight">{day.title}</h4>
-                          <p className="text-[11px] font-semibold text-[#6F7787]">{day.date}</p>
+                          <p className="text-[11px] font-semibold text-gray-custom">{day.date}</p>
                         </div>
                       </div>
                       {dayItems.length === 0 ? (
@@ -213,24 +213,24 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
                             <div key={item.id} className="flex items-start justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50/70 p-2.5">
                               <div className="min-w-0">
                                 <div className="flex items-center gap-2">
-                                  <span className="shrink-0 rounded-md bg-[#E11D48]/10 text-[#E11D48] text-[10px] font-black px-1.5 py-0.5">{item.time}</span>
+                                  <span className="shrink-0 rounded-md bg-primary-pink/10 text-primary-pink text-[10px] font-black px-1.5 py-0.5">{item.time}</span>
                                   <span className="font-bold text-xs text-dark truncate">{item.title}</span>
                                   <span className="shrink-0 text-[10px] font-semibold rounded-full bg-white border border-gray-200 text-gray-500 px-2 py-0.5">{item.category}</span>
                                 </div>
-                                {item.location && <p className="text-[11px] text-[#6F7787] mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" /> {item.location}</p>}
+                                {item.location && <p className="text-[11px] text-gray-custom mt-0.5 flex items-center gap-1"><MapPin className="w-3 h-3" /> {item.location}</p>}
                                 {item.description && <p className="text-[11px] text-gray-500 mt-0.5">{item.description}</p>}
                                 {(item.spotImageUrl || item.imageUrl || item.outfitImageUrl) && (
                                   <div className="mt-1.5 flex flex-wrap gap-1.5 items-center">
                                     {(item.spotImageUrl || item.imageUrl) && (
                                       <span className="inline-flex items-center gap-1">
                                         <img src={item.spotImageUrl || item.imageUrl} alt={`Spot ${item.title}`} className="h-10 w-14 rounded-md object-cover border border-gray-200" />
-                                        <span className="flex items-center gap-0.5 text-[9px] font-bold text-[#6F7787]"><MapPin className="w-2.5 h-2.5" />Spot</span>
+                                        <span className="flex items-center gap-0.5 text-[9px] font-bold text-gray-custom"><MapPin className="w-2.5 h-2.5" />Spot</span>
                                       </span>
                                     )}
                                     {item.outfitImageUrl && (
                                       <span className="inline-flex items-center gap-1">
                                         <img src={item.outfitImageUrl} alt={`Outfit ${item.title}`} className="h-10 w-14 rounded-md object-cover border border-gray-200" />
-                                        <span className="flex items-center gap-0.5 text-[9px] font-bold text-[#6F7787]"><Shirt className="w-2.5 h-2.5" />Outfit</span>
+                                        <span className="flex items-center gap-0.5 text-[9px] font-bold text-gray-custom"><Shirt className="w-2.5 h-2.5" />Outfit</span>
                                       </span>
                                     )}
                                   </div>
@@ -250,7 +250,7 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
             {/* Booking & Reservasi */}
             <div className="mt-8">
               <div className="flex items-center gap-2 mb-4">
-                <Landmark className="w-4 h-4 text-[#E11D48]" />
+                <Landmark className="w-4 h-4 text-primary-pink" />
                 <h3 className="print-section-title">Booking & Reservasi</h3>
               </div>
               {bookings.length === 0 ? (
@@ -258,14 +258,14 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {bookings.map((b) => (
-                    <div key={b.id} className="avoid-break rounded-xl border border-[#E8EBEF] p-3 text-xs space-y-1">
+                    <div key={b.id} className="avoid-break rounded-xl border border-card-pink p-3 text-xs space-y-1">
                       <div className="flex items-center justify-between">
                         <span className="font-bold text-dark">{b.name}</span>
                         <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${bookingStatusColor[b.status] || 'bg-gray-100 text-gray-600'}`}>{b.status}</span>
                       </div>
                       <p className="text-gray-500">{b.type} · {b.provider}{b.confirmationNumber ? ` · Code: ${b.confirmationNumber}` : ''}</p>
                       <p className="text-gray-500">{b.date}{b.time ? ` ${b.time}` : ''}</p>
-                      {b.price > 0 && <p className="font-bold text-[#E11D48]">{formatCurrency(b.price, trip.currency)}</p>}
+                      {b.price > 0 && <p className="font-bold text-primary-pink">{formatCurrency(b.price, trip.currency)}</p>}
                     </div>
                   ))}
                 </div>
@@ -301,8 +301,8 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
                 <h3 className="print-section-title"><Route className="w-4 h-4" /> Rute Transport</h3>
                 <div className="space-y-2 mt-3">
                   {transports.map((t) => (
-                    <div key={t.id} className="flex items-center gap-3 rounded-xl border border-[#E8EBEF] p-3 text-xs">
-                      <span className="shrink-0 w-8 h-8 rounded-xl bg-[#FFF1F2] text-[#E11D48] flex items-center justify-center">
+                    <div key={t.id} className="flex items-center gap-3 rounded-xl border border-card-pink p-3 text-xs">
+                      <span className="shrink-0 w-8 h-8 rounded-xl bg-soft-pink text-primary-pink flex items-center justify-center">
                         {transportIcon(t.type)}
                       </span>
                       <div className="min-w-0 flex-1">

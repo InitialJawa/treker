@@ -1226,7 +1226,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                     value={newPhotoUrl}
                     onChange={e => setNewPhotoUrl(e.target.value)}
                     placeholder="https://images.unsplash.com/..."
-                    className="w-full px-3 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] text-xs font-medium"
+                    className="w-full px-3 py-2.5 rounded-xl border border-card-pink bg-screen-pink text-xs font-medium"
                   />
                 </div>
 
@@ -1244,7 +1244,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                       value={newPhotoTitle}
                       onChange={e => setNewPhotoTitle(e.target.value)}
                       placeholder="e.g. Spot Foto De Djawatan"
-                      className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] text-xs font-medium"
+                      className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink text-xs font-medium"
                     />
                   </div>
 
@@ -1255,7 +1255,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                       value={newPhotoCategory}
                       onChange={e => setNewPhotoCategory(e.target.value)}
                       placeholder="e.g. Spot Impian, Sunset, Jeep"
-                      className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] text-xs font-medium"
+                      className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink text-xs font-medium"
                     />
                   </div>
                 </div>

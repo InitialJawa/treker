@@ -351,56 +351,56 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-[#E8EBEF]">
-            <h3 className="font-bold text-sm md:text-base text-[#20263D] mb-4">{editingPlaceId ? "Edit Place" : "Add Place"}</h3>
+          <div className="bg-white rounded-3xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+            <h3 className="font-bold text-sm md:text-base text-dark mb-4">{editingPlaceId ? "Edit Place" : "Add Place"}</h3>
 
             <form onSubmit={handleAddPlace} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Place Name</label>
+                <label className="block font-semibold text-dark mb-1">Place Name</label>
                 <input
                   type="text"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Pantai Pulau Merah"
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Location</label>
+                <label className="block font-semibold text-dark mb-1">Location</label>
                 <input
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Category</label>
+                  <label className="block font-semibold text-dark mb-1">Category</label>
                   <input
                     type="text"
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Cost ({trip.currency})</label>
+                  <label className="block font-semibold text-dark mb-1">Cost ({trip.currency})</label>
                   <input
                     type="number"
                     value={estimatedCost}
                     onChange={(e) => setEstimatedCost(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Rating</label>
+                  <label className="block font-semibold text-dark mb-1">Rating</label>
                   <input
                     type="number"
                     step="0.1"
@@ -408,27 +408,27 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                     max="5"
                     value={rating}
                     onChange={(e) => setRating(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Opening Hours</label>
+                  <label className="block font-semibold text-dark mb-1">Opening Hours</label>
                   <input
                     type="text"
                     value={openingHours}
                     onChange={(e) => setOpeningHours(e.target.value)}
                     placeholder="e.g. 08:00 - 17:00"
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Status</label>
+                <label className="block font-semibold text-dark mb-1">Status</label>
                 <select
                   value={status}
                   onChange={(e) => setStatus(e.target.value as any)}
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 >
                   <option value="wishlist">Wishlist</option>
                   <option value="planned">Planned</option>
@@ -443,12 +443,12 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
               />
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Description</label>
+                <label className="block font-semibold text-dark mb-1">Description</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={2}
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 />
               </div>
 

@@ -20,11 +20,11 @@ const createCustomIcon = (isSelected: boolean) => {
     className: 'custom-leaflet-icon',
     html: `
       <div style="
-        background-color: ${isSelected ? '#EC4899' : '#FFFFFF'};
+        background-color: ${isSelected ? 'var(--color-primary-pink)' : '#FFFFFF'};
         width: 24px;
         height: 24px;
         border-radius: 50%;
-        border: 3px solid ${isSelected ? '#FFFFFF' : '#EC4899'};
+        border: 3px solid ${isSelected ? '#FFFFFF' : 'var(--color-primary-pink)'};
         box-shadow: 0 2px 5px rgba(0,0,0,0.3);
         transform: translate(-50%, -50%);
       "></div>

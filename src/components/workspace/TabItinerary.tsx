@@ -334,7 +334,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               title="Tahan dan geser untuk memindahkan hari"
             >
               <span>DAY {day.dayNumber}</span>
-              <span className={`text-[10px] ${isActive ? 'text-white/80' : 'text-[#6F7787]'}`}>• {day.date}</span>
+              <span className={`text-[10px] ${isActive ? 'text-white/80' : 'text-gray-custom'}`}>• {day.date}</span>
             </button>
           );
         })}
@@ -414,7 +414,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     deleteItineraryDay(activeDay.id, trip.id);
                  }
               }}
-              className="bg-white border border-[#E8EBEF] hover:border-red-500 text-gray-500 hover:text-red-500 w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-sm active:scale-95 shrink-0"
+              className="bg-white border border-card-pink hover:border-red-500 text-gray-500 hover:text-red-500 w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-sm active:scale-95 shrink-0"
               title="Hapus Hari Ini"
             >
               <Trash2 className="w-4 h-4" />
@@ -423,7 +423,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
           {dayItems.length > 0 && (
             <button
               onClick={handleOpenMoveAll}
-              className="bg-white border border-[#E8EBEF] hover:border-primary-pink text-[#20263D] hover:text-primary-pink px-3 md:px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0"
+              className="bg-white border border-card-pink hover:border-primary-pink text-dark hover:text-primary-pink px-3 md:px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0"
             >
               <MoveRight className="w-4 h-4" />
               <span className="hidden sm:inline">Pindah Semua</span>
@@ -469,12 +469,12 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                       {item.time}
                     </span>
                     <span className="text-gray-400 font-semibold">•</span>
-                    <span className="font-medium text-[#6F7787] flex items-center gap-1">
+                    <span className="font-medium text-gray-custom flex items-center gap-1">
                       <Clock className="w-3.5 h-3.5 text-gray-400" />
                       {item.duration}
                     </span>
                     <span className="text-gray-400 font-semibold">•</span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gray-100 font-bold text-[11px] text-[#20263D]">
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gray-100 font-bold text-[11px] text-dark">
                       {categoryIcons[item.category]}
                       {item.category}
                     </span>
@@ -491,7 +491,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
 
                   {/* Description & Notes */}
                   {item.description && (
-                    <p className="text-xs text-gray-600 bg-[#F7F8FA] p-2.5 rounded-xl border border-gray-100">
+                    <p className="text-xs text-gray-600 bg-screen-pink p-2.5 rounded-xl border border-gray-100">
                       {item.description}
                     </p>
                   )}
@@ -551,21 +551,21 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
 
                 {/* Right Side Cost & Actions */}
                 <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100 gap-3 shrink-0">
-                  <span className="font-extrabold text-sm text-[#20263D]">
+                  <span className="font-extrabold text-sm text-dark">
                     {formatCurrency(item.estimatedCost, trip.currency)}
                   </span>
 
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleOpenMove(item)}
-                      className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-[#20263D] transition-colors"
+                      className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-dark transition-colors"
                       title="Pindah Hari"
                     >
                       <MoveRight className="w-4 h-4" />
                     </button>
                     <button
                       onClick={() => handleOpenEdit(item)}
-                      className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-[#20263D] transition-colors"
+                      className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-dark transition-colors"
                       title="Edit"
                     >
                       <Edit3 className="w-4 h-4" />
@@ -595,11 +595,11 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
             
             <form onSubmit={handleSaveMoveAll} className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Pilih Hari Tujuan</label>
+                <label className="block font-semibold text-dark mb-1">Pilih Hari Tujuan</label>
                 <select
                   value={targetDayIdAll}
                   onChange={(e) => setTargetDayIdAll(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D] mb-3"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-card-pink bg-screen-pink font-medium text-dark mb-3"
                 >
                   <option value="" disabled>Pilih hari...</option>
                   {days.filter(d => d.id !== activeDay?.id).map(d => (
@@ -609,7 +609,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               </div>
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-2">Metode Pindah</label>
+                <label className="block font-semibold text-dark mb-2">Metode Pindah</label>
                 <div className="space-y-2">
                   <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${moveMode === 'shift' ? 'border-primary-pink bg-soft-pink' : 'border-gray-200 hover:bg-gray-50'}`}>
                     <input type="radio" name="moveMode" value="shift" checked={moveMode === 'shift'} onChange={() => setMoveMode('shift')} className="mt-0.5" />
@@ -668,11 +668,11 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
             </div>
             <form onSubmit={handleSaveMove} className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Pilih Hari Tujuan</label>
+                <label className="block font-semibold text-dark mb-1">Pilih Hari Tujuan</label>
                 <select
                   value={targetDayId}
                   onChange={(e) => setTargetDayId(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-card-pink bg-screen-pink font-medium text-dark"
                 >
                   {days.map(d => (
                     <option key={d.id} value={d.id}>DAY {d.dayNumber} - {d.title}</option>
@@ -702,48 +702,48 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
       {/* Add / Edit Activity Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-3 md:p-6 shadow-2xl relative border border-[#E8EBEF]">
-            <h3 className="font-bold text-base md:text-lg text-[#20263D] mb-4">
+          <div className="bg-white rounded-3xl max-w-lg w-full p-3 md:p-6 shadow-2xl relative border border-card-pink">
+            <h3 className="font-bold text-base md:text-lg text-dark mb-4">
               {editingItem ? 'Edit Activity' : 'Add New Activity'}
             </h3>
 
             <form onSubmit={handleSaveItem} className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Activity Title</label>
+                <label className="block font-semibold text-dark mb-1">Activity Title</label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Visit Kawah Ijen Crater"
                   required
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D] focus:outline-none focus:border-[#18A66A]"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-card-pink bg-screen-pink font-medium text-dark focus:outline-none focus:border-[#18A66A]"
                 />
               </div>
 
               {/* Time & Duration Section */}
-              <div className="bg-[#F7F8FA] p-3.5 rounded-2xl border border-[#E8EBEF] space-y-3">
+              <div className="bg-screen-pink p-3.5 rounded-2xl border border-card-pink space-y-3">
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-[#20263D] mb-1">
+                    <label className="block text-xs font-bold text-dark mb-1">
                       Jam Mulai
                     </label>
                     <input
                       type="time"
                       value={time}
                       onChange={(e) => setTime(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-[#20263D] text-sm focus:ring-2 focus:ring-primary-pink/30 focus:border-primary-pink cursor-pointer shadow-2xs"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-dark text-sm focus:ring-2 focus:ring-primary-pink/30 focus:border-primary-pink cursor-pointer shadow-2xs"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[#20263D] mb-1">
+                    <label className="block text-xs font-bold text-dark mb-1">
                       Jam Selesai
                     </label>
                     <input
                       type="time"
                       value={getEndTimeString(time, duration)}
                       onChange={(e) => handleEndTimeChange(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-[#20263D] text-sm focus:ring-2 focus:ring-primary-pink/30 focus:border-primary-pink cursor-pointer shadow-2xs"
+                      className="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-dark text-sm focus:ring-2 focus:ring-primary-pink/30 focus:border-primary-pink cursor-pointer shadow-2xs"
                     />
                   </div>
                 </div>
@@ -820,23 +820,23 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               </div>
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Location</label>
+                <label className="block font-semibold text-dark mb-1">Location</label>
                 <input
                   type="text"
                   value={location}
                   onChange={(e) => setLocation(e.target.value)}
                   placeholder="e.g. Kawah Ijen, Banyuwangi"
-                  className="w-full px-3.5 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
+                  className="w-full px-3.5 py-2 rounded-xl border border-card-pink bg-screen-pink font-medium text-dark"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Category</label>
+                  <label className="block font-semibold text-dark mb-1">Category</label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as ItineraryCategory)}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink font-medium text-dark"
                   >
                     <option value="Activity">Activity</option>
                     <option value="Food">Food</option>
@@ -849,23 +849,23 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-[#20263D] mb-1">Estimated Cost ({trip.currency})</label>
+                  <label className="block font-semibold text-dark mb-1">Estimated Cost ({trip.currency})</label>
                   <input
                     type="number"
                     value={cost}
                     onChange={(e) => setCost(Number(e.target.value))}
-                    className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
+                    className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink font-medium text-dark"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Description</label>
+                <label className="block font-semibold text-dark mb-1">Description</label>
                 <textarea
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   rows={2}
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink font-medium text-dark"
                 />
               </div>
 
@@ -926,10 +926,10 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
       {isAddDayModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
           <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
-            <h3 className="font-bold text-sm md:text-base text-[#20263D]">Tambah Hari Itinerary Baru</h3>
+            <h3 className="font-bold text-sm md:text-base text-dark">Tambah Hari Itinerary Baru</h3>
             <form onSubmit={handleCreateNewDay} className="space-y-4 text-xs">
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Judul / Kegiatan Hari</label>
+                <label className="block font-semibold text-dark mb-1">Judul / Kegiatan Hari</label>
                 <input
                   type="text"
                   value={newDayTitleInput}
@@ -937,15 +937,15 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                   placeholder="e.g. Hari: Wisata Belanja & Oleh-oleh"
                   required
                   autoFocus
-                  className="w-full px-3 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
+                  className="w-full px-3 py-2.5 rounded-xl border border-card-pink bg-screen-pink font-medium text-dark"
                 />
               </div>
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Sisipkan di Posisi</label>
+                <label className="block font-semibold text-dark mb-1">Sisipkan di Posisi</label>
                 <select
                   value={insertDayIndex}
                   onChange={(e) => setInsertDayIndex(e.target.value === '' ? '' : Number(e.target.value))}
-                  className="w-full px-3 py-2.5 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA] font-medium text-[#20263D]"
+                  className="w-full px-3 py-2.5 rounded-xl border border-card-pink bg-screen-pink font-medium text-dark"
                 >
                   <option value="">Di Akhir (Sebagai Hari Terakhir)</option>
                   {days.map((d, idx) => (

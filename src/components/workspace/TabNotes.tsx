@@ -91,11 +91,11 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-white p-5 rounded-2xl border border-[#E8EBEF] flex items-center justify-between gap-4 shadow-xs">
+      <div className="bg-white p-5 rounded-2xl border border-card-pink flex items-center justify-between gap-4 shadow-xs">
         <div>
           <span className="text-xs font-extrabold text-[var(--color-primary-pink)] tracking-wider uppercase">Trip Notes</span>
-          <h2 className="text-xl font-extrabold text-[#20263D]">Important Reminders & Contacts</h2>
-          <p className="text-xs text-[#6F7787] mt-0.5">
+          <h2 className="text-xl font-extrabold text-dark">Important Reminders & Contacts</h2>
+          <p className="text-xs text-gray-custom mt-0.5">
             Catatan penting, instruksi driver, dan reminder khusus perjalanan
           </p>
         </div>
@@ -111,10 +111,10 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
 
       {/* Sticky Notes Cards Grid */}
       {tripNotes.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-[#E8EBEF] p-12 text-center text-gray-400">
+        <div className="bg-white rounded-2xl border border-card-pink p-12 text-center text-gray-400">
           <StickyNote className="w-12 h-12 mx-auto mb-2 text-gray-300" />
-          <h3 className="font-bold text-base text-[#20263D]">Belum ada catatan tersimpan</h3>
-          <p className="text-xs text-[#6F7787] mt-1 mb-4">Catat nomor kontak driver, rekomendasi kuliner, atau reminder jeep.</p>
+          <h3 className="font-bold text-base text-dark">Belum ada catatan tersimpan</h3>
+          <p className="text-xs text-gray-custom mt-1 mb-4">Catat nomor kontak driver, rekomendasi kuliner, atau reminder jeep.</p>
           <button
             onClick={handleOpenAdd}
             className="bg-[var(--color-primary-pink)] text-white px-5 py-2 rounded-xl font-bold text-xs"
@@ -132,7 +132,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
             >
               <div className="space-y-2">
                 <div className="flex items-start justify-between gap-2">
-                  <h3 className="font-extrabold text-base text-[#20263D]">{note.title}</h3>
+                  <h3 className="font-extrabold text-base text-dark">{note.title}</h3>
                   <div className="flex items-center gap-1 shrink-0">
                     <button
                       onClick={() => handleOpenEdit(note)}
@@ -189,38 +189,38 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-[#E8EBEF]">
-            <h3 className="font-bold text-base text-[#20263D] mb-4">
+          <div className="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border border-card-pink">
+            <h3 className="font-bold text-base text-dark mb-4">
               {editingNote ? 'Edit Note' : 'Create Note'}
             </h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Title</label>
+                <label className="block font-semibold text-dark mb-1">Title</label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="e.g. Booking Jeep H-7"
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Content</label>
+                <label className="block font-semibold text-dark mb-1">Content</label>
                 <textarea
                   value={content}
                   onChange={(e) => setContent(e.target.value)}
                   rows={4}
                   placeholder="Tulis catatan penting..."
                   required
-                  className="w-full px-3 py-2 rounded-xl border border-[#E8EBEF] bg-[#F7F8FA]"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-screen-pink"
                 />
               </div>
 
               <div>
-                <label className="block font-semibold text-[#20263D] mb-1">Card Color</label>
+                <label className="block font-semibold text-dark mb-1">Card Color</label>
                 <div className="flex gap-2">
                   {colors.map((c) => (
                     <button
