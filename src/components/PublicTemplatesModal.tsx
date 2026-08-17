@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, BookOpen, MapPin, Calendar, Users, DollarSign, Check, Copy, ArrowRight, Compass, Bookmark } from 'lucide-react';
 import { INITIAL_TRIPS } from '../data/mockData';
 import { useTripContext } from '../context/TripContext';
+import { useToast } from '../context/ToastContext';
 import { formatDateRange, formatCurrency } from '../utils/formatters';
 
 interface PublicTemplatesModalProps {
@@ -16,6 +17,7 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
   onSelectTrip,
 }) => {
   const { duplicateTrip } = useTripContext();
+  const { showToast } = useToast();
   const [selectedTemplateId, setSelectedTemplateId] = useState<string | null>(null);
   const [customName, setCustomName] = useState('');
   const [newStartDate, setNewStartDate] = useState('');
@@ -64,7 +66,7 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
       }, 1500);
     } catch (err: any) {
       console.error(err);
-      alert('Gagal mengimpor template: ' + (err?.message || 'Terjadi kesalahan'));
+      showToast('Gagal mengimpor template: ' + (err?.message || 'Terjadi kesalahan'), 'error');
       setIsImporting(false);
     }
   };
@@ -85,7 +87,7 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
               </p>
             </div>
           </div>
-          <button
+          <button aria-label="Tutup"
             onClick={onClose}
             className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
           >

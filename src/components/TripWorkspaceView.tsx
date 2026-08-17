@@ -3,6 +3,7 @@ import { ArrowLeft, Share2, Printer, Edit3, Calendar, MapPin, Users, DollarSign,
 import { Trip } from '../types/travel';
 import { useTripContext } from '../context/TripContext';
 import { useAuth } from '../context/AuthContext';
+import { useToast } from '../context/ToastContext';
 import { formatDateRange, formatCurrency } from '../utils/formatters';
 import { resizeImage } from '../utils/imageUtils';
 import { getBadgeData, getTripTimeStatus, getTripStatusLabel, isTemplateReadOnly } from '../utils/tripBadges';
@@ -30,6 +31,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
   onBackToDashboard,
 }) => {
   const { user } = useAuth();
+  const { showToast } = useToast();
   const {
     itineraryDays,
     itineraryItems,
@@ -86,13 +88,13 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
     const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1);
     
     if (start.getFullYear() < 2000) {
-      alert('Tahun tidak valid. Masukkan tahun yang benar.');
+      showToast('Tahun tidak valid. Masukkan tahun yang benar.', 'error');
       setIsSaving(false);
       return;
     }
     
     if (diffDays > 60) {
-      alert('Maksimal durasi trip adalah 60 hari. Silakan sesuaikan tanggal.');
+      showToast('Maksimal durasi trip adalah 60 hari. Silakan sesuaikan tanggal.', 'error');
       setIsSaving(false);
       return;
     }
@@ -107,11 +109,10 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
         budget: editBudget
       });
       setIsEditTripModalOpen(false);
-      setToastMessage('Detail trip berhasil diperbarui!');
-      setTimeout(() => setToastMessage(null), 3000);
+      showToast('Detail trip berhasil diperbarui!');
     } catch (e: any) {
       console.error(e);
-      alert('Gagal menyimpan perubahan: ' + (e.message || e));
+      showToast('Gagal menyimpan perubahan: ' + (e.message || e), 'error');
     } finally {
       setIsSaving(false);
     }
@@ -152,15 +153,14 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
     setIsImporting(true);
     try {
       await duplicateTrip(trip.id, importName, importStartDate, importEndDate);
-      setToastMessage('Template berhasil diimpor! Silakan kembali ke Dashboard.');
       setIsImportModalOpen(false);
+      showToast('Template berhasil diimpor! Silakan kembali ke Dashboard.');
       setTimeout(() => {
-        setToastMessage(null);
         onBackToDashboard();
       }, 2500);
     } catch (err: any) {
       console.error(err);
-      alert('Gagal mengimpor template: ' + (err?.message || 'Terjadi kesalahan'));
+      showToast('Gagal mengimpor template: ' + (err?.message || 'Terjadi kesalahan'), 'error');
     } finally {
       setIsImporting(false);
     }
@@ -194,7 +194,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       setIsEditingCover(false);
     } catch (error) {
       console.error('Failed to upload image:', error);
-      alert('Gagal mengunggah gambar. Pastikan format file sesuai.');
+      showToast('Gagal mengunggah gambar. Pastikan format file sesuai.', 'error');
     } finally {
       setIsUploading(false);
     }
@@ -202,13 +202,11 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
   
   const [collaboratorEmail, setCollaboratorEmail] = useState('');
   const [shareLoading, setShareLoading] = useState(false);
-  const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   const handleDuplicate = async () => {
     try {
       await duplicateTrip(trip.id);
-      setToastMessage(`Trip "${trip.name}" telah berhasil diduplikat!`);
-      setTimeout(() => setToastMessage(null), 3500);
+      showToast(`Trip "${trip.name}" telah berhasil diduplikat!`);
     } catch (e) {
       console.error(e);
     }
@@ -221,12 +219,11 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
     setShareLoading(true);
     try {
       await shareTripWithCollaborator(trip.id, collaboratorEmail.trim());
-      setToastMessage(`Akses trip berhasil dibagikan ke ${collaboratorEmail.trim()}`);
+      showToast(`Akses trip berhasil dibagikan ke ${collaboratorEmail.trim()}`);
       setCollaboratorEmail('');
-      setTimeout(() => setToastMessage(null), 3500);
     } catch (err: any) {
       console.error(err);
-      alert('Gagal membagikan trip: ' + (err?.message || 'Terjadi kesalahan'));
+      showToast('Gagal membagikan trip: ' + (err?.message || 'Terjadi kesalahan'), 'error');
     } finally {
       setShareLoading(false);
     }
@@ -235,8 +232,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
   const handleRemoveCollab = async (email: string) => {
     try {
       await removeCollaborator(trip.id, email);
-      setToastMessage(`Collab ${email} dihapus.`);
-      setTimeout(() => setToastMessage(null), 3000);
+      showToast(`Kolaborator ${email} dihapus.`);
     } catch (e) {
       console.error(e);
     }
@@ -245,8 +241,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
   const handleToggleTemplate = async () => {
     try {
       await toggleTripTemplate(trip.id);
-      setToastMessage(trip.isTemplate ? 'Status template dinonaktifkan.' : 'Trip dijadikan template untuk dikopi user lain!');
-      setTimeout(() => setToastMessage(null), 3500);
+      showToast(trip.isTemplate ? 'Status template dinonaktifkan.' : 'Trip dijadikan template untuk dikopi user lain!');
     } catch (e) {
       console.error(e);
     }
@@ -296,14 +291,6 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
 
   return (
     <div className="space-y-6 pb-12 relative">
-      {/* Toast Notification Banner */}
-      {toastMessage && (
-        <div className="fixed top-6 right-6 bg-primary-pink text-white px-3 md:px-5 py-3 rounded-2xl shadow-2xl z-50 flex items-center gap-2 font-bold text-xs animate-bounce">
-          <Check className="w-4 h-4 stroke-[3]" />
-          <span>{toastMessage}</span>
-        </div>
-      )}
-
       {/* Top Navigation Bar */}
       <div className="flex flex-wrap items-center justify-between gap-2 md:gap-4">
         {/* Removed Back to Dashboard button */}
@@ -403,7 +390,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
           <h1 className="text-base md:text-lg md:text-4xl font-black tracking-tight flex items-center gap-3">
             {trip.name}
             {hasEditAccess && (
-              <button onClick={openEditTripModal} className="text-white hover:text-primary-pink transition-colors bg-white/20 hover:bg-white p-2 rounded-full backdrop-blur-sm shadow-sm" title="Edit Trip Details">
+              <button onClick={openEditTripModal} aria-label="Edit detail trip" className="text-white hover:text-primary-pink transition-colors bg-white/20 hover:bg-white p-2 rounded-full backdrop-blur-sm shadow-sm" title="Edit Trip Details">
                 <Edit3 className="w-5 h-5" />
               </button>
             )}

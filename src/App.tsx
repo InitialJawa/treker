@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { TripProvider, useTripContext } from './context/TripContext';
 import { ThemeProvider } from './context/ThemeContext';
+import { ToastProvider } from './context/ToastContext';
 import { TopNav } from './components/TopNav';
 import { AccountView } from './components/AccountView';
 import { TripWorkspaceView } from './components/TripWorkspaceView';
@@ -161,7 +162,9 @@ export default function App() {
   return (
     <AuthProvider>
       <ThemeProvider>
-        <AppGuard />
+        <ToastProvider>
+          <AppGuard />
+        </ToastProvider>
       </ThemeProvider>
     </AuthProvider>
   );

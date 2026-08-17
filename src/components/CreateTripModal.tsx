@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { X, ArrowRight, ArrowLeft, MapPin, Calendar, Users, DollarSign, Wand2, Loader2, Check, Compass } from 'lucide-react';
 import { useTripContext } from '../context/TripContext';
+import { useToast } from '../context/ToastContext';
 import { getCurrencySymbol } from '../utils/formatters';
 import { CurrencyCode } from '../types/travel';
 
@@ -16,6 +17,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
   onTripCreated,
 }) => {
   const { createNewTrip } = useTripContext();
+  const { showToast } = useToast();
   const [step, setStep] = useState(1);
 
   // Form State
@@ -44,7 +46,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
 
   const handleNextStep = () => {
     if (step === 1 && !destination.trim()) {
-      alert('Silakan tentukan destinasi terlebih dahulu.');
+      showToast('Silakan tentukan destinasi terlebih dahulu.', 'error');
       return;
     }
     if (step === 1 && !tripName) {
@@ -95,7 +97,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
       <div className="bg-white rounded-2xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 border border-card-pink">
         {/* Close Button */}
-        <button
+        <button aria-label="Tutup"
           onClick={onClose}
           className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
         >

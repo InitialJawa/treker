@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Upload, FolderPlus, Trash2, Image as ImageIcon, Link2, RefreshCw } from 'lucide-react';
 import { ProjectMediaPickerModal } from './ProjectMediaPickerModal';
+import { useToast } from '../context/ToastContext';
 
 interface ImagePickerFieldProps {
   value: string;
@@ -20,6 +21,7 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [showUrlInput, setShowUrlInput] = useState(false);
+  const { showToast } = useToast();
 
   // Handle Local Device File Upload
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,7 +29,7 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
     if (!file) return;
 
     if (file.size > 8 * 1024 * 1024) {
-      alert('Ukuran file maksimal 8MB!');
+      showToast('Ukuran file maksimal 8MB!', 'error');
       return;
     }
 
@@ -40,7 +42,7 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
       setIsUploading(false);
     };
     reader.onerror = () => {
-      alert('Gagal membaca file gambar.');
+      showToast('Gagal membaca file gambar.', 'error');
       setIsUploading(false);
     };
     reader.readAsDataURL(file);
