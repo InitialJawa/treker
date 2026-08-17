@@ -242,13 +242,6 @@ export async function fetchPublicTemplatesFromSupabase(): Promise<Trip[]> {
   }
 }
 
-// Backward-compatible alias exports for components
-export const saveTripToFirestore = saveTripToSupabase;
-export const deleteTripFromFirestore = deleteTripFromSupabase;
-export const saveItemToFirestore = saveItemToSupabase;
-export const deleteItemFromFirestore = deleteItemFromSupabase;
-export const fetchPublicTemplatesFromFirestore = fetchPublicTemplatesFromSupabase;
-
 // ===== Hydrate semua data user dari Supabase =====
 
 export interface AllSupabaseData {

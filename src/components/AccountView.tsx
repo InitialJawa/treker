@@ -59,7 +59,7 @@ export const AccountView: React.FC = () => {
                 {userName.charAt(0).toUpperCase()}
               </div>
             )}
-            <button className="absolute bottom-0 right-0 bg-primary-pink p-2 rounded-full text-white shadow-md hover:scale-110 transition-transform">
+            <button aria-label="Ubah foto profil" className="absolute bottom-0 right-0 bg-primary-pink p-2 rounded-full text-white shadow-md hover:scale-110 transition-transform">
               <Camera className="w-4 h-4" />
             </button>
           </div>

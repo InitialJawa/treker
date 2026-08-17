@@ -216,12 +216,14 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleOpenEdit(exp)}
+                      aria-label={`Edit pengeluaran ${exp.title}`}
                       className="p-1.5 hover:bg-soft-pink rounded-full text-gray-custom hover:text-primary-pink"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => deleteExpense(exp.id)}
+                      aria-label={`Hapus pengeluaran ${exp.title}`}
                       className="p-1.5 hover:bg-red-50 rounded-full text-red-400 hover:text-red-500"
                     >
                       <Trash2 className="w-3.5 h-3.5" />

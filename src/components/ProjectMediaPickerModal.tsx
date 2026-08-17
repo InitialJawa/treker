@@ -1,6 +1,8 @@
 import React, { useState, useMemo } from 'react';
 import { X, Search, Camera, Check, FolderPlus, ImageIcon, MapPin, Calendar, Hotel, Trash2 } from 'lucide-react';
 import { useTripContext } from '../context/TripContext';
+import { useToast } from '../context/ToastContext';
+import { ConfirmDialog } from './ui';
 
 export interface AvailableProjectPhoto {
   id: string;
@@ -44,6 +46,9 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
 
   const [activeFilter, setActiveFilter] = useState<'all' | 'place' | 'itinerary' | 'moodboard' | 'booking' | 'note' | 'cover'>('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [photoToDelete, setPhotoToDelete] = useState<AvailableProjectPhoto | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const { showToast } = useToast();
 
   // Collect all images uploaded across all tabs in this project
   const availablePhotos = useMemo(() => {
@@ -171,8 +176,13 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
   // Handle Photo Deletion across source models
   const handleDeletePhoto = async (e: React.MouseEvent, photo: AvailableProjectPhoto) => {
     e.stopPropagation();
-    if (!window.confirm(`Hapus foto "${photo.title}" ini dari folder project?`)) return;
+    setPhotoToDelete(photo);
+  };
 
+  const confirmDeletePhoto = async () => {
+    if (!photoToDelete) return;
+    setIsDeleting(true);
+    const photo = photoToDelete;
     try {
       if (photo.sourceType === 'cover') {
         if (trip) await updateTrip(trip.id, { coverImage: '' });
@@ -195,16 +205,21 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
       } else if (photo.sourceType === 'note') {
         await updateNote(photo.targetId, { imageUrl: '' });
       }
+      showToast('Foto berhasil dihapus.');
+      setPhotoToDelete(null);
     } catch (err) {
       console.error('Error deleting photo:', err);
-      alert('Gagal menghapus foto.');
+      showToast('Gagal menghapus foto.', 'error');
+    } finally {
+      setIsDeleting(false);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
+    <>
+      <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
       <div className="bg-white rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative border border-gray-100 flex flex-col max-h-[90vh] animate-scale-up">
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-gray-100">
@@ -219,7 +234,7 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
               </p>
             </div>
           </div>
-          <button
+          <button aria-label="Tutup"
             onClick={onClose}
             className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-dark transition-colors"
           >
@@ -393,5 +408,16 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
         </div>
       </div>
     </div>
+
+    <ConfirmDialog
+      open={!!photoToDelete}
+      title="Hapus Foto"
+      message={photoToDelete ? `Hapus foto "${photoToDelete.title}" ini dari folder project?` : ''}
+      confirmLabel="Hapus"
+      onConfirm={confirmDeletePhoto}
+      onCancel={() => setPhotoToDelete(null)}
+      loading={isDeleting}
+    />
+    </>
   );
 };

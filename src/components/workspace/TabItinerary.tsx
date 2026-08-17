@@ -388,6 +388,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                       setEditingDayTitleId(activeDay.id);
                     }
                   }}
+                  aria-label="Edit judul hari"
                   className="text-gray-400 hover:text-primary-pink transition-colors"
                 >
                   <Edit3 className="w-4 h-4" />
@@ -416,6 +417,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               }}
               className="bg-white border border-card-pink hover:border-red-500 text-gray-500 hover:text-red-500 w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-sm active:scale-95 shrink-0"
               title="Hapus Hari Ini"
+              aria-label="Hapus hari ini"
             >
               <Trash2 className="w-4 h-4" />
             </button>
@@ -558,6 +560,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                   <div className="flex items-center gap-1">
                     <button
                       onClick={() => handleOpenMove(item)}
+                      aria-label={`Pindah aktivitas ${item.title}`}
                       className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-dark transition-colors"
                       title="Pindah Hari"
                     >
@@ -565,6 +568,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     </button>
                     <button
                       onClick={() => handleOpenEdit(item)}
+                      aria-label={`Edit aktivitas ${item.title}`}
                       className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-dark transition-colors"
                       title="Edit"
                     >
@@ -572,6 +576,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     </button>
                     <button
                       onClick={() => deleteItineraryItem(item.id)}
+                      aria-label={`Hapus aktivitas ${item.title}`}
                       className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
                       title="Delete"
                     >
@@ -913,6 +918,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
           <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-black" onClick={e => e.stopPropagation()}>
             <button
               onClick={() => setPreviewImage(null)}
+              aria-label="Tutup pratinjau"
               className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black text-white rounded-full z-10 transition-colors"
             >
               <X className="w-5 h-5" />

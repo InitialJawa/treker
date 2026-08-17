@@ -150,6 +150,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
                             e.stopPropagation();
                             deletePackingItem(item.id);
                           }}
+                          aria-label={`Hapus item ${item.name}`}
                           className="p-1.5 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-full transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />

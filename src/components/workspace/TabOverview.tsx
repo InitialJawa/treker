@@ -917,6 +917,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
               </div>
               <button
                 onClick={() => setIsCustomizeModalOpen(false)}
+                aria-label="Tutup"
                 className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
               >
                 <X className="w-5 h-5" />
@@ -1058,6 +1059,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
 
                           <button
                             onClick={() => handleDeletePhoto(photo.id, photo.url)}
+                            aria-label="Hapus foto dari Overview"
                             className="p-1.5 rounded-lg text-red-500 hover:bg-red-50 transition-colors"
                             title="Hapus foto dari Overview"
                           >
@@ -1370,6 +1372,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
           <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-black" onClick={e => e.stopPropagation()}>
             <button
               onClick={() => setLightboxImage(null)}
+              aria-label="Tutup lightbox"
               className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black text-white rounded-full z-10 transition-colors"
             >
               <X className="w-5 h-5" />

@@ -129,6 +129,7 @@ export const TabTransport: React.FC<TabTransportProps> = ({ trip, transports }) 
                   </span>
                   <button
                     onClick={() => deleteTransport(leg.id)}
+                    aria-label={`Hapus transport ${leg.origin} ke ${leg.destination}`}
                     className="p-1.5 hover:bg-red-50 text-red-400 hover:text-red-500 rounded-full transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />

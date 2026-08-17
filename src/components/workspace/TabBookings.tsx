@@ -252,6 +252,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
                 <div className="flex items-center gap-1">
                   <button
                     onClick={() => handleOpenEdit(b)}
+                    aria-label={`Edit booking ${b.title}`}
                     className="p-2 hover:bg-soft-pink rounded-full text-gray-custom hover:text-primary-pink transition-colors"
                     title="Edit"
                   >
@@ -259,6 +260,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
                   </button>
                   <button
                     onClick={() => deleteBooking(b.id)}
+                    aria-label={`Hapus booking ${b.title}`}
                     className="p-2 hover:bg-red-50 rounded-full text-red-400 hover:text-red-500 transition-colors"
                     title="Delete"
                   >
@@ -419,6 +421,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
           <div className="relative max-w-4xl max-h-[90vh] overflow-hidden rounded-2xl bg-black" onClick={e => e.stopPropagation()}>
             <button
               onClick={() => setPreviewImage(null)}
+              aria-label="Tutup pratinjau"
               className="absolute top-3 right-3 p-2 bg-black/60 hover:bg-black text-white rounded-full z-10 transition-colors"
             >
               <X className="w-5 h-5" />

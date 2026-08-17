@@ -211,6 +211,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                   />
                   <button
                     onClick={() => togglePlaceFavorite(place.id)}
+                    aria-label={`Sukai tempat ${place.name}`}
                     className="absolute top-3 right-3 p-2 bg-icon-pink rounded-full shadow-sm text-primary-pink hover:scale-110 transition-transform z-10"
                   >
                     <Heart className={`w-4 h-4 ${place.isFavorite ? 'fill-primary-pink' : ''}`} />
@@ -219,6 +220,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                   <div className="absolute top-3 left-3 flex gap-2 z-10">
                     <button
                       onClick={() => handleOpenEdit(place)}
+                      aria-label={`Edit tempat ${place.name}`}
                       className="p-2 bg-white/90 rounded-full shadow-sm text-gray-600 hover:text-primary-pink hover:scale-110 transition-transform backdrop-blur-sm"
                       title="Edit Place"
                     >
@@ -226,6 +228,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                     </button>
                     <button
                       onClick={() => deletePlace(place.id)}
+                      aria-label={`Hapus tempat ${place.name}`}
                       className="p-2 bg-white/90 rounded-full shadow-sm text-gray-600 hover:text-red-500 hover:scale-110 transition-transform backdrop-blur-sm"
                       title="Delete Place"
                     >

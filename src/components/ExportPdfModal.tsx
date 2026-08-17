@@ -99,7 +99,7 @@ export const ExportPdfModal: React.FC<ExportPdfModalProps> = ({
               <Printer className="w-3.5 h-3.5" />
               Print / Save PDF
             </button>
-            <button
+            <button aria-label="Tutup"
               onClick={onClose}
               className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
             >
