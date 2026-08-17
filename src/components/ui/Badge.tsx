@@ -9,7 +9,7 @@ interface BadgeProps {
 const tones = {
   primary: 'bg-primary-pink text-white',
   soft: 'bg-soft-pink text-primary-pink border border-primary-pink/20',
-  neutral: 'bg-gray-100 text-gray-custom border border-card-pink',
+  neutral: 'bg-surface-muted text-gray-custom border border-card-pink',
   success: 'bg-emerald-50 text-emerald-600 border border-emerald-200',
   warning: 'bg-amber-50 text-amber-600 border border-amber-200',
 };

@@ -38,13 +38,13 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
     'Car rental': <Car className="w-5 h-5 text-amber-600" />,
     Restaurant: <Tag className="w-5 h-5 text-orange-600" />,
     Attraction: <ShieldCheck className="w-5 h-5 text-teal-600" />,
-    Other: <FileText className="w-5 h-5 text-gray-600" />
+    Other: <FileText className="w-5 h-5 text-gray-custom" />
   };
 
   const statusColors: Record<BookingStatus, string> = {
     Confirmed: 'bg-emerald-100 text-[#18A66A] border-emerald-200',
     Pending: 'bg-amber-100 text-amber-800 border-amber-200',
-    'Need Booking': 'bg-gray-100 text-gray-700 border-gray-200',
+    'Need Booking': 'bg-surface-muted text-gray-custom border-card-pink',
     Cancelled: 'bg-red-100 text-red-600 border-red-200',
     Completed: 'bg-blue-100 text-blue-800 border-blue-200'
   };
@@ -136,7 +136,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-white p-3 md:p-5 rounded-2xl border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
+      <div className="bg-card-pink p-3 md:p-5 rounded-2xl border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div>
           <span className="text-[10px] md:text-xs font-extrabold text-primary-pink tracking-wider uppercase">Reservations</span>
           <h2 className="text-base md:text-lg md:text-xl font-extrabold text-dark">Booking Manager</h2>
@@ -156,7 +156,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
 
       {/* Booking Cards Grid */}
       {bookings.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-card-pink p-12 text-center text-gray-custom shadow-sm">
+        <div className="bg-card-pink rounded-3xl border border-card-pink p-12 text-center text-gray-custom shadow-sm">
           <Hotel className="w-12 h-12 mx-auto mb-2 text-soft-pink" />
           <h3 className="font-bold text-sm md:text-base text-dark">Belum ada reservasi tersimpan</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Simpan bukti voucher hotel, tiket pesawat, atau penyewaan kendaraan.</p>
@@ -172,13 +172,13 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
           {bookings.map((b) => (
             <div
               key={b.id}
-              className="bg-white rounded-3xl p-3 md:p-5 border border-card-pink hover:border-primary-pink shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+              className="bg-card-pink rounded-3xl p-3 md:p-5 border border-card-pink hover:border-primary-pink shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
             >
               <div className="space-y-3">
                 {/* Type & Status Header */}
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="w-9 h-9 rounded-xl bg-offwhite flex items-center justify-center">
+                    <div className="w-9 h-9 rounded-xl bg-surface-muted flex items-center justify-center">
                       {bookingIcons[b.type]}
                     </div>
                     <div>
@@ -197,14 +197,14 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
                   <h3 className="font-extrabold text-sm md:text-base text-dark">{b.name}</h3>
                   <p className="text-xs text-gray-custom flex items-center gap-1.5 mt-1">
                     <span>Code:</span>
-                    <span className="font-mono font-bold text-dark bg-offwhite px-2 py-0.5 rounded-md">
+                    <span className="font-mono font-bold text-dark bg-surface-muted px-2 py-0.5 rounded-md">
                       {b.confirmationNumber}
                     </span>
                   </p>
                 </div>
 
                 {/* Date, Time & Location */}
-                <div className="text-xs text-gray-custom space-y-1 bg-offwhite p-3 rounded-2xl border border-card-pink">
+                <div className="text-xs text-gray-custom space-y-1 bg-surface-muted p-3 rounded-2xl border border-card-pink">
                   <p className="flex items-center gap-1.5 font-medium">
                     <Calendar className="w-3.5 h-3.5 text-primary-pink" />
                     {b.date} • {b.time}
@@ -224,7 +224,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
                   <div className="mt-2">
                     <div
                       onClick={() => setPreviewImage(b.imageUrl!)}
-                      className="relative group/img cursor-pointer rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 h-32 w-full"
+                      className="relative group/img cursor-pointer rounded-2xl overflow-hidden border border-card-pink bg-surface-muted h-32 w-full"
                     >
                       <img
                         src={b.imageUrl}
@@ -276,7 +276,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+          <div className="bg-card-pink rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
             <h3 className="font-bold text-sm md:text-base text-dark mb-4">
               {editingBooking ? 'Edit Booking' : 'Add Booking'}
             </h3>
@@ -383,7 +383,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
               </div>
 
               {/* Attachment / Image Field */}
-              <div className="pt-1 border-t border-gray-100">
+              <div className="pt-1 border-t border-card-pink">
                 <ImagePickerField
                   value={imageUrl}
                   onChange={setImageUrl}
@@ -395,7 +395,7 @@ export const TabBookings: React.FC<TabBookingsProps> = ({ trip, bookings }) => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-card-pink font-bold text-gray-custom"
                 >
                   Cancel
                 </button>

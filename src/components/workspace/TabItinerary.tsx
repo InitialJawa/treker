@@ -54,7 +54,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
     Activity: <Compass className="w-3.5 h-3.5 text-emerald-600" />,
     Shopping: <ShoppingBag className="w-3.5 h-3.5 text-pink-600" />,
     'Free time': <Coffee className="w-3.5 h-3.5 text-teal-600" />,
-    Other: <MoreHorizontal className="w-3.5 h-3.5 text-gray-600" />
+    Other: <MoreHorizontal className="w-3.5 h-3.5 text-gray-custom" />
   };
 
   const handleOpenAdd = () => {
@@ -329,7 +329,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               className={`cursor-grab active:cursor-grabbing px-3 md:px-4 py-3 rounded-2xl text-xs font-bold whitespace-nowrap transition-all flex items-center gap-2 border ${
                 isActive
                   ? 'bg-primary-pink text-white border-primary-pink shadow-sm'
-                  : 'bg-white text-dark border-card-pink hover:bg-soft-pink'
+                  : 'bg-card-pink text-dark border-card-pink hover:bg-soft-pink'
               } ${isDragging ? 'opacity-50' : 'opacity-100'}`}
               title="Tahan dan geser untuk memindahkan hari"
             >
@@ -341,7 +341,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
 
         <button
           onClick={() => setIsAddDayModalOpen(true)}
-          className="px-3.5 py-3 rounded-2xl bg-white border border-dashed border-gray-300 hover:border-primary-pink text-xs font-bold text-primary-pink whitespace-nowrap flex items-center gap-1.5 transition-colors shrink-0 shadow-sm"
+          className="px-3.5 py-3 rounded-2xl bg-card-pink border border-dashed border-card-pink hover:border-primary-pink text-xs font-bold text-primary-pink whitespace-nowrap flex items-center gap-1.5 transition-colors shrink-0 shadow-sm"
         >
           <Plus className="w-4 h-4" />
           <span>Tambah Hari</span>
@@ -349,7 +349,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
       </div>
 
       {/* Day Title & Header Banner */}
-      <div className="bg-white p-3 md:p-5 rounded-2xl border border-card-pink flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4 shadow-sm">
+      <div className="bg-card-pink p-3 md:p-5 rounded-2xl border border-card-pink flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div className="flex-1">
           <div className="flex items-center">
             <span className="text-xs font-bold text-primary-pink tracking-wider uppercase">
@@ -372,11 +372,11 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                   type="text" 
                   value={editedDayTitle}
                   onChange={(e) => setEditedDayTitle(e.target.value)}
-                  className="px-2 py-1 border border-gray-300 rounded-md text-sm font-bold text-dark w-full"
+                  className="px-2 py-1 border border-card-pink rounded-md text-sm font-bold text-dark w-full"
                   autoFocus
                 />
                 <button type="submit" className="text-xs bg-primary-pink text-white px-2 py-1 rounded-md">Simpan</button>
-                <button type="button" onClick={() => setEditingDayTitleId(null)} className="text-xs text-gray-500">Batal</button>
+                <button type="button" onClick={() => setEditingDayTitleId(null)} className="text-xs text-gray-custom">Batal</button>
               </form>
             ) : (
               <>
@@ -389,7 +389,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     }
                   }}
                   aria-label="Edit judul hari"
-                  className="text-gray-400 hover:text-primary-pink transition-colors"
+                  className="text-gray-custom/70 hover:text-primary-pink transition-colors"
                 >
                   <Edit3 className="w-4 h-4" />
                 </button>
@@ -415,7 +415,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     deleteItineraryDay(activeDay.id, trip.id);
                  }
               }}
-              className="bg-white border border-card-pink hover:border-red-500 text-gray-500 hover:text-red-500 w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-sm active:scale-95 shrink-0"
+              className="bg-card-pink border border-card-pink hover:border-red-500 text-gray-custom hover:text-red-500 w-10 h-10 flex items-center justify-center rounded-full transition-all shadow-sm active:scale-95 shrink-0"
               title="Hapus Hari Ini"
               aria-label="Hapus hari ini"
             >
@@ -425,7 +425,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
           {dayItems.length > 0 && (
             <button
               onClick={handleOpenMoveAll}
-              className="bg-white border border-card-pink hover:border-primary-pink text-dark hover:text-primary-pink px-3 md:px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0"
+              className="bg-card-pink border border-card-pink hover:border-primary-pink text-dark hover:text-primary-pink px-3 md:px-4 py-2.5 rounded-full font-bold text-xs flex items-center gap-2 transition-all shadow-sm active:scale-95 shrink-0"
             >
               <MoveRight className="w-4 h-4" />
               <span className="hidden sm:inline">Pindah Semua</span>
@@ -443,7 +443,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
 
       {/* Timeline Activities List */}
       {dayItems.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-card-pink p-12 text-center shadow-sm">
+        <div className="bg-card-pink rounded-3xl border border-card-pink p-12 text-center shadow-sm">
           <Clock className="w-12 h-12 text-soft-pink mx-auto mb-3" />
           <h3 className="font-bold text-sm md:text-base text-dark">Belum ada aktivitas di {activeDay?.title}</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Tambahkan aktivitas manual atau gunakan AI untuk auto-generate.</p>
@@ -463,20 +463,20 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               <div className="absolute -left-[25px] top-[24px] w-[14px] h-[14px] rounded-full bg-primary-pink border-[3px] border-white shadow-sm group-hover:scale-125 transition-transform z-10" />
 
               {/* Activity Card */}
-              <div className="bg-white rounded-3xl p-3 md:p-5 border border-card-pink hover:border-primary-pink shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4">
+              <div className="bg-card-pink rounded-3xl p-3 md:p-5 border border-card-pink hover:border-primary-pink shadow-sm hover:shadow-md transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4">
                 <div className="space-y-2 flex-1">
                   {/* Category Pill & Time */}
                   <div className="flex items-center gap-2 text-xs">
                     <span className="font-extrabold text-primary-pink bg-soft-pink px-2.5 py-1 rounded-full">
                       {item.time}
                     </span>
-                    <span className="text-gray-400 font-semibold">•</span>
+                    <span className="text-gray-custom/70 font-semibold">•</span>
                     <span className="font-medium text-gray-custom flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-gray-400" />
+                      <Clock className="w-3.5 h-3.5 text-gray-custom/70" />
                       {item.duration}
                     </span>
-                    <span className="text-gray-400 font-semibold">•</span>
-                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-gray-100 font-bold text-[11px] text-dark">
+                    <span className="text-gray-custom/70 font-semibold">•</span>
+                    <span className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-surface-muted font-bold text-[11px] text-dark">
                       {categoryIcons[item.category]}
                       {item.category}
                     </span>
@@ -493,7 +493,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
 
                   {/* Description & Notes */}
                   {item.description && (
-                    <p className="text-xs text-gray-600 bg-screen-pink p-2.5 rounded-xl border border-gray-100">
+                    <p className="text-xs text-gray-custom bg-screen-pink p-2.5 rounded-xl border border-card-pink">
                       {item.description}
                     </p>
                   )}
@@ -510,7 +510,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                       {(item.spotImageUrl || item.imageUrl) && (
                         <div
                           onClick={() => setPreviewImage(item.spotImageUrl || item.imageUrl!)}
-                          className="relative group/img cursor-pointer rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 shadow-xs h-24 md:h-28 w-40 shrink-0"
+                          className="relative group/img cursor-pointer rounded-2xl overflow-hidden border border-card-pink bg-surface-muted shadow-xs h-24 md:h-28 w-40 shrink-0"
                         >
                           <span className="absolute top-1.5 left-1.5 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-sm text-white text-[10px] font-bold">
                             <MapPin className="w-3 h-3 text-pink-300" />
@@ -530,7 +530,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                       {item.outfitImageUrl && (
                         <div
                           onClick={() => setPreviewImage(item.outfitImageUrl!)}
-                          className="relative group/img cursor-pointer rounded-2xl overflow-hidden border border-gray-200 bg-gray-50 shadow-xs h-24 md:h-28 w-40 shrink-0"
+                          className="relative group/img cursor-pointer rounded-2xl overflow-hidden border border-card-pink bg-surface-muted shadow-xs h-24 md:h-28 w-40 shrink-0"
                         >
                           <span className="absolute top-1.5 left-1.5 z-10 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/55 backdrop-blur-sm text-white text-[10px] font-bold">
                             <Shirt className="w-3 h-3 text-pink-300" />
@@ -552,7 +552,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                 </div>
 
                 {/* Right Side Cost & Actions */}
-                <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-gray-100 gap-3 shrink-0">
+                <div className="flex sm:flex-col items-center sm:items-end justify-between border-t sm:border-t-0 pt-3 sm:pt-0 border-card-pink gap-3 shrink-0">
                   <span className="font-extrabold text-sm text-dark">
                     {formatCurrency(item.estimatedCost, trip.currency)}
                   </span>
@@ -561,7 +561,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     <button
                       onClick={() => handleOpenMove(item)}
                       aria-label={`Pindah aktivitas ${item.title}`}
-                      className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-dark transition-colors"
+                      className="p-2 rounded-lg hover:bg-surface-muted text-gray-custom hover:text-dark transition-colors"
                       title="Pindah Hari"
                     >
                       <MoveRight className="w-4 h-4" />
@@ -569,7 +569,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     <button
                       onClick={() => handleOpenEdit(item)}
                       aria-label={`Edit aktivitas ${item.title}`}
-                      className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-dark transition-colors"
+                      className="p-2 rounded-lg hover:bg-surface-muted text-gray-custom hover:text-dark transition-colors"
                       title="Edit"
                     >
                       <Edit3 className="w-4 h-4" />
@@ -577,7 +577,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     <button
                       onClick={() => deleteItineraryItem(item.id)}
                       aria-label={`Hapus aktivitas ${item.title}`}
-                      className="p-2 rounded-lg hover:bg-red-50 text-gray-400 hover:text-red-500 transition-colors"
+                      className="p-2 rounded-lg hover:bg-red-50 text-gray-custom/70 hover:text-red-500 transition-colors"
                       title="Delete"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -593,7 +593,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
       {/* Move All Activities Modal */}
       {isMoveAllModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-3 md:p-6 shadow-2xl relative border border-gray-100 animate-scale-up">
+          <div className="bg-card-pink rounded-3xl max-w-sm w-full p-3 md:p-6 shadow-2xl relative border border-card-pink animate-scale-up">
             <h3 className="font-extrabold text-sm text-dark mb-4">
               Pindahkan Semua Aktivitas
             </h3>
@@ -616,25 +616,25 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               <div>
                 <label className="block font-semibold text-dark mb-2">Metode Pindah</label>
                 <div className="space-y-2">
-                  <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${moveMode === 'shift' ? 'border-primary-pink bg-soft-pink' : 'border-gray-200 hover:bg-gray-50'}`}>
+                  <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${moveMode === 'shift' ? 'border-primary-pink bg-soft-pink' : 'border-card-pink hover:bg-surface-muted'}`}>
                     <input type="radio" name="moveMode" value="shift" checked={moveMode === 'shift'} onChange={() => setMoveMode('shift')} className="mt-0.5" />
                     <div>
                       <div className="font-bold text-dark">Geser Jadwal (Shift)</div>
-                      <div className="text-gray-500 mt-0.5 text-[10px]">Aktivitas tujuan akan digeser ke hari berikutnya (Efek Domino).</div>
+                      <div className="text-gray-custom mt-0.5 text-[10px]">Aktivitas tujuan akan digeser ke hari berikutnya (Efek Domino).</div>
                     </div>
                   </label>
-                  <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${moveMode === 'swap' ? 'border-primary-pink bg-soft-pink' : 'border-gray-200 hover:bg-gray-50'}`}>
+                  <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${moveMode === 'swap' ? 'border-primary-pink bg-soft-pink' : 'border-card-pink hover:bg-surface-muted'}`}>
                     <input type="radio" name="moveMode" value="swap" checked={moveMode === 'swap'} onChange={() => setMoveMode('swap')} className="mt-0.5" />
                     <div>
                       <div className="font-bold text-dark">Tukar Hari (Swap)</div>
-                      <div className="text-gray-500 mt-0.5 text-[10px]">Aktivitas hari ini dan hari tujuan akan saling bertukar tempat.</div>
+                      <div className="text-gray-custom mt-0.5 text-[10px]">Aktivitas hari ini dan hari tujuan akan saling bertukar tempat.</div>
                     </div>
                   </label>
-                  <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${moveMode === 'merge' ? 'border-primary-pink bg-soft-pink' : 'border-gray-200 hover:bg-gray-50'}`}>
+                  <label className={`flex items-start gap-3 p-3 rounded-xl border cursor-pointer transition-colors ${moveMode === 'merge' ? 'border-primary-pink bg-soft-pink' : 'border-card-pink hover:bg-surface-muted'}`}>
                     <input type="radio" name="moveMode" value="merge" checked={moveMode === 'merge'} onChange={() => setMoveMode('merge')} className="mt-0.5" />
                     <div>
                       <div className="font-bold text-dark">Gabungkan (Merge)</div>
-                      <div className="text-gray-500 mt-0.5 text-[10px]">Tumpuk semua aktivitas ini ke hari tujuan (Bisa overbooked).</div>
+                      <div className="text-gray-custom mt-0.5 text-[10px]">Tumpuk semua aktivitas ini ke hari tujuan (Bisa overbooked).</div>
                     </div>
                   </label>
                 </div>
@@ -644,7 +644,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                 <button
                   type="button"
                   onClick={() => setIsMoveAllModalOpen(false)}
-                  className="px-3 md:px-4 py-2 rounded-xl text-gray-500 hover:bg-gray-100 font-bold transition-colors"
+                  className="px-3 md:px-4 py-2 rounded-xl text-gray-custom hover:bg-surface-muted font-bold transition-colors"
                 >
                   Batal
                 </button>
@@ -664,11 +664,11 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
       {/* Move Activity Modal */}
       {isMoveModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl max-w-sm w-full p-3 md:p-6 shadow-2xl relative border border-gray-100 animate-scale-up">
+          <div className="bg-card-pink rounded-3xl max-w-sm w-full p-3 md:p-6 shadow-2xl relative border border-card-pink animate-scale-up">
             <h3 className="font-extrabold text-sm text-dark mb-4">
               Pindahkan Aktivitas
             </h3>
-            <div className="mb-4 text-xs text-gray-500">
+            <div className="mb-4 text-xs text-gray-custom">
               Pindahkan <span className="font-bold text-dark">{itemToMove?.title}</span> ke hari lain:
             </div>
             <form onSubmit={handleSaveMove} className="space-y-4 text-xs">
@@ -688,7 +688,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                 <button
                   type="button"
                   onClick={() => setIsMoveModalOpen(false)}
-                  className="px-3 md:px-4 py-2 rounded-xl text-gray-500 hover:bg-gray-100 font-bold transition-colors"
+                  className="px-3 md:px-4 py-2 rounded-xl text-gray-custom hover:bg-surface-muted font-bold transition-colors"
                 >
                   Batal
                 </button>
@@ -707,7 +707,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
       {/* Add / Edit Activity Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4 overflow-y-auto">
-          <div className="bg-white rounded-3xl max-w-lg w-full p-3 md:p-6 shadow-2xl relative border border-card-pink">
+          <div className="bg-card-pink rounded-3xl max-w-lg w-full p-3 md:p-6 shadow-2xl relative border border-card-pink">
             <h3 className="font-bold text-base md:text-lg text-dark mb-4">
               {editingItem ? 'Edit Activity' : 'Add New Activity'}
             </h3>
@@ -736,7 +736,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                       type="time"
                       value={time}
                       onChange={(e) => setTime(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-dark text-sm focus:ring-2 focus:ring-primary-pink/30 focus:border-primary-pink cursor-pointer shadow-2xs"
+                      className="w-full px-3 py-2 rounded-xl border border-card-pink bg-card-pink font-bold text-dark text-sm focus:ring-2 focus:ring-primary-pink/30 focus:border-primary-pink cursor-pointer shadow-2xs"
                     />
                   </div>
 
@@ -748,16 +748,16 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                       type="time"
                       value={getEndTimeString(time, duration)}
                       onChange={(e) => handleEndTimeChange(e.target.value)}
-                      className="w-full px-3 py-2 rounded-xl border border-gray-300 bg-white font-bold text-dark text-sm focus:ring-2 focus:ring-primary-pink/30 focus:border-primary-pink cursor-pointer shadow-2xs"
+                      className="w-full px-3 py-2 rounded-xl border border-card-pink bg-card-pink font-bold text-dark text-sm focus:ring-2 focus:ring-primary-pink/30 focus:border-primary-pink cursor-pointer shadow-2xs"
                     />
                   </div>
                 </div>
 
                 {/* Duration Badge & Quick Adjust Stepper */}
-                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-gray-200">
+                <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-card-pink">
                   <div className="flex items-center gap-1.5 bg-pink-50 border border-pink-200 px-3 py-1.5 rounded-xl">
                     <Clock className="w-3.5 h-3.5 text-primary-pink shrink-0" />
-                    <span className="text-xs font-semibold text-gray-600">Durasi:</span>
+                    <span className="text-xs font-semibold text-gray-custom">Durasi:</span>
                     <span className="text-xs font-extrabold text-primary-pink">
                       {formatMinutesToIndonesian(parseDurationToMinutes(duration))}
                     </span>
@@ -771,7 +771,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                         const cur = parseDurationToMinutes(duration);
                         if (cur > 15) setDuration(formatMinutesToDuration(cur - 15));
                       }}
-                      className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 font-bold text-xs text-gray-700 transition-all active:scale-95 shadow-2xs"
+                      className="px-2.5 py-1 rounded-lg bg-card-pink border border-card-pink hover:bg-surface-muted font-bold text-xs text-gray-custom transition-all active:scale-95 shadow-2xs"
                       title="Kurangi 15 menit"
                     >
                       -15m
@@ -779,7 +779,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     <button
                       type="button"
                       onClick={() => setDuration(formatMinutesToDuration(parseDurationToMinutes(duration) + 15))}
-                      className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 font-bold text-xs text-gray-700 transition-all active:scale-95 shadow-2xs"
+                      className="px-2.5 py-1 rounded-lg bg-card-pink border border-card-pink hover:bg-surface-muted font-bold text-xs text-gray-custom transition-all active:scale-95 shadow-2xs"
                       title="Tambah 15 menit"
                     >
                       +15m
@@ -787,7 +787,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                     <button
                       type="button"
                       onClick={() => setDuration(formatMinutesToDuration(parseDurationToMinutes(duration) + 60))}
-                      className="px-2.5 py-1 rounded-lg bg-white border border-gray-200 hover:bg-gray-100 font-bold text-xs text-gray-700 transition-all active:scale-95 shadow-2xs"
+                      className="px-2.5 py-1 rounded-lg bg-card-pink border border-card-pink hover:bg-surface-muted font-bold text-xs text-gray-custom transition-all active:scale-95 shadow-2xs"
                       title="Tambah 1 jam"
                     >
                       +1j
@@ -814,7 +814,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                         className={`px-2.5 py-1 rounded-lg text-xs font-semibold border transition-all active:scale-95 ${
                           isSelected
                             ? 'bg-primary-pink text-white border-primary-pink shadow-xs'
-                            : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50'
+                            : 'bg-card-pink text-gray-custom border-card-pink hover:bg-surface-muted'
                         }`}
                       >
                         {preset.label}
@@ -875,7 +875,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
               </div>
 
               {/* Image Attachment Field */}
-              <div className="pt-1 space-y-4 border-t border-gray-100">
+              <div className="pt-1 space-y-4 border-t border-card-pink">
                 <ImagePickerField
                   value={spotImageUrl}
                   onChange={setSpotImageUrl}
@@ -892,7 +892,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600 hover:bg-gray-50"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-card-pink font-bold text-gray-custom hover:bg-surface-muted"
                 >
                   Cancel
                 </button>
@@ -931,7 +931,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
       {/* Add Day Modal */}
       {isAddDayModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
+          <div className="bg-card-pink rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-card-pink space-y-4 animate-scale-up">
             <h3 className="font-bold text-sm md:text-base text-dark">Tambah Hari Itinerary Baru</h3>
             <form onSubmit={handleCreateNewDay} className="space-y-4 text-xs">
               <div>
@@ -963,7 +963,7 @@ export const TabItinerary: React.FC<TabItineraryProps> = ({ trip, days, items })
                 <button
                   type="button"
                   onClick={() => setIsAddDayModalOpen(false)}
-                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600 hover:bg-gray-50"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-card-pink font-bold text-gray-custom hover:bg-surface-muted"
                 >
                   Batal
                 </button>

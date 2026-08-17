@@ -43,12 +43,12 @@ export const TopNav: React.FC<TopNavProps> = ({
   }, []);
   
   return (
-    <header className="bg-white border-b border-[#EAEFF5] px-3 md:px-6 py-1.5 md:py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
+    <header className="bg-card-pink border-b border-[#EAEFF5] px-3 md:px-6 py-1.5 md:py-3 flex items-center justify-between sticky top-0 z-50 shadow-sm">
       
       {/* 1. Left: Brand & Project Switcher */}
       <div className="flex items-center gap-2 md:gap-4 shrink-0" ref={dropdownRef}>
         <div 
-          className="flex items-center gap-2 shrink-0 pr-2 md:pr-4 border-r border-gray-100 cursor-pointer"
+          className="flex items-center gap-2 shrink-0 pr-2 md:pr-4 border-r border-card-pink cursor-pointer"
           onClick={() => onNavigate('Workspace')}
         >
           <img src="/logo.svg" alt="Treker Logo" className="w-7 h-7 md:w-8 md:h-8 rounded-xl object-contain shadow-2xs hover:scale-105 transition-transform" />
@@ -62,7 +62,7 @@ export const TopNav: React.FC<TopNavProps> = ({
             className="flex items-center gap-2 px-2 py-1 md:px-3 md:py-2 rounded-xl hover:bg-soft-pink transition-colors group text-left"
           >
             <div className="flex flex-col items-start">
-              <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider hidden sm:block">Current Project</span>
+              <span className="text-[10px] font-bold text-gray-custom/70 uppercase tracking-wider hidden sm:block">Current Project</span>
               <div className="flex items-center gap-1.5 max-w-[120px] sm:max-w-[220px]">
                 <span className="text-[11px] md:text-sm font-extrabold text-dark group-hover:text-primary-pink transition-colors truncate">
                   {activeTrip ? activeTrip.name : 'Pilih Project'}
@@ -75,25 +75,25 @@ export const TopNav: React.FC<TopNavProps> = ({
                 )}
               </div>
             </div>
-            <ChevronDown className="w-4 h-4 text-gray-400" />
+            <ChevronDown className="w-4 h-4 text-gray-custom/70" />
           </button>
 
           {isDropdownOpen && (
-            <div className="absolute top-full left-0 mt-2 w-80 max-w-[90vw] bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50 animate-fade-in">
-              <div className="px-4 py-2 border-b border-gray-50 mb-1 flex items-center justify-between">
-                <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Daftar Project</span>
+            <div className="absolute top-full left-0 mt-2 w-80 max-w-[90vw] bg-card-pink rounded-2xl shadow-xl border border-card-pink py-2 z-50 animate-fade-in">
+              <div className="px-4 py-2 border-b border-card-pink mb-1 flex items-center justify-between">
+                <span className="text-xs font-bold text-gray-custom/70 uppercase tracking-wider">Daftar Project</span>
                 <span className="text-[10px] font-bold bg-soft-pink text-primary-pink px-2 py-0.5 rounded-full">{trips.length} Total</span>
               </div>
               
               <div className="max-h-[340px] overflow-y-auto space-y-1">
                 {/* 1. Personal Projects */}
                 <div className="px-3 py-1">
-                  <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-extrabold text-gray-400 uppercase tracking-wider">
+                  <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-extrabold text-gray-custom/70 uppercase tracking-wider">
                     <FolderKanban className="w-3.5 h-3.5 text-primary-pink" />
                     <span>Project Saya ({myTrips.length})</span>
                   </div>
                   {myTrips.length === 0 ? (
-                    <div className="px-3 py-2 text-xs text-gray-400 italic">Belum ada project pribadi</div>
+                    <div className="px-3 py-2 text-xs text-gray-custom/70 italic">Belum ada project pribadi</div>
                   ) : (
                     myTrips.map(trip => (
                       <button
@@ -120,7 +120,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                                <Lock className="w-3 h-3 text-amber-600 shrink-0" />
                              )}
                            </div>
-                           <span className="text-[10px] text-gray-400 font-medium truncate">{trip.destination}</span>
+                           <span className="text-[10px] text-gray-custom/70 font-medium truncate">{trip.destination}</span>
                         </div>
                         {activeTripId === trip.id && <Check className="w-4 h-4 text-primary-pink shrink-0" />}
                       </button>
@@ -130,7 +130,7 @@ export const TopNav: React.FC<TopNavProps> = ({
 
                 {/* 2. Shared Projects */}
                 {sharedTrips.length > 0 && (
-                  <div className="px-3 py-1 border-t border-gray-50 pt-2">
+                  <div className="px-3 py-1 border-t border-card-pink pt-2">
                     <div className="flex items-center gap-1.5 px-2 py-1 text-[10px] font-extrabold text-purple-600 uppercase tracking-wider">
                       <Users className="w-3.5 h-3.5" />
                       <span>Di-share dengan Saya ({sharedTrips.length})</span>
@@ -160,7 +160,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                                <Lock className="w-3 h-3 text-amber-600 shrink-0" />
                              )}
                            </div>
-                           <span className="text-[10px] text-gray-400 font-medium truncate">{trip.destination}</span>
+                           <span className="text-[10px] text-gray-custom/70 font-medium truncate">{trip.destination}</span>
                         </div>
                         {activeTripId === trip.id && <Check className="w-4 h-4 text-purple-600 shrink-0" />}
                       </button>
@@ -169,7 +169,7 @@ export const TopNav: React.FC<TopNavProps> = ({
                 )}
               </div>
               
-              <div className="px-3 pt-2 mt-2 border-t border-gray-100 space-y-1.5">
+              <div className="px-3 pt-2 mt-2 border-t border-card-pink space-y-1.5">
                 <button
                   onClick={() => {
                     openCreateTripModal();
@@ -199,7 +199,7 @@ export const TopNav: React.FC<TopNavProps> = ({
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-colors ${
                 currentView === nav.id 
                   ? 'bg-soft-pink text-primary-pink' 
-                  : 'text-gray-custom hover:bg-gray-50 hover:text-dark'
+                  : 'text-gray-custom hover:bg-surface-muted hover:text-dark'
               }`}
             >
               <nav.icon className="w-4 h-4" />
@@ -212,30 +212,30 @@ export const TopNav: React.FC<TopNavProps> = ({
         <button
           onClick={() => onNavigate('Dashboard')}
           aria-label="Ke Home"
-          className={`md:hidden p-2 rounded-xl ${currentView === 'Dashboard' ? 'bg-soft-pink text-primary-pink' : 'text-gray-400'}`}
+          className={`md:hidden p-2 rounded-xl ${currentView === 'Dashboard' ? 'bg-soft-pink text-primary-pink' : 'text-gray-custom/70'}`}
         >
           <Home className="w-4 h-4 md:w-5 md:h-5" />
         </button>
         <button
           onClick={() => onNavigate('Workspace')}
           aria-label="Ke Tracker"
-          className={`md:hidden p-2 rounded-xl ${currentView === 'Workspace' ? 'bg-soft-pink text-primary-pink' : 'text-gray-400'}`}
+          className={`md:hidden p-2 rounded-xl ${currentView === 'Workspace' ? 'bg-soft-pink text-primary-pink' : 'text-gray-custom/70'}`}
         >
           <Compass className="w-4 h-4 md:w-5 md:h-5" />
         </button>
         <button
           onClick={() => onNavigate('Account')}
           aria-label="Ke Akun & Pengaturan"
-          className={`md:hidden p-2 rounded-xl ${currentView === 'Account' ? 'bg-soft-pink text-primary-pink' : 'text-gray-400'}`}
+          className={`md:hidden p-2 rounded-xl ${currentView === 'Account' ? 'bg-soft-pink text-primary-pink' : 'text-gray-custom/70'}`}
         >
           <Settings className="w-4 h-4 md:w-5 md:h-5" />
         </button>
 
-        <div className="w-px h-6 bg-gray-200 hidden md:block mx-1"></div>
+        <div className="w-px h-6 bg-surface-muted hidden md:block mx-1"></div>
 
         <button
           onClick={() => logout()}
-          className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-xl transition-colors"
+          className="text-gray-custom/70 hover:text-red-500 hover:bg-red-50 p-2 rounded-xl transition-colors"
           title="Sign Out"
         >
           <LogOut className="w-4 h-4 md:w-5 md:h-5" />

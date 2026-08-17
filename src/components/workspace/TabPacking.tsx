@@ -52,7 +52,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
   return (
     <div className="space-y-6">
       {/* Header Bar */}
-      <div className="bg-white p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
+      <div className="bg-card-pink p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4 mb-4">
           <div>
             <span className="text-xs font-extrabold text-primary-pink tracking-wider uppercase">Checklist</span>
@@ -93,7 +93,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
 
       {/* Category Groups */}
       {tripPacking.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-card-pink p-12 text-center text-gray-custom shadow-sm">
+        <div className="bg-card-pink rounded-3xl border border-card-pink p-12 text-center text-gray-custom shadow-sm">
           <CheckSquare className="w-12 h-12 mx-auto mb-2 text-soft-pink" />
           <h3 className="font-bold text-sm md:text-base text-dark">Belum ada item barang bawaan</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Klik AI Auto-Fill untuk menghasilkan daftar barang bawaan otomatis.</p>
@@ -112,8 +112,8 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
             if (catItems.length === 0) return null;
 
             return (
-              <div key={cat} className="bg-white rounded-3xl border border-card-pink overflow-hidden shadow-sm">
-                <div className="p-3 md:p-5 bg-offwhite border-b border-card-pink flex items-center justify-between">
+              <div key={cat} className="bg-card-pink rounded-3xl border border-card-pink overflow-hidden shadow-sm">
+                <div className="p-3 md:p-5 bg-surface-muted border-b border-card-pink flex items-center justify-between">
                   <h3 className="font-extrabold text-sm text-dark">{cat}</h3>
                   <span className="text-xs font-semibold text-gray-custom">
                     {catItems.filter(i => i.isPacked).length}/{catItems.length} Packed
@@ -129,20 +129,20 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
                     >
                       <div className="flex items-center gap-3">
                         <div className={`w-6 h-6 rounded-lg flex items-center justify-center border transition-all ${
-                          item.isPacked ? 'bg-primary-pink border-primary-pink text-white' : 'border-card-pink bg-white'
+                          item.isPacked ? 'bg-primary-pink border-primary-pink text-white' : 'border-card-pink bg-card-pink'
                         }`}>
                           {item.isPacked && <CheckCircle2 className="w-4 h-4" />}
                         </div>
 
                         <span className={`font-bold text-sm ${
-                          item.isPacked ? 'line-through text-gray-400' : 'text-dark'
+                          item.isPacked ? 'line-through text-gray-custom/70' : 'text-dark'
                         }`}>
                           {item.name}
                         </span>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        <span className="bg-offwhite font-bold px-3 py-1 rounded-full text-dark border border-card-pink">
+                        <span className="bg-surface-muted font-bold px-3 py-1 rounded-full text-dark border border-card-pink">
                           x{item.quantity}
                         </span>
                         <button
@@ -151,7 +151,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
                             deletePackingItem(item.id);
                           }}
                           aria-label={`Hapus item ${item.name}`}
-                          className="p-1.5 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-full transition-colors"
+                          className="p-1.5 hover:bg-red-50 text-gray-custom/70 hover:text-red-500 rounded-full transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -168,7 +168,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+          <div className="bg-card-pink rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
             <h3 className="font-bold text-sm md:text-base text-dark mb-4">Tambah Item Packing</h3>
 
             <form onSubmit={handleSave} className="space-y-3 text-xs">
@@ -212,7 +212,7 @@ export const TabPacking: React.FC<TabPackingProps> = ({ trip, packing }) => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-card-pink font-bold text-gray-custom"
                 >
                   Cancel
                 </button>

@@ -73,23 +73,23 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto animate-fade-in">
-      <div className="bg-white rounded-2xl max-w-3xl w-full p-6 md:p-8 shadow-2xl relative border border-card-pink max-h-[90vh] flex flex-col">
+      <div className="bg-card-pink rounded-2xl max-w-3xl w-full p-6 md:p-8 shadow-2xl relative border border-card-pink max-h-[90vh] flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between pb-4 border-b border-gray-100 shrink-0">
+        <div className="flex items-center justify-between pb-4 border-b border-card-pink shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-soft-pink text-primary-pink">
               <BookOpen className="w-6 h-6" />
             </div>
             <div>
               <h2 className="text-xl md:text-2xl font-black text-dark">Katalog Template Publik</h2>
-              <p className="text-xs text-gray-500 font-medium">
+              <p className="text-xs text-gray-custom font-medium">
                 Pilih rencana perjalanan favorit dari komunitas untuk digunakan di Project Saya.
               </p>
             </div>
           </div>
           <button aria-label="Tutup"
             onClick={onClose}
-            className="p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+            className="p-2 text-gray-custom/70 hover:text-gray-custom rounded-full hover:bg-surface-muted transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -110,7 +110,7 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
               {publicTemplates.map((template) => (
                 <div
                   key={template.id}
-                  className="bg-gray-50/70 hover:bg-white rounded-2xl p-4 border border-gray-100 hover:border-primary-pink/30 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
+                  className="bg-surface-muted/70 hover:bg-card-pink rounded-2xl p-4 border border-card-pink hover:border-primary-pink/30 hover:shadow-md transition-all flex flex-col justify-between group cursor-pointer"
                   onClick={() => handleSelectTemplate(template.id, template.name, template.startDate)}
                 >
                   <div className="space-y-3">
@@ -129,10 +129,10 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
                       <h3 className="font-extrabold text-dark text-base group-hover:text-primary-pink transition-colors">
                         {template.name}
                       </h3>
-                      <p className="text-xs text-gray-500 line-clamp-2 mt-1">{template.description}</p>
+                      <p className="text-xs text-gray-custom line-clamp-2 mt-1">{template.description}</p>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-gray-500 pt-1">
+                    <div className="flex flex-wrap items-center gap-3 text-[11px] font-bold text-gray-custom pt-1">
                       <span className="flex items-center gap-1">
                         <MapPin className="w-3.5 h-3.5 text-primary-pink" /> {template.destination}
                       </span>
@@ -142,8 +142,8 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
                     </div>
                   </div>
 
-                  <div className="pt-4 mt-2 border-t border-gray-100 flex items-center justify-between">
-                    <span className="text-[10px] font-bold text-gray-400">
+                  <div className="pt-4 mt-2 border-t border-card-pink flex items-center justify-between">
+                    <span className="text-[10px] font-bold text-gray-custom/70">
                       {formatDateRange(template.startDate, template.endDate)}
                     </span>
                     <button
@@ -167,7 +167,7 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedTemplateId(null)}
-                  className="text-xs font-bold text-gray-500 hover:text-dark underline"
+                  className="text-xs font-bold text-gray-custom hover:text-dark underline"
                 >
                   Kembali ke Katalog
                 </button>
@@ -180,7 +180,7 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
                   required
                   value={customName}
                   onChange={(e) => setCustomName(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-pink text-sm font-semibold bg-white"
+                  className="w-full px-4 py-2.5 rounded-xl border border-card-pink focus:outline-none focus:ring-2 focus:ring-primary-pink text-sm font-semibold bg-card-pink"
                   placeholder="Contoh: Liburan Keluarga Banyuwangi"
                 />
               </div>
@@ -192,9 +192,9 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
                   required
                   value={newStartDate}
                   onChange={(e) => setNewStartDate(e.target.value)}
-                  className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-primary-pink text-sm font-semibold bg-white"
+                  className="w-full px-4 py-2.5 rounded-xl border border-card-pink focus:outline-none focus:ring-2 focus:ring-primary-pink text-sm font-semibold bg-card-pink"
                 />
-                <p className="text-[10px] text-gray-500 mt-1">
+                <p className="text-[10px] text-gray-custom mt-1">
                   Tanggal semua aktivitas akan otomatis disesuaikan dengan durasi template.
                 </p>
               </div>
@@ -203,7 +203,7 @@ export const PublicTemplatesModal: React.FC<PublicTemplatesModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setSelectedTemplateId(null)}
-                  className="flex-1 py-2.5 px-4 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-xs rounded-xl transition-colors"
+                  className="flex-1 py-2.5 px-4 bg-surface-muted hover:bg-surface-muted text-gray-custom font-bold text-xs rounded-xl transition-colors"
                 >
                   Batal
                 </button>

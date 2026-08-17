@@ -11,7 +11,7 @@ const base =
 
 const variants = {
   primary: 'bg-primary-pink hover:bg-primary-pink/90 text-white shadow-md',
-  secondary: 'border border-card-pink bg-white hover:bg-gray-50 text-dark',
+  secondary: 'border border-card-pink bg-card-pink hover:bg-surface-muted text-dark',
   ghost: 'text-gray-custom hover:bg-soft-pink hover:text-dark',
   danger: 'bg-red-50 hover:bg-red-100 text-red-600 border border-red-200',
 };

@@ -84,7 +84,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({ places, onPlaceS
   const defaultCenter: [number, number] = selectedPlace ? [selectedPlace.latitude, selectedPlace.longitude] : [-2.5489, 118.0149];
 
   return (
-    <div className="bg-white rounded-2xl border border-card-pink overflow-hidden flex flex-col h-full shadow-xs relative">
+    <div className="bg-card-pink rounded-2xl border border-card-pink overflow-hidden flex flex-col h-full shadow-xs relative">
       {toastMsg && (
         <div className="absolute top-14 right-4 bg-primary-pink text-white px-4 py-2 rounded-xl text-xs font-bold shadow-lg z-50 animate-fade-in flex items-center gap-1.5">
           <span>{toastMsg}</span>
@@ -92,7 +92,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({ places, onPlaceS
       )}
       
       {/* Map Header Controls */}
-      <div className="p-4 border-b border-card-pink flex items-center justify-between bg-white z-10">
+      <div className="p-4 border-b border-card-pink flex items-center justify-between bg-card-pink z-10">
         <div className="flex items-center gap-2">
           <Navigation className="w-4 h-4 text-primary-pink" />
           <h3 className="font-bold text-sm text-dark">Interactive Trip Map</h3>
@@ -100,7 +100,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({ places, onPlaceS
       </div>
 
       {/* Map Canvas Area */}
-      <div className="relative flex-1 bg-offwhite min-h-[280px] overflow-hidden flex flex-col">
+      <div className="relative flex-1 bg-surface-muted min-h-[280px] overflow-hidden flex flex-col">
         <MapContainer 
           center={defaultCenter} 
           zoom={4} 
@@ -133,7 +133,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({ places, onPlaceS
 
         {/* Selected Place Popup Overlay */}
         {selectedPlace && (
-          <div className="absolute bottom-3 left-3 right-3 bg-white/95 backdrop-blur-md rounded-xl p-3 border border-card-pink shadow-lg flex items-center justify-between gap-3 z-30">
+          <div className="absolute bottom-3 left-3 right-3 bg-card-pink/95 backdrop-blur-md rounded-xl p-3 border border-card-pink shadow-lg flex items-center justify-between gap-3 z-30">
             <div className="flex items-center gap-3">
               <img
                 src={selectedPlace.photos[0]}

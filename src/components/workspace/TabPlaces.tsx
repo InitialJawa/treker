@@ -161,7 +161,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
   return (
     <div className="space-y-6">
       {/* Top Bar Filter */}
-      <div className="bg-white p-3 md:p-5 rounded-2xl border border-card-pink flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4 shadow-sm">
+      <div className="bg-card-pink p-3 md:p-5 rounded-2xl border border-card-pink flex flex-col sm:flex-row sm:items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0">
           {['all', 'wishlist', 'planned', 'visited'].map((st) => (
             <button
@@ -170,7 +170,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
               className={`px-3 md:px-4 py-2 rounded-full text-xs font-bold capitalize transition-all ${
                 filterStatus === st
                   ? 'bg-primary-pink text-white shadow-sm'
-                  : 'bg-offwhite text-gray-custom hover:bg-soft-pink hover:text-primary-pink'
+                  : 'bg-surface-muted text-gray-custom hover:bg-soft-pink hover:text-primary-pink'
               }`}
             >
               {st}
@@ -189,7 +189,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
 
       {/* Places Cards Grid */}
       {filteredPlaces.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-card-pink p-12 text-center text-gray-custom shadow-sm">
+        <div className="bg-card-pink rounded-3xl border border-card-pink p-12 text-center text-gray-custom shadow-sm">
           <Compass className="w-12 h-12 mx-auto mb-2 text-soft-pink" />
           <h3 className="font-bold text-sm md:text-base text-dark">Tidak ada tempat ditemukan</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Simpan tempat menarik atau gunakan tempat favorit dari Explore.</p>
@@ -199,7 +199,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
           {filteredPlaces.map((place) => (
             <div
               key={place.id}
-              className="bg-white rounded-3xl border border-card-pink overflow-hidden hover:border-primary-pink hover:shadow-md transition-all flex flex-col justify-between group"
+              className="bg-card-pink rounded-3xl border border-card-pink overflow-hidden hover:border-primary-pink hover:shadow-md transition-all flex flex-col justify-between group"
             >
               <div>
                 {/* Photo & Heart Favorite Badge */}
@@ -221,7 +221,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                     <button
                       onClick={() => handleOpenEdit(place)}
                       aria-label={`Edit tempat ${place.name}`}
-                      className="p-2 bg-white/90 rounded-full shadow-sm text-gray-600 hover:text-primary-pink hover:scale-110 transition-transform backdrop-blur-sm"
+                      className="p-2 bg-card-pink/90 rounded-full shadow-sm text-gray-custom hover:text-primary-pink hover:scale-110 transition-transform backdrop-blur-sm"
                       title="Edit Place"
                     >
                       <Edit2 className="w-3.5 h-3.5" />
@@ -229,14 +229,14 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                     <button
                       onClick={() => deletePlace(place.id)}
                       aria-label={`Hapus tempat ${place.name}`}
-                      className="p-2 bg-white/90 rounded-full shadow-sm text-gray-600 hover:text-red-500 hover:scale-110 transition-transform backdrop-blur-sm"
+                      className="p-2 bg-card-pink/90 rounded-full shadow-sm text-gray-custom hover:text-red-500 hover:scale-110 transition-transform backdrop-blur-sm"
                       title="Delete Place"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </div>
 
-                  <span className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-md text-primary-pink text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm z-10">
+                  <span className="absolute bottom-3 left-3 bg-card-pink/90 backdrop-blur-md text-primary-pink text-[10px] font-bold px-3 py-1.5 rounded-full shadow-sm z-10">
                     {place.category}
                   </span>
                 </div>
@@ -254,7 +254,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                       </p>
                     </div>
 
-                    <div className="flex items-center gap-1 bg-offwhite px-2 py-1 rounded-full shrink-0 border border-card-pink">
+                    <div className="flex items-center gap-1 bg-surface-muted px-2 py-1 rounded-full shrink-0 border border-card-pink">
                       <Star className="w-3.5 h-3.5 fill-primary-pink text-primary-pink" />
                       <span className="text-xs font-bold text-dark">{place.rating}</span>
                     </div>
@@ -282,7 +282,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                   <select
                     value={place.status}
                     onChange={(e) => updatePlaceStatus(place.id, e.target.value as PlaceStatus)}
-                    className="flex-1 px-3 py-1.5 rounded-full border border-card-pink bg-offwhite text-xs font-bold text-dark focus:outline-none focus:border-primary-pink"
+                    className="flex-1 px-3 py-1.5 rounded-full border border-card-pink bg-surface-muted text-xs font-bold text-dark focus:outline-none focus:border-primary-pink"
                   >
                     <option value="wishlist">Wishlist</option>
                     <option value="planned">Planned</option>
@@ -313,7 +313,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
       {/* Day Picker Modal */}
       {selectedPlaceForItinerary && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-card-pink space-y-4 animate-scale-up">
+          <div className="bg-card-pink rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-card-pink space-y-4 animate-scale-up">
             <h3 className="font-extrabold text-sm text-dark">
               Tambahkan "{selectedPlaceForItinerary.name}" ke Itinerary
             </h3>
@@ -323,7 +323,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
               <select
                 value={selectedDayId}
                 onChange={(e) => setSelectedDayId(e.target.value)}
-                className="w-full p-3 rounded-full border border-card-pink text-xs font-bold text-dark bg-offwhite focus:outline-none focus:border-primary-pink"
+                className="w-full p-3 rounded-full border border-card-pink text-xs font-bold text-dark bg-surface-muted focus:outline-none focus:border-primary-pink"
               >
                 {days.map((d) => (
                   <option key={d.id} value={d.id}>
@@ -354,7 +354,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+          <div className="bg-card-pink rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
             <h3 className="font-bold text-sm md:text-base text-dark mb-4">{editingPlaceId ? "Edit Tempat" : "Tambah Tempat"}</h3>
 
             <form onSubmit={handleAddPlace} className="space-y-3 text-xs">
@@ -459,7 +459,7 @@ export const TabPlaces: React.FC<TabPlacesProps> = ({ trip, places, days }) => {
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-card-pink font-bold text-gray-custom"
                 >
                   Cancel
                 </button>

@@ -220,9 +220,9 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
   return (
     <>
       <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-3 sm:p-4">
-      <div className="bg-white rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative border border-gray-100 flex flex-col max-h-[90vh] animate-scale-up">
+      <div className="bg-card-pink rounded-3xl max-w-2xl w-full p-4 sm:p-6 shadow-2xl relative border border-card-pink flex flex-col max-h-[90vh] animate-scale-up">
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+        <div className="flex items-center justify-between pb-3 border-b border-card-pink">
           <div className="flex items-center gap-2">
             <div className="p-2 bg-rose-50 text-primary-pink rounded-xl">
               <FolderPlus className="w-5 h-5" />
@@ -236,7 +236,7 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
           </div>
           <button aria-label="Tutup"
             onClick={onClose}
-            className="p-2 rounded-full hover:bg-gray-100 text-gray-400 hover:text-dark transition-colors"
+            className="p-2 rounded-full hover:bg-surface-muted text-gray-custom/70 hover:text-dark transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -246,13 +246,13 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
         <div className="py-3 space-y-2.5">
           {/* Search Box */}
           <div className="relative">
-            <Search className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-gray-custom/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Cari foto berdasarkan nama tempat/aktivitas..."
-              className="w-full pl-10 pr-4 py-2 rounded-xl bg-gray-50 border border-gray-200 text-xs font-medium text-dark focus:bg-white focus:border-primary-pink focus:outline-none transition-all"
+              className="w-full pl-10 pr-4 py-2 rounded-xl bg-surface-muted border border-card-pink text-xs font-medium text-dark focus:bg-card-pink focus:border-primary-pink focus:outline-none transition-all"
             />
           </div>
 
@@ -264,7 +264,7 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
               className={`px-3 py-1.5 rounded-xl font-extrabold whitespace-nowrap transition-all ${
                 activeFilter === 'all'
                   ? 'bg-primary-pink text-white shadow-2xs'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
               }`}
             >
               Semua ({availablePhotos.length})
@@ -276,7 +276,7 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
               className={`px-3 py-1.5 rounded-xl font-extrabold whitespace-nowrap transition-all flex items-center gap-1 ${
                 activeFilter === 'place'
                   ? 'bg-primary-pink text-white shadow-2xs'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
               }`}
             >
               <MapPin className="w-3.5 h-3.5" />
@@ -289,7 +289,7 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
               className={`px-3 py-1.5 rounded-xl font-extrabold whitespace-nowrap transition-all flex items-center gap-1 ${
                 activeFilter === 'itinerary'
                   ? 'bg-primary-pink text-white shadow-2xs'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
               }`}
             >
               <Calendar className="w-3.5 h-3.5" />
@@ -302,7 +302,7 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
               className={`px-3 py-1.5 rounded-xl font-extrabold whitespace-nowrap transition-all flex items-center gap-1 ${
                 activeFilter === 'moodboard'
                   ? 'bg-primary-pink text-white shadow-2xs'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
               }`}
             >
               <ImageIcon className="w-3.5 h-3.5" />
@@ -315,7 +315,7 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
               className={`px-3 py-1.5 rounded-xl font-extrabold whitespace-nowrap transition-all flex items-center gap-1 ${
                 activeFilter === 'booking'
                   ? 'bg-primary-pink text-white shadow-2xs'
-                  : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
               }`}
             >
               <Hotel className="w-3.5 h-3.5" />
@@ -327,10 +327,10 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
         {/* Photo Grid */}
         <div className="flex-1 overflow-y-auto pr-1 py-1">
           {filteredPhotos.length === 0 ? (
-            <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-2xl p-6">
-              <Camera className="w-10 h-10 mx-auto mb-2 text-gray-300" />
-              <p className="text-xs font-bold text-gray-600">Tidak ada foto ditemukan.</p>
-              <p className="text-[11px] text-gray-400 mt-1">
+            <div className="text-center py-12 border-2 border-dashed border-card-pink rounded-2xl p-6">
+              <Camera className="w-10 h-10 mx-auto mb-2 text-gray-custom" />
+              <p className="text-xs font-bold text-gray-custom">Tidak ada foto ditemukan.</p>
+              <p className="text-[11px] text-gray-custom/70 mt-1">
                 {searchQuery ? 'Coba ubah kata kunci pencarian Anda.' : 'Belum ada foto tersimpan di folder tab ini.'}
               </p>
             </div>
@@ -348,10 +348,10 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
                     className={`group relative rounded-2xl overflow-hidden border-2 cursor-pointer transition-all duration-200 hover:scale-[1.02] ${
                       isSelected
                         ? 'border-primary-pink ring-2 ring-rose-200 shadow-md'
-                        : 'border-gray-100 hover:border-gray-300'
+                        : 'border-card-pink hover:border-card-pink'
                     }`}
                   >
-                    <div className="h-32 bg-gray-100 relative overflow-hidden">
+                    <div className="h-32 bg-surface-muted relative overflow-hidden">
                       <img
                         src={photo.url}
                         alt={photo.title}
@@ -384,7 +384,7 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
                       </div>
                     </div>
 
-                    <div className="p-2.5 bg-white flex items-center justify-between gap-1">
+                    <div className="p-2.5 bg-card-pink flex items-center justify-between gap-1">
                       <h5 className="text-xs font-bold text-dark truncate flex-1" title={photo.title}>
                         {photo.title}
                       </h5>
@@ -397,11 +397,11 @@ export const ProjectMediaPickerModal: React.FC<ProjectMediaPickerModalProps> = (
         </div>
 
         {/* Footer */}
-        <div className="pt-3 mt-3 border-t border-gray-100 flex justify-end">
+        <div className="pt-3 mt-3 border-t border-card-pink flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+            className="px-4 py-2 rounded-xl border border-card-pink text-xs font-bold text-gray-custom hover:bg-surface-muted transition-colors"
           >
             Tutup
           </button>

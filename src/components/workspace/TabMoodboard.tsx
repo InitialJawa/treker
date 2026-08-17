@@ -98,7 +98,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-12">
-      <div className="bg-white rounded-3xl p-5 md:p-6 border border-card-pink shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4">
+      <div className="bg-card-pink rounded-3xl p-5 md:p-6 border border-card-pink shadow-xs flex flex-col sm:flex-row sm:items-center justify-between gap-3 md:gap-4">
         <div>
           <h2 className="text-lg md:text-xl font-extrabold text-dark flex items-center gap-2">
             <ImageIcon className="w-5 h-5 text-primary-pink" />
@@ -115,8 +115,8 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
               onClick={() => setIsLocked(!isLocked)}
               className={`px-3 md:px-5 py-2.5 rounded-full font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-sm active:scale-95 shrink-0 border ${
                 isLocked 
-                  ? 'bg-dark text-white border-dark' 
-                  : 'bg-white text-dark border-card-pink hover:border-gray-400'
+                  ? 'bg-gray-800 text-white border-gray-700' 
+                  : 'bg-card-pink text-dark border-card-pink hover:border-gray-custom'
               }`}
             >
               {isLocked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
@@ -156,7 +156,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
       </div>
 
       {items.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-card-pink p-12 text-center shadow-sm">
+        <div className="bg-card-pink rounded-3xl border border-card-pink p-12 text-center shadow-sm">
           <div className="w-16 h-16 bg-soft-pink rounded-full flex items-center justify-center mx-auto mb-4">
             <ImageIcon className="w-8 h-8 text-primary-pink" />
           </div>
@@ -166,7 +166,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
           </p>
           <button
             onClick={() => fileInputRef.current?.click()}
-            className="bg-white border border-card-pink hover:border-primary-pink text-dark hover:text-primary-pink px-3 md:px-5 py-2.5 rounded-full font-bold text-xs inline-flex items-center gap-2 transition-all shadow-sm active:scale-95"
+            className="bg-card-pink border border-card-pink hover:border-primary-pink text-dark hover:text-primary-pink px-3 md:px-5 py-2.5 rounded-full font-bold text-xs inline-flex items-center gap-2 transition-all shadow-sm active:scale-95"
           >
             <Plus className="w-4 h-4" />
             <span>Upload Foto Pertama</span>
@@ -174,7 +174,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
         </div>
       ) : (
         <div className={`relative w-full min-h-[55vh] md:min-h-[70vh] rounded-3xl border overflow-hidden shadow-inner transition-colors ${
-          isLocked ? 'bg-gray-100/50 border-gray-200' : 'bg-gray-50/50 border-dashed border-gray-300'
+          isLocked ? 'bg-surface-muted/50 border-card-pink' : 'bg-surface-muted/50 border-dashed border-card-pink'
         }`}>
           {items.map((item) => (
             <Rnd
@@ -206,7 +206,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
               }}
               className={`group ${!isLocked ? 'cursor-grab active:cursor-grabbing' : ''}`}
             >
-              <div className="relative w-full h-full bg-white p-2 rounded-xl shadow-md border border-gray-200 flex flex-col pointer-events-auto">
+              <div className="relative w-full h-full bg-card-pink p-2 rounded-xl shadow-md border border-card-pink flex flex-col pointer-events-auto">
                 <div className="relative flex-1 overflow-hidden rounded-lg">
                   <img 
                     src={item.imageUrl} 
@@ -219,7 +219,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
                   <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex gap-1 bg-black/40 p-1.5 rounded-lg backdrop-blur-sm z-10">
                     <button
                       onClick={(e) => { e.stopPropagation(); setLightboxImage(item); }}
-                      className="bg-white/90 text-gray-800 p-1.5 rounded hover:bg-white hover:scale-105 transition-all shadow-sm"
+                      className="bg-card-pink/90 text-gray-custom p-1.5 rounded hover:bg-card-pink hover:scale-105 transition-all shadow-sm"
                       title="Lihat Penuh"
                     >
                       <Maximize2 className="w-3.5 h-3.5" />
@@ -229,7 +229,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
                         <button
                           onClick={(e) => { e.stopPropagation(); handleOpenEdit(item); }}
                           aria-label="Edit foto moodboard"
-                          className="bg-white/90 text-gray-800 p-1.5 rounded hover:bg-white hover:scale-105 transition-all shadow-sm"
+                          className="bg-card-pink/90 text-gray-custom p-1.5 rounded hover:bg-card-pink hover:scale-105 transition-all shadow-sm"
                           title="Edit Info"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
@@ -237,7 +237,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
                         <button
                           onClick={(e) => { e.stopPropagation(); deleteMoodboardItem(item.id); }}
                           aria-label="Hapus foto moodboard"
-                          className="bg-white/90 text-red-500 p-1.5 rounded hover:bg-red-500 hover:text-white hover:scale-105 transition-all shadow-sm"
+                          className="bg-card-pink/90 text-red-500 p-1.5 rounded hover:bg-red-500 hover:text-white hover:scale-105 transition-all shadow-sm"
                           title="Hapus"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -249,7 +249,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
                 {(item.title || item.caption) && (
                   <div className="pt-2 px-1 pb-1 text-center pointer-events-none">
                     {item.title && <h4 className="font-bold text-xs text-dark truncate">{item.title}</h4>}
-                    {item.caption && <p className="text-[10px] text-gray-500 truncate">{item.caption}</p>}
+                    {item.caption && <p className="text-[10px] text-gray-custom truncate">{item.caption}</p>}
                   </div>
                 )}
               </div>
@@ -261,29 +261,29 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
       {/* Upload/Edit Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in z-50">
-          <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-scale-up">
-            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-soft-pink/30">
+          <div className="bg-card-pink rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-scale-up">
+            <div className="p-4 border-b border-card-pink flex justify-between items-center bg-soft-pink/30">
               <h3 className="font-bold text-dark">
                 {modalMode === 'add' ? 'Detail Foto Moodboard' : 'Edit Foto Moodboard'}
               </h3>
               <button 
                 onClick={() => { setIsModalOpen(false); setTempImage(null); setActiveItem(null); }}
                 aria-label="Tutup"
-                className="text-gray-400 hover:text-dark p-1 rounded-full hover:bg-gray-100 transition-colors"
+                className="text-gray-custom/70 hover:text-dark p-1 rounded-full hover:bg-surface-muted transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
             <div className="p-5 space-y-4">
               {tempImage && (
-                <div className="relative w-full h-48 bg-gray-100 rounded-xl overflow-hidden group">
+                <div className="relative w-full h-48 bg-surface-muted rounded-xl overflow-hidden group">
                   <img src={tempImage} alt="Preview" className="w-full h-full object-contain" />
                   
                   {/* Button to replace image in edit mode */}
                   <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
                     <button 
                       onClick={() => replaceFileInputRef.current?.click()} 
-                      className="bg-white px-4 py-2 rounded-full text-xs font-bold flex gap-2 items-center text-gray-800 hover:scale-105 transition-transform"
+                      className="bg-card-pink px-4 py-2 rounded-full text-xs font-bold flex gap-2 items-center text-gray-custom hover:scale-105 transition-transform"
                     >
                       <Upload className="w-4 h-4"/> Ganti Foto
                     </button>
@@ -298,30 +298,30 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
                 </div>
               )}
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Judul Foto (Opsional)</label>
+                <label className="block text-xs font-bold text-gray-custom mb-1">Judul Foto (Opsional)</label>
                 <input
                   type="text"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
                   placeholder="Misal: Inspirasi OOTD Pantai"
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white transition-colors text-sm"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-surface-muted focus:bg-card-pink transition-colors text-sm"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Keterangan / Caption (Opsional)</label>
+                <label className="block text-xs font-bold text-gray-custom mb-1">Keterangan / Caption (Opsional)</label>
                 <textarea
                   value={caption}
                   onChange={(e) => setCaption(e.target.value)}
                   placeholder="Beri catatan untuk foto ini..."
                   rows={2}
-                  className="w-full px-3 py-2 rounded-xl border border-gray-200 bg-gray-50 focus:bg-white transition-colors text-sm"
+                  className="w-full px-3 py-2 rounded-xl border border-card-pink bg-surface-muted focus:bg-card-pink transition-colors text-sm"
                 />
               </div>
             </div>
-            <div className="p-4 border-t border-gray-100 flex justify-end gap-2 bg-gray-50">
+            <div className="p-4 border-t border-card-pink flex justify-end gap-2 bg-surface-muted">
               <button
                 onClick={() => { setIsModalOpen(false); setTempImage(null); setActiveItem(null); }}
-                className="px-4 py-2 rounded-full border border-gray-300 font-bold text-xs text-gray-600 hover:bg-gray-100 transition-colors"
+                className="px-4 py-2 rounded-full border border-card-pink font-bold text-xs text-gray-custom hover:bg-surface-muted transition-colors"
               >
                 Batal
               </button>
@@ -356,7 +356,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
             {(lightboxImage.title || lightboxImage.caption) && (
               <div className="mt-4 text-center bg-black/50 p-4 rounded-xl backdrop-blur-sm max-w-2xl">
                 {lightboxImage.title && <h3 className="text-white font-bold text-lg">{lightboxImage.title}</h3>}
-                {lightboxImage.caption && <p className="text-gray-200 mt-1">{lightboxImage.caption}</p>}
+                {lightboxImage.caption && <p className="text-gray-custom mt-1">{lightboxImage.caption}</p>}
               </div>
             )}
           </div>
@@ -376,3 +376,7 @@ export const TabMoodboard: React.FC<TabMoodboardProps> = ({ trip, items }) => {
     </div>
   );
 };
+
+
+
+

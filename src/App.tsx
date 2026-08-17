@@ -150,7 +150,7 @@ function AppGuard() {
   if (loading) {
     return (
       <div className="min-h-screen bg-soft-pink flex flex-col items-center justify-center space-y-4">
-        <div className="p-2 bg-white rounded-2xl shadow-sm animate-bounce">
+        <div className="p-2 bg-card-pink rounded-2xl shadow-sm animate-bounce">
           <img src="/logo.svg" alt="Treker Logo" className="w-12 h-12 rounded-xl object-contain" />
         </div>
         <p className="text-xs font-bold text-gray-custom tracking-wider uppercase">Memuat TREKER...</p>

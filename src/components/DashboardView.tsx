@@ -24,7 +24,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onSelectTrip, onCr
   const renderSkeletonGrid = () => (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
       {Array.from({ length: 6 }).map((_, i) => (
-        <div key={i} className="bg-white rounded-3xl border border-card-pink overflow-hidden shadow-sm">
+        <div key={i} className="bg-card-pink rounded-3xl border border-card-pink overflow-hidden shadow-sm">
           <Skeleton className="h-36 w-full rounded-none" />
           <div className="p-4 space-y-2">
             <Skeleton className="h-4 w-3/4" />
@@ -48,7 +48,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onSelectTrip, onCr
         <div className="flex items-center gap-2">
           <span className={`p-1.5 rounded-xl ${colorClass}`}>{icon}</span>
           <h2 className="text-sm font-extrabold text-dark">{title}</h2>
-          <span className="text-[10px] font-bold text-gray-400 bg-white border border-gray-200 px-2 py-0.5 rounded-full">{list.length}</span>
+          <span className="text-[10px] font-bold text-gray-custom/70 bg-card-pink border border-card-pink px-2 py-0.5 rounded-full">{list.length}</span>
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {list.map(trip => (
@@ -75,7 +75,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onSelectTrip, onCr
         <div className="flex items-center gap-2">
           <button
             onClick={onOpenTemplates}
-            className="bg-white border border-gray-200 hover:border-primary-pink text-primary-pink px-3 py-2 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
+            className="bg-card-pink border border-card-pink hover:border-primary-pink text-primary-pink px-3 py-2 rounded-full font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
           >
             <BookOpen className="w-4 h-4" /> Template Publik
           </button>
@@ -106,7 +106,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({ onSelectTrip, onCr
       )}
 
       {!loading && myTrips.length === 0 && sharedTrips.length === 0 && publicTemplates.length === 0 && (
-        <div className="bg-white rounded-3xl border border-card-pink p-12 text-center shadow-sm">
+        <div className="bg-card-pink rounded-3xl border border-card-pink p-12 text-center shadow-sm">
           <Compass className="w-12 h-12 text-soft-pink mx-auto mb-3" />
           <h3 className="font-bold text-sm md:text-base text-dark">Belum ada project</h3>
           <p className="text-xs text-gray-custom mt-1 mb-4">Buat project baru atau gunakan template publik untuk memulai.</p>

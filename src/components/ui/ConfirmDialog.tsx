@@ -41,7 +41,7 @@ export const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           onClick={onCancel}
         />
         <motion.div
-          className="relative bg-white rounded-2xl shadow-2xl border border-card-pink w-full max-w-sm p-6 text-center"
+          className="relative bg-card-pink rounded-2xl shadow-2xl border border-card-pink w-full max-w-sm p-6 text-center"
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0, scale: 0.95 }}

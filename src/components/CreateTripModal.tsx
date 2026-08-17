@@ -95,11 +95,11 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
 
   return (
     <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 border border-card-pink">
+      <div className="bg-card-pink rounded-2xl max-w-xl w-full p-6 md:p-8 shadow-2xl relative animate-in fade-in zoom-in-95 duration-200 border border-card-pink">
         {/* Close Button */}
         <button aria-label="Tutup"
           onClick={onClose}
-          className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100 transition-colors"
+          className="absolute top-6 right-6 p-2 text-gray-custom/70 hover:text-gray-custom rounded-full hover:bg-surface-muted transition-colors"
         >
           <X className="w-5 h-5" />
         </button>
@@ -125,7 +125,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                     ? 'w-6 bg-primary-pink'
                     : s < step
                     ? 'w-2 bg-primary-pink/40'
-                    : 'w-2 bg-gray-200'
+                    : 'w-2 bg-surface-muted'
                 }`}
               />
             ))}
@@ -150,7 +150,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                 Cari atau Masukkan Destinasi
               </label>
               <div className="relative">
-                <MapPin className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                <MapPin className="w-5 h-5 text-gray-custom/70 absolute left-4 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   value={destination}
@@ -175,7 +175,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                     className={`p-3 rounded-2xl border cursor-pointer flex items-center gap-3 transition-all ${
                       destination === dest.name
                         ? 'border-primary-pink bg-soft-pink/50 ring-2 ring-primary-pink/20'
-                        : 'border-card-pink hover:border-gray-300 bg-white'
+                        : 'border-card-pink hover:border-card-pink bg-card-pink'
                     }`}
                   >
                     <img src={dest.img} alt={dest.name} className="w-12 h-12 rounded-xl object-cover shrink-0" />
@@ -194,7 +194,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               <div>
                 <label className="block text-sm font-semibold text-dark mb-2">Tanggal Mulai</label>
                 <div className="relative">
-                  <Calendar className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <Calendar className="w-5 h-5 text-gray-custom/70 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     type="date"
                     value={startDate}
@@ -207,7 +207,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               <div>
                 <label className="block text-sm font-semibold text-dark mb-2">Tanggal Selesai</label>
                 <div className="relative">
-                  <Calendar className="w-5 h-5 text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+                  <Calendar className="w-5 h-5 text-gray-custom/70 absolute left-4 top-1/2 -translate-y-1/2" />
                   <input
                     type="date"
                     value={endDate}
@@ -237,7 +237,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setAdults(Math.max(1, adults - 1))}
-                  className="w-9 h-9 rounded-xl border border-gray-300 bg-white font-bold text-base hover:bg-gray-100 flex items-center justify-center"
+                  className="w-9 h-9 rounded-xl border border-card-pink bg-card-pink font-bold text-base hover:bg-surface-muted flex items-center justify-center"
                 >
                   −
                 </button>
@@ -245,7 +245,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setAdults(adults + 1)}
-                  className="w-9 h-9 rounded-xl border border-gray-300 bg-white font-bold text-base hover:bg-gray-100 flex items-center justify-center"
+                  className="w-9 h-9 rounded-xl border border-card-pink bg-card-pink font-bold text-base hover:bg-surface-muted flex items-center justify-center"
                 >
                   +
                 </button>
@@ -261,7 +261,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setChildrenCount(Math.max(0, childrenCount - 1))}
-                  className="w-9 h-9 rounded-xl border border-gray-300 bg-white font-bold text-base hover:bg-gray-100 flex items-center justify-center"
+                  className="w-9 h-9 rounded-xl border border-card-pink bg-card-pink font-bold text-base hover:bg-surface-muted flex items-center justify-center"
                 >
                   −
                 </button>
@@ -269,7 +269,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                 <button
                   type="button"
                   onClick={() => setChildrenCount(childrenCount + 1)}
-                  className="w-9 h-9 rounded-xl border border-gray-300 bg-white font-bold text-base hover:bg-gray-100 flex items-center justify-center"
+                  className="w-9 h-9 rounded-xl border border-card-pink bg-card-pink font-bold text-base hover:bg-surface-muted flex items-center justify-center"
                 >
                   +
                 </button>
@@ -290,7 +290,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
                   className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${
                     currency === c
                       ? 'bg-primary-pink text-white shadow-xs'
-                      : 'bg-gray-100 text-gray-custom hover:bg-gray-200'
+                      : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
                   }`}
                 >
                   {c}
@@ -301,7 +301,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
             <div>
               <label className="block text-sm font-semibold text-dark mb-2">Perkiraan Total Budget</label>
               <div className="relative">
-                <span className="text-gray-400 font-bold absolute left-4 top-1/2 -translate-y-1/2">{getCurrencySymbol(currency)}</span>
+                <span className="text-gray-custom/70 font-bold absolute left-4 top-1/2 -translate-y-1/2">{getCurrencySymbol(currency)}</span>
                 <input
                   type="number"
                   value={budget}
@@ -347,7 +347,7 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
               }`}
             >
               <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
-                generateAI ? 'bg-primary-pink text-white' : 'bg-gray-200 text-gray-500'
+                generateAI ? 'bg-primary-pink text-white' : 'bg-surface-muted text-gray-custom'
               }`}>
                 <Wand2 className="w-3.5 h-3.5" />
               </div>
@@ -362,11 +362,11 @@ export const CreateTripModal: React.FC<CreateTripModalProps> = ({
         )}
 
         {/* Wizard Footer Navigation */}
-        <div className="flex items-center justify-between mt-8 pt-4 border-t border-gray-100">
+        <div className="flex items-center justify-between mt-8 pt-4 border-t border-card-pink">
           {step > 1 ? (
             <button
               onClick={handlePrevStep}
-              className="px-5 py-3 rounded-xl border border-gray-300 font-bold text-xs text-dark hover:bg-gray-50 flex items-center gap-2"
+              className="px-5 py-3 rounded-xl border border-card-pink font-bold text-xs text-dark hover:bg-surface-muted flex items-center gap-2"
             >
               <ArrowLeft className="w-4 h-4" />
               Kembali

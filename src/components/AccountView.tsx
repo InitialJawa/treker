@@ -59,7 +59,7 @@ const handleModeSelect = (m: ThemeMode) => {
                 className="w-24 h-24 md:w-28 md:h-28 rounded-full object-cover border-4 border-white/20 shadow-xl"
               />
             ) : (
-              <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-white/20 backdrop-blur-md border-4 border-white/30 flex items-center justify-center text-white font-black text-3xl shadow-xl">
+              <div className="w-24 h-24 md:w-28 md:h-28 rounded-full bg-card-pink/20 backdrop-blur-md border-4 border-white/30 flex items-center justify-center text-white font-black text-3xl shadow-xl">
                 {userName.charAt(0).toUpperCase()}
               </div>
             )}
@@ -71,7 +71,7 @@ const handleModeSelect = (m: ThemeMode) => {
           <div className="text-center md:text-left space-y-2 flex-1">
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
               <h1 className="text-2xl md:text-3xl font-black">{userName}</h1>
-              <span className="bg-white/20 backdrop-blur-md text-white text-xs font-black px-3 py-1 rounded-full flex items-center gap-1 shadow-xs border border-white/20">
+              <span className="bg-card-pink/20 backdrop-blur-md text-white text-xs font-black px-3 py-1 rounded-full flex items-center gap-1 shadow-xs border border-white/20">
                 <Award className="w-3.5 h-3.5" /> Terverifikasi
               </span>
             </div>
@@ -80,7 +80,7 @@ const handleModeSelect = (m: ThemeMode) => {
           </div>
 
           {/* Quick Stats */}
-          <div className="flex items-center gap-4 bg-white/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 text-center">
+          <div className="flex items-center gap-4 bg-card-pink/10 backdrop-blur-md px-6 py-4 rounded-2xl border border-white/10 text-center">
             <div>
               <p className="text-2xl font-black">{trips.length}</p>
               <p className="text-[10px] text-slate-200 font-bold uppercase tracking-wider">Project Trip</p>
@@ -90,8 +90,8 @@ const handleModeSelect = (m: ThemeMode) => {
       </div>
 
       {/* 🎨 Theme & Custom Color Customizer */}
-      <div className="bg-bgCard bg-white rounded-3xl p-6 md:p-8 border border-card-pink shadow-xs space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 pb-4 gap-2">
+      <div className="bg-bgCard bg-card-pink rounded-3xl p-6 md:p-8 border border-card-pink shadow-xs space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-card-pink pb-4 gap-2">
           <div className="flex items-center gap-3">
             <div className="p-2.5 rounded-2xl bg-soft-pink text-primary-pink">
               <Palette className="w-6 h-6" />
@@ -115,7 +115,7 @@ const handleModeSelect = (m: ThemeMode) => {
             )}
             <button
               onClick={handleResetTheme}
-              className="px-3 py-2 rounded-xl border border-gray-200 text-xs font-bold text-gray-custom hover:bg-gray-50 transition-colors flex items-center gap-1.5 cursor-pointer"
+              className="px-3 py-2 rounded-xl border border-card-pink text-xs font-bold text-gray-custom hover:bg-surface-muted transition-colors flex items-center gap-1.5 cursor-pointer"
               title="Reset ke warna awal"
             >
               <RotateCcw className="w-3.5 h-3.5" /> Atur Ulang Warna
@@ -162,7 +162,7 @@ const handleModeSelect = (m: ThemeMode) => {
                   className={`p-3.5 rounded-2xl border text-left transition-all relative flex flex-col justify-between h-28 cursor-pointer ${
                     isActive
                       ? 'border-primary-pink bg-soft-pink shadow-sm ring-2 ring-primary-pink/20'
-                      : 'border-gray-200 hover:border-gray-300 bg-white hover:bg-gray-50'
+                      : 'border-card-pink hover:border-card-pink bg-card-pink hover:bg-surface-muted'
                   }`}
                 >
                   <div className="flex items-center justify-between">
@@ -189,7 +189,7 @@ const handleModeSelect = (m: ThemeMode) => {
         </div>
 
         {/* Advanced Fine-Tuning Color Pickers */}
-        <div className="pt-2 border-t border-gray-100 space-y-4">
+        <div className="pt-2 border-t border-card-pink space-y-4">
           <label className="text-xs font-extrabold text-dark uppercase tracking-wider block">
             Penyesuaian Warna Kustom
           </label>
@@ -197,13 +197,13 @@ const handleModeSelect = (m: ThemeMode) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             
             {/* 1. Primary Accent */}
-            <div className="p-3.5 rounded-2xl border border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl border border-card-pink bg-surface-muted/50 flex items-center justify-between">
               <div>
                 <span className="text-xs font-bold text-dark block">Warna Utama (Primary)</span>
                 <span className="text-[10px] text-gray-custom">Tombol, ikon & badge aktif</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono font-bold text-gray-500 uppercase">{colors.primary}</span>
+                <span className="text-[11px] font-mono font-bold text-gray-custom uppercase">{colors.primary}</span>
                 <input
                   type="color"
                   value={colors.primary}
@@ -214,13 +214,13 @@ const handleModeSelect = (m: ThemeMode) => {
             </div>
 
             {/* 2. Soft Background */}
-            <div className="p-3.5 rounded-2xl border border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl border border-card-pink bg-surface-muted/50 flex items-center justify-between">
               <div>
                 <span className="text-xs font-bold text-dark block">Warna Soft / Hover</span>
                 <span className="text-[10px] text-gray-custom">Latar belakang tab & badge</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono font-bold text-gray-500 uppercase">{colors.primarySoft}</span>
+                <span className="text-[11px] font-mono font-bold text-gray-custom uppercase">{colors.primarySoft}</span>
                 <input
                   type="color"
                   value={colors.primarySoft}
@@ -231,13 +231,13 @@ const handleModeSelect = (m: ThemeMode) => {
             </div>
 
             {/* 3. Screen App Background */}
-            <div className="p-3.5 rounded-2xl border border-gray-100 bg-gray-50/50 flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl border border-card-pink bg-surface-muted/50 flex items-center justify-between">
               <div>
                 <span className="text-xs font-bold text-dark block">Latar Halaman (App BG)</span>
                 <span className="text-[10px] text-gray-custom">Background utama website</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono font-bold text-gray-500 uppercase">{colors.bgApp}</span>
+                <span className="text-[11px] font-mono font-bold text-gray-custom uppercase">{colors.bgApp}</span>
                 <input
                   type="color"
                   value={colors.bgApp}
@@ -248,13 +248,13 @@ const handleModeSelect = (m: ThemeMode) => {
             </div>
 
             {/* 4. Border */}
-            <div className="p-3.5 rounded-2xl border border-card-pink bg-gray-50/50 flex items-center justify-between">
+            <div className="p-3.5 rounded-2xl border border-card-pink bg-surface-muted/50 flex items-center justify-between">
               <div>
                 <span className="text-xs font-bold text-dark block">Warna Border</span>
                 <span className="text-[10px] text-gray-custom">Garis kartu & input</span>
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-[11px] font-mono font-bold text-gray-500 uppercase">{colors.border}</span>
+                <span className="text-[11px] font-mono font-bold text-gray-custom uppercase">{colors.border}</span>
                 <input
                   type="color"
                   value={colors.border}
@@ -272,8 +272,8 @@ const handleModeSelect = (m: ThemeMode) => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
         {/* Main Settings Card */}
-        <div className="md:col-span-2 bg-white rounded-3xl p-6 md:p-8 border border-card-pink shadow-xs space-y-6">
-          <div className="flex items-center justify-between border-b border-gray-100 pb-4">
+        <div className="md:col-span-2 bg-card-pink rounded-3xl p-6 md:p-8 border border-card-pink shadow-xs space-y-6">
+          <div className="flex items-center justify-between border-b border-card-pink pb-4">
             <h2 className="text-lg font-black text-dark">Informasi Profil & Akun</h2>
             {savedSuccess && (
               <span className="text-xs font-bold text-primary-pink flex items-center gap-1 bg-soft-pink px-3 py-1 rounded-full animate-fade-in">
@@ -287,12 +287,12 @@ const handleModeSelect = (m: ThemeMode) => {
               <div>
                 <label className="block text-xs font-bold text-gray-custom mb-1.5">Nama Lengkap</label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <User className="w-4 h-4 text-gray-custom/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={userName}
                     onChange={(e) => setUserName(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-xs font-bold text-dark focus:outline-none focus:border-primary-pink bg-soft-pink"
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl border border-card-pink text-xs font-bold text-dark focus:outline-none focus:border-primary-pink bg-soft-pink"
                   />
                 </div>
               </div>
@@ -300,12 +300,12 @@ const handleModeSelect = (m: ThemeMode) => {
               <div>
                 <label className="block text-xs font-bold text-gray-custom mb-1.5">Alamat Email</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-gray-custom/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="email"
                     disabled
                     value={userEmail}
-                    className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-xs font-bold text-gray-custom bg-gray-100 cursor-not-allowed"
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl border border-card-pink text-xs font-bold text-gray-custom bg-surface-muted cursor-not-allowed"
                   />
                 </div>
               </div>
@@ -317,7 +317,7 @@ const handleModeSelect = (m: ThemeMode) => {
                 value={bio}
                 onChange={(e) => setBio(e.target.value)}
                 rows={3}
-                className="w-full px-4 py-3 rounded-2xl border border-gray-200 text-xs font-semibold text-dark focus:outline-none focus:border-primary-pink bg-soft-pink"
+                className="w-full px-4 py-3 rounded-2xl border border-card-pink text-xs font-semibold text-dark focus:outline-none focus:border-primary-pink bg-soft-pink"
               />
             </div>
 
@@ -325,11 +325,11 @@ const handleModeSelect = (m: ThemeMode) => {
               <div>
                 <label className="block text-xs font-bold text-gray-custom mb-1.5">Mata Uang Utama</label>
                 <div className="relative">
-                  <Globe className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Globe className="w-4 h-4 text-gray-custom/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <select
                     value={preferredCurrency}
                     onChange={(e) => setPreferredCurrency(e.target.value)}
-                    className="w-full pl-10 pr-4 py-3 rounded-2xl border border-gray-200 text-xs font-bold text-dark focus:outline-none focus:border-primary-pink bg-soft-pink"
+                    className="w-full pl-10 pr-4 py-3 rounded-2xl border border-card-pink text-xs font-bold text-dark focus:outline-none focus:border-primary-pink bg-soft-pink"
                   >
                     <option value="IDR">IDR (Rp)</option>
                     <option value="USD">USD ($)</option>
@@ -345,7 +345,7 @@ const handleModeSelect = (m: ThemeMode) => {
                   type="text"
                   disabled
                   value={user?.uid || 'guest'}
-                  className="w-full px-4 py-3 rounded-2xl border border-gray-100 text-[11px] font-mono font-bold text-gray-500 bg-gray-100 truncate cursor-not-allowed"
+                  className="w-full px-4 py-3 rounded-2xl border border-card-pink text-[11px] font-mono font-bold text-gray-custom bg-surface-muted truncate cursor-not-allowed"
                 />
               </div>
             </div>
@@ -373,7 +373,7 @@ const handleModeSelect = (m: ThemeMode) => {
 
         {/* Sidebar Badges & Preferences */}
         <div className="space-y-6">
-          <div className="bg-white rounded-3xl p-6 border border-card-pink shadow-xs space-y-4">
+          <div className="bg-card-pink rounded-3xl p-6 border border-card-pink shadow-xs space-y-4">
             <h3 className="font-extrabold text-base text-dark flex items-center gap-2">
               <Bell className="w-4 h-4 text-primary-pink" /> Notifikasi Email
             </h3>
@@ -387,11 +387,11 @@ const handleModeSelect = (m: ThemeMode) => {
                 type="button"
                 onClick={() => setEmailNotifications(!emailNotifications)}
                 className={`w-11 h-6 rounded-full transition-colors relative cursor-pointer ${
-                  emailNotifications ? 'bg-primary-pink' : 'bg-gray-300'
+                  emailNotifications ? 'bg-primary-pink' : 'bg-surface-muted'
                 }`}
               >
                 <span
-                  className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${
+                  className={`w-4 h-4 rounded-full bg-card-pink absolute top-1 transition-transform ${
                     emailNotifications ? 'left-6' : 'left-1'
                   }`}
                 />

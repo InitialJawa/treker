@@ -22,12 +22,12 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, user, onOpen, onToggle
       ? 'text-emerald-600 bg-emerald-50 border-emerald-200'
       : status === 'upcoming'
       ? 'text-blue-600 bg-blue-50 border-blue-200'
-      : 'text-gray-500 bg-gray-100 border-gray-200';
+      : 'text-gray-custom bg-surface-muted border-card-pink';
 
   return (
     <div
       onClick={() => onOpen(trip.id)}
-      className="group bg-white rounded-3xl border border-card-pink overflow-hidden shadow-sm hover:shadow-lg hover:border-primary-pink transition-all cursor-pointer active:scale-[0.99] flex flex-col"
+      className="group bg-card-pink rounded-3xl border border-card-pink overflow-hidden shadow-sm hover:shadow-lg hover:border-primary-pink transition-all cursor-pointer active:scale-[0.99] flex flex-col"
     >
       <div className="relative h-36 overflow-hidden">
         <img
@@ -48,7 +48,7 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, user, onOpen, onToggle
         </div>
         <button
           onClick={(e) => { e.stopPropagation(); onToggleFavorite(trip.id); }}
-          className={`absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white/90 shadow-sm transition-all hover:scale-110 active:scale-95 ${trip.isFavorite ? 'text-primary-pink' : 'text-gray-400 hover:text-primary-pink'}`}
+          className={`absolute top-2.5 right-2.5 p-1.5 rounded-full bg-card-pink/90 shadow-sm transition-all hover:scale-110 active:scale-95 ${trip.isFavorite ? 'text-primary-pink' : 'text-gray-custom/70 hover:text-primary-pink'}`}
           title="Sukai project ini"
         >
           <Heart className={`w-4 h-4 ${trip.isFavorite ? 'fill-primary-pink' : ''}`} />
@@ -61,7 +61,7 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, user, onOpen, onToggle
           <MapPin className="w-3 h-3 text-primary-pink shrink-0" />
           <span className="truncate">{trip.destination}</span>
         </p>
-        <p className="text-[11px] text-gray-400 flex items-center gap-1">
+        <p className="text-[11px] text-gray-custom/70 flex items-center gap-1">
           <Calendar className="w-3 h-3 shrink-0" />
           {formatDateRange(trip.startDate, trip.endDate)}
         </p>
@@ -77,7 +77,7 @@ export const TripCard: React.FC<TripCardProps> = ({ trip, user, onOpen, onToggle
               </span>
             )}
             {trip.isTemplate && (
-              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-full">
+              <span className="inline-flex items-center gap-1 text-[10px] font-bold text-gray-custom bg-surface-muted px-2 py-0.5 rounded-full">
                 <Copy className="w-3 h-3" /> Kopi
               </span>
             )}

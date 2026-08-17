@@ -72,13 +72,13 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
       {/* If an image is currently selected */}
       {value ? (
         <div className="space-y-2">
-          <div className="relative rounded-2xl overflow-hidden border border-gray-200 h-36 bg-gray-50 group">
+          <div className="relative rounded-2xl overflow-hidden border border-card-pink h-36 bg-surface-muted group">
             <img src={value} alt="Preview" className="w-full h-full object-cover" />
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-2">
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="px-3 py-1.5 bg-white text-dark rounded-xl font-bold text-xs shadow-md hover:bg-gray-100 flex items-center gap-1.5 transition-all"
+                className="px-3 py-1.5 bg-card-pink text-dark rounded-xl font-bold text-xs shadow-md hover:bg-surface-muted flex items-center gap-1.5 transition-all"
               >
                 <FolderPlus className="w-4 h-4 text-primary-pink" />
                 <span>Ganti dari Project</span>
@@ -110,11 +110,11 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
 
             {/* Choice 2: Upload Device File */}
             <label
-              className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl border border-gray-200 bg-screen-pink hover:bg-gray-100 text-dark font-extrabold text-xs cursor-pointer transition-all ${
+              className={`flex items-center justify-center gap-1.5 p-2.5 rounded-xl border border-card-pink bg-screen-pink hover:bg-surface-muted text-dark font-extrabold text-xs cursor-pointer transition-all ${
                 isUploading ? 'opacity-50 pointer-events-none' : ''
               }`}
             >
-              <Upload className="w-4 h-4 text-gray-500 shrink-0" />
+              <Upload className="w-4 h-4 text-gray-custom shrink-0" />
               <span>{isUploading ? 'Memproses...' : 'Unggah File'}</span>
               <input
                 type="file"
@@ -130,7 +130,7 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
             <button
               type="button"
               onClick={() => setShowUrlInput(true)}
-              className="text-[11px] font-bold text-gray-400 hover:text-primary-pink flex items-center gap-1 transition-colors px-1"
+              className="text-[11px] font-bold text-gray-custom/70 hover:text-primary-pink flex items-center gap-1 transition-colors px-1"
             >
               <Link2 className="w-3.5 h-3.5" />
               <span>Atau tempel URL gambar langsung</span>
@@ -142,7 +142,7 @@ export const ImagePickerField: React.FC<ImagePickerFieldProps> = ({
                 value={value}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={placeholder}
-                className="flex-1 px-3 py-2 rounded-xl border border-gray-200 bg-screen-pink font-medium text-xs text-dark focus:bg-white focus:border-primary-pink focus:outline-none"
+                className="flex-1 px-3 py-2 rounded-xl border border-card-pink bg-screen-pink font-medium text-xs text-dark focus:bg-card-pink focus:border-primary-pink focus:outline-none"
               />
             </div>
           )}

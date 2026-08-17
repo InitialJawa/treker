@@ -92,7 +92,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
   return (
     <div className="space-y-6">
       {/* Header Banner */}
-      <div className="bg-white p-3 md:p-5 rounded-2xl border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
+      <div className="bg-card-pink p-3 md:p-5 rounded-2xl border border-card-pink flex items-center justify-between gap-2 md:gap-4 shadow-sm">
         <div>
           <span className="text-xs font-extrabold text-primary-pink tracking-wider uppercase">Trip Notes</span>
           <h2 className="text-xl font-extrabold text-dark">Pengingat Penting & Kontak</h2>
@@ -110,7 +110,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
       {/* Sticky Notes Cards Grid */}
       {tripNotes.length === 0 ? (
         <EmptyState
-          icon={<StickyNote className="w-12 h-12 mx-auto text-gray-300" />}
+          icon={<StickyNote className="w-12 h-12 mx-auto text-gray-custom" />}
           title="Belum ada catatan tersimpan"
           description="Catat nomor kontak driver, rekomendasi kuliner, atau reminder jeep."
         >
@@ -133,7 +133,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
                     <button
                       onClick={() => handleOpenEdit(note)}
                       aria-label={`Edit catatan ${note.title}`}
-                      className="p-1 hover:bg-black/5 rounded text-gray-700"
+                      className="p-1 hover:bg-black/5 rounded text-gray-custom"
                     >
                       <Edit3 className="w-3.5 h-3.5" />
                     </button>
@@ -147,7 +147,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
                   </div>
                 </div>
 
-                <p className="text-xs text-gray-800 whitespace-pre-wrap leading-relaxed font-medium">
+                <p className="text-xs text-gray-custom whitespace-pre-wrap leading-relaxed font-medium">
                   {note.content}
                 </p>
 
@@ -172,7 +172,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
                 )}
               </div>
 
-              <div className="mt-4 pt-2 border-t border-black/10 text-[10px] text-gray-600 font-semibold flex items-center justify-between">
+              <div className="mt-4 pt-2 border-t border-black/10 text-[10px] text-gray-custom font-semibold flex items-center justify-between">
                 <span className="flex items-center gap-1">
                   <Calendar className="w-3 h-3" />
                   {note.updatedAt}
@@ -226,7 +226,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
                   title={c.name}
                   style={{ backgroundColor: c.hex }}
                   className={`w-7 h-7 rounded-full border cursor-pointer ${
-                    color === c.hex ? 'ring-2 ring-black' : 'border-gray-300'
+                    color === c.hex ? 'ring-2 ring-black' : 'border-card-pink'
                   }`}
                 />
               ))}
@@ -234,7 +234,7 @@ export const TabNotes: React.FC<TabNotesProps> = ({ trip, notes }) => {
           </div>
 
           {/* Attachment / Image Field */}
-          <div className="pt-1 border-t border-gray-100">
+          <div className="pt-1 border-t border-card-pink">
             <ImagePickerField
               value={imageUrl}
               onChange={setImageUrl}

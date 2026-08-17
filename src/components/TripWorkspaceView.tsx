@@ -300,7 +300,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
           <button
             onClick={() => toggleTripFavorite(trip.id)}
             title="Sukai Trip Ini"
-            className="p-1.5 md:p-2.5 rounded-full bg-white hover:bg-soft-pink text-primary-pink shadow-sm transition-colors"
+            className="p-1.5 md:p-2.5 rounded-full bg-card-pink hover:bg-soft-pink text-primary-pink shadow-sm transition-colors"
           >
             <Heart className={`w-3 h-3 md:w-4 md:h-4 ${trip.isFavorite ? 'fill-primary-pink' : ''}`} />
           </button>
@@ -318,7 +318,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
               {hasEditAccess && (
                 <button
                   onClick={() => setIsShareModalOpen(true)}
-                  className="bg-white hover:bg-soft-pink text-primary-pink px-2.5 py-1 md:px-4 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1 md:gap-1.5 transition-all shadow-sm"
+                  className="bg-card-pink hover:bg-soft-pink text-primary-pink px-2.5 py-1 md:px-4 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1 md:gap-1.5 transition-all shadow-sm"
                 >
                   <UserPlus className="w-3 h-3 md:w-4 md:h-4" />
                   <span>Kolaborasi</span>
@@ -332,7 +332,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
 
               <button
                 onClick={handleDuplicate}
-                className="shrink-0 bg-white hover:bg-soft-pink text-primary-pink px-2.5 py-1 md:px-4 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1 md:gap-1.5 transition-all shadow-sm"
+                className="shrink-0 bg-card-pink hover:bg-soft-pink text-primary-pink px-2.5 py-1 md:px-4 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center gap-1 md:gap-1.5 transition-all shadow-sm"
               >
                 <Copy className="w-3 h-3 md:w-4 md:h-4" />
                 <span>Duplikat</span>
@@ -349,7 +349,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
               {isOwner && (
                 <button
                   onClick={() => setIsDeleteModalOpen(true)}
-                  className="shrink-0 bg-white hover:bg-red-50 text-red-500 p-1.5 md:px-4 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center justify-center gap-1 md:gap-1.5 transition-all shadow-sm"
+                  className="shrink-0 bg-card-pink hover:bg-red-50 text-red-500 p-1.5 md:px-4 md:py-2.5 rounded-full font-bold text-[10px] md:text-xs flex items-center justify-center gap-1 md:gap-1.5 transition-all shadow-sm"
                 >
                   <Trash2 className="w-3 h-3 md:w-4 md:h-4" />
                   <span className="hidden sm:inline">Hapus</span>
@@ -384,14 +384,14 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                 <Lock className="w-3 h-3" /> Hanya Bisa Dikopi
               </span>
             )}
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-white/20 text-white text-[10px] font-bold backdrop-blur-sm">
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-card-pink/20 text-white text-[10px] font-bold backdrop-blur-sm">
               {getTripStatusLabel(getTripTimeStatus(trip))}
             </span>
           </div>
           <h1 className="text-base md:text-lg md:text-4xl font-black tracking-tight flex items-center gap-3">
             {trip.name}
             {hasEditAccess && (
-              <button onClick={openEditTripModal} aria-label="Edit detail trip" className="text-white hover:text-primary-pink transition-colors bg-white/20 hover:bg-white p-2 rounded-full backdrop-blur-sm shadow-sm" title="Edit Trip Details">
+              <button onClick={openEditTripModal} aria-label="Edit detail trip" className="text-white hover:text-primary-pink transition-colors bg-card-pink/20 hover:bg-card-pink p-2 rounded-full backdrop-blur-sm shadow-sm" title="Edit Trip Details">
                 <Edit3 className="w-5 h-5" />
               </button>
             )}
@@ -416,7 +416,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       </div>
 
       {/* Horizontal Workspace Nav Tabs */}
-      <div className="bg-white rounded-full border border-card-pink p-1.5 shadow-sm overflow-x-auto no-scrollbar">
+      <div className="bg-card-pink rounded-full border border-card-pink p-1.5 shadow-sm overflow-x-auto no-scrollbar">
         <div className="flex items-center gap-1 w-full min-w-max">
           {tabs.map((tab) => {
             const isActive = activeTab === tab;
@@ -538,21 +538,21 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       {/* Share / Collaboration Modal */}
       {isShareModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-md w-full shadow-2xl border border-gray-100 space-y-5 animate-scale-up">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+          <div className="bg-card-pink rounded-3xl p-3 md:p-6 max-w-md w-full shadow-2xl border border-card-pink space-y-5 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-card-pink pb-3">
               <div className="flex items-center gap-2">
                 <UserPlus className="w-5 h-5 text-primary-pink" />
                 <h3 className="font-extrabold text-sm md:text-base text-dark">Bagikan Trip ke Akun Lain</h3>
               </div>
               <button
                 onClick={() => setIsShareModalOpen(false)}
-                className="p-1.5 text-gray-400 hover:text-gray-600 rounded-lg"
+                className="p-1.5 text-gray-custom/70 hover:text-gray-custom rounded-lg"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <p className="text-xs text-gray-500 font-medium">
+            <p className="text-xs text-gray-custom font-medium">
               Masukkan alamat email akun lain dalam project ini agar mereka dapat melihat dan mengedit trip <span className="font-bold text-dark">"{trip.name}"</span> secara real-time.
             </p>
 
@@ -564,7 +564,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                   onChange={(e) => setCollaboratorEmail(e.target.value)}
                   placeholder="email.teman@gmail.com"
                   required
-                  className="flex-1 px-3 md:px-4 py-2.5 rounded-xl border border-gray-200 text-xs font-semibold focus:outline-none focus:border-primary-pink bg-soft-pink"
+                  className="flex-1 px-3 md:px-4 py-2.5 rounded-xl border border-card-pink text-xs font-semibold focus:outline-none focus:border-primary-pink bg-soft-pink"
                 />
                 <button
                   type="submit"
@@ -582,11 +582,11 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                 Kolaborator Terdaftar ({trip.collaborators?.length || 0})
               </h4>
               {!trip.collaborators || trip.collaborators.length === 0 ? (
-                <p className="text-xs text-gray-400 italic">Belum ada kolaborator yang diundang.</p>
+                <p className="text-xs text-gray-custom/70 italic">Belum ada kolaborator yang diundang.</p>
               ) : (
                 <div className="space-y-1.5 max-h-32 overflow-y-auto">
                   {trip.collaborators.map((cEmail) => (
-                    <div key={cEmail} className="flex items-center justify-between bg-gray-50 p-2.5 rounded-xl text-xs font-medium">
+                    <div key={cEmail} className="flex items-center justify-between bg-surface-muted p-2.5 rounded-xl text-xs font-medium">
                       <span className="text-dark truncate">{cEmail}</span>
                       <button
                         onClick={() => handleRemoveCollab(cEmail)}
@@ -601,20 +601,20 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
             </div>
 
             {/* Toggle Template Public */}
-            <div className="border-t border-gray-100 pt-3 flex items-center justify-between">
+            <div className="border-t border-card-pink pt-3 flex items-center justify-between">
               <div>
                 <p className="text-xs font-bold text-dark">Jadikan Template Publik</p>
-                <p className="text-[10px] text-gray-400">Izinkan user lain mengkopi seluruh agenda trip ini</p>
+                <p className="text-[10px] text-gray-custom/70">Izinkan user lain mengkopi seluruh agenda trip ini</p>
               </div>
               <button
                 type="button"
                 onClick={handleToggleTemplate}
                 className={`w-11 h-6 rounded-full transition-colors relative ${
-                  trip.isTemplate ? 'bg-primary-pink' : 'bg-gray-300'
+                  trip.isTemplate ? 'bg-primary-pink' : 'bg-surface-muted'
                 }`}
               >
                 <span
-                  className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-transform ${
+                  className={`w-4 h-4 rounded-full bg-card-pink absolute top-1 transition-transform ${
                     trip.isTemplate ? 'left-6' : 'left-1'
                   }`}
                 />
@@ -628,14 +628,14 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       {/* Edit Trip Modal */}
       {isEditTripModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+          <div className="bg-card-pink rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-card-pink space-y-4 animate-scale-up">
+            <div className="flex items-center justify-between border-b border-card-pink pb-3 mb-4">
               <h3 className="font-extrabold text-sm text-dark">
                 Edit Detail Trip
               </h3>
               <button 
                 onClick={() => setIsEditTripModalOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-muted text-gray-custom transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -649,7 +649,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                   required
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full bg-offwhite border border-card-pink rounded-xl px-3 md:px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  className="w-full bg-surface-muted border border-card-pink rounded-xl px-3 md:px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                 />
               </div>
               <div>
@@ -659,7 +659,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                   required
                   value={editDest}
                   onChange={(e) => setEditDest(e.target.value)}
-                  className="w-full bg-offwhite border border-card-pink rounded-xl px-3 md:px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  className="w-full bg-surface-muted border border-card-pink rounded-xl px-3 md:px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -670,7 +670,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                     required
                     value={editStart}
                     onChange={(e) => setEditStart(e.target.value)}
-                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                    className="w-full bg-surface-muted border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                   />
                 </div>
                 <div>
@@ -681,7 +681,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                     value={editEnd}
                     onChange={(e) => setEditEnd(e.target.value)}
                     min={editStart}
-                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                    className="w-full bg-surface-muted border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                   />
                 </div>
               </div>
@@ -694,7 +694,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                     min={1}
                     value={editTravelers}
                     onChange={(e) => setEditTravelers(parseInt(e.target.value))}
-                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                    className="w-full bg-surface-muted border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                   />
                 </div>
                 <div>
@@ -705,12 +705,12 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                     min={0}
                     value={editBudget}
                     onChange={(e) => setEditBudget(parseInt(e.target.value))}
-                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                    className="w-full bg-surface-muted border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                   />
                 </div>
               </div>
 
-              <div className="pt-2 border-t border-gray-100">
+              <div className="pt-2 border-t border-card-pink">
                 <label className="block text-xs font-bold text-gray-custom mb-2 mt-2">Foto Cover Trip</label>
                 <div className="flex flex-col gap-2">
                   <div className="flex gap-2 w-full">
@@ -719,7 +719,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                       value={newCoverUrl}
                       onChange={(e) => setNewCoverUrl(e.target.value)}
                       placeholder="Paste Image URL here..."
-                      className="flex-1 bg-offwhite border border-card-pink rounded-xl px-3 py-2 text-xs font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                      className="flex-1 bg-surface-muted border border-card-pink rounded-xl px-3 py-2 text-xs font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                     />
                     <button 
                       type="button"
@@ -731,9 +731,9 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                   </div>
                   
                   <div className="flex items-center gap-2 md:gap-4 my-1">
-                    <div className="flex-1 h-px bg-gray-200"></div>
-                    <span className="text-gray-400 text-[10px] font-bold uppercase tracking-wider">ATAU</span>
-                    <div className="flex-1 h-px bg-gray-200"></div>
+                    <div className="flex-1 h-px bg-surface-muted"></div>
+                    <span className="text-gray-custom/70 text-[10px] font-bold uppercase tracking-wider">ATAU</span>
+                    <div className="flex-1 h-px bg-surface-muted"></div>
                   </div>
 
                   <div className="flex gap-2 w-full">
@@ -748,7 +748,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                       type="button"
                       onClick={() => fileInputRef.current?.click()}
                       disabled={isUploading}
-                      className="w-full bg-white border border-gray-200 text-dark px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-gray-50 disabled:opacity-70 transition-colors shadow-sm"
+                      className="w-full bg-card-pink border border-card-pink text-dark px-3 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 hover:bg-surface-muted disabled:opacity-70 transition-colors shadow-sm"
                     >
                       <Upload className="w-3.5 h-3.5" />
                       {isUploading ? 'Mengunggah...' : 'Upload dari Perangkat (Maks 5MB)'}
@@ -774,14 +774,14 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       {/* Import Template Modal */}
       {isImportModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-gray-100 animate-scale-up">
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3 mb-4">
+          <div className="bg-card-pink rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-card-pink animate-scale-up">
+            <div className="flex items-center justify-between border-b border-card-pink pb-3 mb-4">
               <h3 className="font-extrabold text-sm text-dark">
                 Gunakan Template Ini
               </h3>
               <button 
                 onClick={() => setIsImportModalOpen(false)}
-                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+                className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-surface-muted text-gray-custom transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -795,7 +795,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                   required
                   value={importName}
                   onChange={(e) => setImportName(e.target.value)}
-                  className="w-full bg-offwhite border border-card-pink rounded-xl px-3 md:px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                  className="w-full bg-surface-muted border border-card-pink rounded-xl px-3 md:px-4 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
@@ -806,7 +806,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                     required
                     value={importStartDate}
                     onChange={(e) => handleStartDateChange(e.target.value)}
-                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                    className="w-full bg-surface-muted border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                   />
                 </div>
                 <div>
@@ -817,7 +817,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
                     value={importEndDate}
                     onChange={(e) => setImportEndDate(e.target.value)}
                     min={importStartDate}
-                    className="w-full bg-offwhite border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
+                    className="w-full bg-surface-muted border border-card-pink rounded-xl px-3 py-3 text-sm font-bold text-dark focus:outline-none focus:border-primary-pink transition-colors"
                   />
                 </div>
               </div>
@@ -840,14 +840,14 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
       {/* Delete Confirmation Modal */}
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-gray-100 space-y-4 animate-scale-up">
+          <div className="bg-card-pink rounded-3xl p-3 md:p-6 max-w-sm w-full shadow-2xl border border-card-pink space-y-4 animate-scale-up">
             <div className="w-12 h-12 rounded-2xl bg-red-50 text-red-500 flex items-center justify-center mx-auto">
               <AlertTriangle className="w-6 h-6" />
             </div>
 
             <div className="text-center space-y-2">
               <h3 className="font-extrabold text-sm md:text-base text-dark">Hapus Trip "{trip.name}"?</h3>
-              <p className="text-xs font-semibold text-gray-500 leading-relaxed">
+              <p className="text-xs font-semibold text-gray-custom leading-relaxed">
                 Apakah Anda yakin ingin menghapus trip ini? Seluruh data itinerary, budget, booking, dan catatan akan dihapus secara permanen dari Firestore.
               </p>
             </div>
@@ -855,7 +855,7 @@ export const TripWorkspaceView: React.FC<TripWorkspaceViewProps> = ({
             <div className="flex items-center gap-2 pt-2">
               <button
                 onClick={() => setIsDeleteModalOpen(false)}
-                className="flex-1 py-2.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50"
+                className="flex-1 py-2.5 rounded-xl border border-card-pink text-xs font-bold text-gray-custom hover:bg-surface-muted"
               >
                 Batal
               </button>

@@ -92,7 +92,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
   return (
     <div className="space-y-6">
       {/* Top Budget Header Gauge */}
-      <div className="bg-white p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
+      <div className="bg-card-pink p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 md:gap-4 mb-4">
           <div>
             <span className="text-[10px] md:text-xs font-extrabold text-primary-pink tracking-wider uppercase">Ringkasan Budget</span>
@@ -123,7 +123,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
 
         {/* Spent vs Remaining Stats Cards */}
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-5 pt-4 border-t border-card-pink text-xs">
-          <div className="bg-offwhite p-3 rounded-2xl border border-card-pink">
+          <div className="bg-surface-muted p-3 rounded-2xl border border-card-pink">
             <span className="text-gray-custom font-semibold">Total Estimasi (Termasuk Itinerary)</span>
             <p className="text-sm font-extrabold text-dark">
               {formatCurrency(
@@ -138,7 +138,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
             <p className="text-sm font-extrabold text-primary-pink">{formatCurrency(totalSpent, trip.currency)}</p>
           </div>
 
-          <div className="bg-white p-3 rounded-2xl border border-card-pink">
+          <div className="bg-card-pink p-3 rounded-2xl border border-card-pink">
             <span className="text-gray-custom font-semibold">Sisa Budget</span>
             <p className="text-sm font-extrabold text-dark">{formatCurrency(remaining, trip.currency)}</p>
           </div>
@@ -147,7 +147,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
 
       {/* Category Breakdown */}
       {categoryTotals.length > 0 && (
-        <div className="bg-white p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
+        <div className="bg-card-pink p-3 md:p-6 rounded-3xl border border-card-pink shadow-sm">
           <h3 className="font-extrabold text-sm md:text-base text-dark mb-4 flex items-center gap-2">
             <PieChart className="w-5 h-5 text-primary-pink" />
             Expense Breakdown by Category
@@ -157,7 +157,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
             {categoryTotals.map((cat) => {
               const catPercent = Math.min(100, Math.round((cat.actual / (totalSpent || 1)) * 100));
               return (
-                <div key={cat.category} className="p-3.5 rounded-2xl border border-card-pink bg-offwhite">
+                <div key={cat.category} className="p-3.5 rounded-2xl border border-card-pink bg-surface-muted">
                   <div className="flex justify-between text-xs font-bold text-dark mb-1.5">
                     <span>{cat.category}</span>
                     <span>{formatCurrency(cat.actual, trip.currency)}</span>
@@ -173,21 +173,21 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
       )}
 
       {/* Expenses Table / List */}
-      <div className="bg-white rounded-3xl border border-card-pink overflow-hidden shadow-sm">
+      <div className="bg-card-pink rounded-3xl border border-card-pink overflow-hidden shadow-sm">
         <div className="p-3 md:p-5 border-b border-card-pink flex items-center justify-between">
           <h3 className="font-extrabold text-sm md:text-base text-dark">Item Pengeluaran</h3>
           <span className="text-xs text-gray-custom font-semibold">{expenses.length} Transaksi</span>
         </div>
 
         {expenses.length === 0 ? (
-          <div className="p-2 md:p-4 md:p-8 text-center text-gray-400">
-            <Wallet className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+          <div className="p-2 md:p-4 md:p-8 text-center text-gray-custom/70">
+            <Wallet className="w-10 h-10 mx-auto mb-2 text-gray-custom" />
             <p className="text-sm font-medium">Belum ada item pengeluaran tercatat.</p>
           </div>
         ) : (
           <div className="divide-y divide-gray-100 text-xs">
             {expenses.map((exp) => (
-              <div key={exp.id} className="p-2 md:p-4 hover:bg-offwhite flex items-center justify-between gap-2 md:gap-4 transition-colors">
+              <div key={exp.id} className="p-2 md:p-4 hover:bg-surface-muted flex items-center justify-between gap-2 md:gap-4 transition-colors">
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="font-bold text-sm text-dark">{exp.title}</span>
@@ -239,7 +239,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
       {/* Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-2 md:p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
+          <div className="bg-card-pink rounded-2xl max-w-md w-full p-3 md:p-6 shadow-2xl border border-card-pink">
             <h3 className="font-bold text-sm md:text-base text-dark mb-4">
               {editingExpense ? 'Edit Expense' : 'Add Expense'}
             </h3>
@@ -316,7 +316,7 @@ export const TabBudget: React.FC<TabBudgetProps> = ({ trip, expenses, itineraryI
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-3 md:px-4 py-2 rounded-xl border border-gray-300 font-bold text-gray-600"
+                  className="px-3 md:px-4 py-2 rounded-xl border border-card-pink font-bold text-gray-custom"
                 >
                   Cancel
                 </button>

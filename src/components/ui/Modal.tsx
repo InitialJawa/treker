@@ -54,7 +54,7 @@ export const Modal: React.FC<ModalProps> = ({
             onClick={onClose}
           />
           <motion.div
-            className={`relative bg-white rounded-2xl shadow-2xl border border-card-pink w-full ${sizeClass[size]} ${className || ''}`}
+            className={`relative bg-card-pink rounded-2xl shadow-2xl border border-card-pink w-full ${sizeClass[size]} ${className || ''}`}
             initial={{ opacity: 0, scale: 0.95, y: 12 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 12 }}

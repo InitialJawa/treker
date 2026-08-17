@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { 
   Calendar, DollarSign, Users, Clock, MapPin, ArrowRight, 
   ShieldCheck, AlertCircle, Plus, Camera, Compass, Sun, 
@@ -426,7 +426,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
   return (
     <div className="space-y-6">
       {/* 🌟 Top Section: Customizable Instagram Travel Gallery Showcase */}
-      <div className="bg-white rounded-3xl p-4 md:p-6 border border-card-pink shadow-xs space-y-4">
+      <div className="bg-card-pink rounded-3xl p-4 md:p-6 border border-card-pink shadow-xs space-y-4">
         <div className="flex items-center justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -457,7 +457,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                 {/* Hero Main Cover Photo (Index 0) */}
                 <div 
                   onClick={() => setLightboxImage(displayedPhotos[0].url)}
-                  className="md:col-span-7 relative group rounded-3xl overflow-hidden cursor-pointer border border-gray-100 shadow-sm h-64 md:h-[320px]"
+                  className="md:col-span-7 relative group rounded-3xl overflow-hidden cursor-pointer border border-card-pink shadow-sm h-64 md:h-[320px]"
                 >
                   <img
                     src={displayedPhotos[0].url}
@@ -477,7 +477,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                     <div
                       key={photo.id || idx}
                       onClick={() => setLightboxImage(photo.url)}
-                      className="relative group rounded-2xl overflow-hidden cursor-pointer border border-gray-100 shadow-2xs h-full min-h-[120px]"
+                      className="relative group rounded-2xl overflow-hidden cursor-pointer border border-card-pink shadow-2xs h-full min-h-[120px]"
                     >
                       <img
                         src={photo.url}
@@ -500,7 +500,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                     <div 
                       key={`fill-${i}`}
                       onClick={() => setIsCustomizeModalOpen(true)}
-                      className="rounded-2xl border-2 border-dashed border-card-pink bg-offwhite hover:bg-soft-pink/40 flex flex-col items-center justify-center p-3 cursor-pointer text-center text-gray-400 hover:text-primary-pink transition-all"
+                      className="rounded-2xl border-2 border-dashed border-card-pink bg-surface-muted hover:bg-soft-pink/40 flex flex-col items-center justify-center p-3 cursor-pointer text-center text-gray-custom/70 hover:text-primary-pink transition-all"
                     >
                       <Plus className="w-5 h-5 mb-1" />
                       <span className="text-[11px] font-bold">+ Tambah Slot</span>
@@ -517,7 +517,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                   <div
                     key={photo.id || idx}
                     onClick={() => setLightboxImage(photo.url)}
-                    className="relative group rounded-2xl overflow-hidden cursor-pointer border border-gray-100 shadow-2xs h-40 md:h-48"
+                    className="relative group rounded-2xl overflow-hidden cursor-pointer border border-card-pink shadow-2xs h-40 md:h-48"
                   >
                     <img
                       src={photo.url}
@@ -542,7 +542,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
               <div className="space-y-3 pt-1">
                 <div 
                   onClick={() => setLightboxImage(displayedPhotos[0].url)}
-                  className="relative group rounded-3xl overflow-hidden cursor-pointer border border-gray-100 shadow-sm h-56 md:h-72 w-full"
+                  className="relative group rounded-3xl overflow-hidden cursor-pointer border border-card-pink shadow-sm h-56 md:h-72 w-full"
                 >
                   <img
                     src={displayedPhotos[0].url}
@@ -560,7 +560,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                       <div
                         key={photo.id || idx}
                         onClick={() => setLightboxImage(photo.url)}
-                        className="relative group rounded-2xl overflow-hidden cursor-pointer border border-gray-100 shadow-2xs h-28 md:h-36"
+                        className="relative group rounded-2xl overflow-hidden cursor-pointer border border-card-pink shadow-2xs h-28 md:h-36"
                       >
                         <img src={photo.url} alt={photo.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity p-2 flex items-end">
@@ -576,7 +576,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         ) : (
           <div 
             onClick={() => setIsCustomizeModalOpen(true)}
-            className="p-6 md:p-8 rounded-2xl border-2 border-dashed border-card-pink bg-offwhite hover:bg-soft-pink/40 cursor-pointer transition-all text-center group"
+            className="p-6 md:p-8 rounded-2xl border-2 border-dashed border-card-pink bg-surface-muted hover:bg-soft-pink/40 cursor-pointer transition-all text-center group"
           >
             <div className="w-12 h-12 rounded-full bg-soft-pink text-primary-pink flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
               <Camera className="w-6 h-6" />
@@ -595,7 +595,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
       {/* 4 Core Quick Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-4">
         {/* Stat 1: Duration */}
-        <div className="bg-white p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
+        <div className="bg-card-pink p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
           <div>
             <span className="text-[11px] font-bold text-gray-custom uppercase tracking-wider">Durasi Perjalanan</span>
             <h3 className="text-lg md:text-xl font-black text-dark mt-0.5">{duration} Hari</h3>
@@ -610,7 +610,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         </div>
 
         {/* Stat 2: Budget */}
-        <div className="bg-white p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex flex-col justify-between hover:border-primary-pink/50 transition-all">
+        <div className="bg-card-pink p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex flex-col justify-between hover:border-primary-pink/50 transition-all">
           <div className="flex items-center justify-between">
             <div>
               <span className="text-[11px] font-bold text-gray-custom uppercase tracking-wider">Pengeluaran Trip</span>
@@ -621,7 +621,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
               <span className="text-base font-black">{getCurrencySymbol(trip.currency)}</span>
             </div>
           </div>
-          <div className="w-full bg-gray-100 h-1.5 rounded-full overflow-hidden mt-3">
+          <div className="w-full bg-surface-muted h-1.5 rounded-full overflow-hidden mt-3">
             <div 
               className="bg-primary-pink h-full rounded-full transition-all duration-500" 
               style={{ width: `${budgetSummary.spentPercentage}%` }} 
@@ -630,7 +630,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         </div>
 
         {/* Stat 3: Bookings */}
-        <div className="bg-white p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
+        <div className="bg-card-pink p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
           <div>
             <span className="text-[11px] font-bold text-gray-custom uppercase tracking-wider">Status Reservasi</span>
             <h3 className="text-lg md:text-xl font-black text-dark mt-0.5">{confirmedBookingsCount} Terkonfirmasi</h3>
@@ -642,7 +642,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         </div>
 
         {/* Stat 4: Travelers */}
-        <div className="bg-white p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
+        <div className="bg-card-pink p-4 md:p-5 rounded-2xl border border-card-pink shadow-xs flex items-center justify-between hover:border-primary-pink/50 transition-all">
           <div>
             <span className="text-[11px] font-bold text-gray-custom uppercase tracking-wider">Peserta Trip</span>
             <h3 className="text-lg md:text-xl font-black text-dark mt-0.5">{trip.travelersCount} Orang</h3>
@@ -655,7 +655,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
       </div>
 
       {/* Preparation Progress Bar Widget */}
-      <div className="bg-white p-4 md:p-6 rounded-3xl border border-card-pink shadow-xs">
+      <div className="bg-card-pink p-4 md:p-6 rounded-3xl border border-card-pink shadow-xs">
         <div className="flex items-center justify-between mb-3">
           <div>
             <h3 className="font-extrabold text-sm md:text-base text-dark">Trip Preparation Checklist</h3>
@@ -678,37 +678,37 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         {/* Task Pills Checklist */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mt-4 pt-4 border-t border-card-pink text-xs">
           <div className="flex items-center gap-2">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${items.length > 0 ? 'bg-primary-pink text-white' : 'bg-gray-200 text-gray-500'}`}>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${items.length > 0 ? 'bg-primary-pink text-white' : 'bg-surface-muted text-gray-custom'}`}>
               ✓
             </div>
-            <span className={items.length > 0 ? 'font-bold text-dark' : 'text-gray-400 font-medium'}>
+            <span className={items.length > 0 ? 'font-bold text-dark' : 'text-gray-custom/70 font-medium'}>
               Itinerary ({items.length} Agenda)
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${confirmedBookingsCount > 0 ? 'bg-primary-pink text-white' : 'bg-gray-200 text-gray-500'}`}>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${confirmedBookingsCount > 0 ? 'bg-primary-pink text-white' : 'bg-surface-muted text-gray-custom'}`}>
               ✓
             </div>
-            <span className={confirmedBookingsCount > 0 ? 'font-bold text-dark' : 'text-gray-400 font-medium'}>
+            <span className={confirmedBookingsCount > 0 ? 'font-bold text-dark' : 'text-gray-custom/70 font-medium'}>
               Hotel/Tiket ({confirmedBookingsCount} Booked)
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${expenses.length > 0 ? 'bg-primary-pink text-white' : 'bg-gray-200 text-gray-500'}`}>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${expenses.length > 0 ? 'bg-primary-pink text-white' : 'bg-surface-muted text-gray-custom'}`}>
               ✓
             </div>
-            <span className={expenses.length > 0 ? 'font-bold text-dark' : 'text-gray-400 font-medium'}>
+            <span className={expenses.length > 0 ? 'font-bold text-dark' : 'text-gray-custom/70 font-medium'}>
               Budget ({expenses.length} Trax)
             </span>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${packingRatio >= 0.7 ? 'bg-primary-pink text-white' : 'bg-gray-200 text-gray-500'}`}>
+            <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${packingRatio >= 0.7 ? 'bg-primary-pink text-white' : 'bg-surface-muted text-gray-custom'}`}>
               ✓
             </div>
-            <span className={packingRatio >= 0.7 ? 'font-bold text-dark' : 'text-gray-400 font-medium'}>
+            <span className={packingRatio >= 0.7 ? 'font-bold text-dark' : 'text-gray-custom/70 font-medium'}>
               Bagasi ({packedCount}/{packing.length})
             </span>
           </div>
@@ -718,7 +718,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
       {/* Grid: Upcoming Schedule & Visual Quick Actions */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
         {/* Left 2 Cols: Upcoming Activities Schedule */}
-        <div className="lg:col-span-2 bg-white p-4 md:p-6 rounded-3xl border border-card-pink shadow-xs">
+        <div className="lg:col-span-2 bg-card-pink p-4 md:p-6 rounded-3xl border border-card-pink shadow-xs">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <div className="w-8 h-8 rounded-xl bg-soft-pink text-primary-pink flex items-center justify-center">
@@ -738,8 +738,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
           </div>
 
           {upcomingActivities.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <Calendar className="w-10 h-10 mx-auto mb-2 text-gray-300" />
+            <div className="text-center py-8 text-gray-custom/70">
+              <Calendar className="w-10 h-10 mx-auto mb-2 text-gray-custom" />
               <p className="text-sm font-medium">Belum ada aktivitas di itinerary.</p>
               <button
                 onClick={() => onNavigateTab('Itinerary')}
@@ -755,14 +755,14 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                 return (
                   <div 
                     key={act.id} 
-                    className="p-3 md:p-4 rounded-3xl border border-card-pink hover:border-primary-pink bg-offwhite hover:bg-soft-pink/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    className="p-3 md:p-4 rounded-3xl border border-card-pink hover:border-primary-pink bg-surface-muted hover:bg-soft-pink/40 transition-all flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
                     <div className="flex items-center gap-3">
                       {/* Photo Thumbnail or Category Avatar */}
                       {act.imageUrl ? (
                         <div 
                           onClick={() => setLightboxImage(act.imageUrl!)}
-                          className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 cursor-pointer border border-gray-200 group relative"
+                          className="w-16 h-16 rounded-2xl overflow-hidden shrink-0 cursor-pointer border border-card-pink group relative"
                         >
                           <img src={act.imageUrl} alt={act.title} className="w-full h-full object-cover group-hover:scale-110 transition-transform" />
                           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white">
@@ -770,7 +770,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                           </div>
                         </div>
                       ) : (
-                        <div className="w-12 h-12 rounded-2xl bg-white border border-card-pink flex items-center justify-center shrink-0 shadow-2xs">
+                        <div className="w-12 h-12 rounded-2xl bg-card-pink border border-card-pink flex items-center justify-center shrink-0 shadow-2xs">
                           {getCategoryIcon(act.category)}
                         </div>
                       )}
@@ -794,7 +794,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                       </div>
                     </div>
 
-                    <div className="flex sm:flex-col items-center sm:items-end justify-between pt-2 sm:pt-0 border-t sm:border-t-0 border-gray-100 shrink-0">
+                    <div className="flex sm:flex-col items-center sm:items-end justify-between pt-2 sm:pt-0 border-t sm:border-t-0 border-card-pink shrink-0">
                       <span className="text-xs font-black text-dark">
                         {formatCurrency(act.estimatedCost, trip.currency)}
                       </span>
@@ -813,7 +813,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
         </div>
 
         {/* Right Col: Quick Action Visual Cards */}
-        <div className="bg-white p-4 md:p-6 rounded-3xl border border-card-pink shadow-xs flex flex-col justify-between space-y-4">
+        <div className="bg-card-pink p-4 md:p-6 rounded-3xl border border-card-pink shadow-xs flex flex-col justify-between space-y-4">
           <div>
             <div className="flex items-center gap-2 mb-3">
               <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center">
@@ -903,9 +903,9 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
       {/* ⚙️ Customize Photo Gallery Manager Modal */}
       {isCustomizeModalOpen && (
         <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-3 md:p-5 animate-fade-in">
-          <div className="bg-white rounded-3xl max-w-2xl w-full p-5 md:p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
+          <div className="bg-card-pink rounded-3xl max-w-2xl w-full p-5 md:p-6 space-y-5 shadow-2xl max-h-[90vh] overflow-y-auto">
             {/* Modal Header */}
-            <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+            <div className="flex items-center justify-between border-b border-card-pink pb-3">
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-xl bg-primary-pink text-white flex items-center justify-center">
                   <Settings className="w-4 h-4" />
@@ -918,18 +918,18 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
               <button
                 onClick={() => setIsCustomizeModalOpen(false)}
                 aria-label="Tutup"
-                className="p-2 rounded-full hover:bg-gray-100 text-gray-500 transition-colors"
+                className="p-2 rounded-full hover:bg-surface-muted text-gray-custom transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {/* Modal Navigation Tabs */}
-            <div className="flex rounded-2xl bg-offwhite p-1 gap-1 border border-card-pink text-[11px] md:text-xs font-extrabold overflow-x-auto">
+            <div className="flex rounded-2xl bg-surface-muted p-1 gap-1 border border-card-pink text-[11px] md:text-xs font-extrabold overflow-x-auto">
               <button
                 onClick={() => setActiveCustomizeTab('select')}
                 className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
-                  activeCustomizeTab === 'select' ? 'bg-white text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
+                  activeCustomizeTab === 'select' ? 'bg-card-pink text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
                 }`}
               >
                 <ImageIcon className="w-3.5 h-3.5" />
@@ -939,7 +939,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
               <button
                 onClick={() => setActiveCustomizeTab('import')}
                 className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
-                  activeCustomizeTab === 'import' ? 'bg-white text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
+                  activeCustomizeTab === 'import' ? 'bg-card-pink text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
                 }`}
               >
                 <FolderPlus className="w-3.5 h-3.5" />
@@ -949,7 +949,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
               <button
                 onClick={() => setActiveCustomizeTab('add')}
                 className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
-                  activeCustomizeTab === 'add' ? 'bg-white text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
+                  activeCustomizeTab === 'add' ? 'bg-card-pink text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
                 }`}
               >
                 <Plus className="w-3.5 h-3.5" />
@@ -959,7 +959,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
               <button
                 onClick={() => setActiveCustomizeTab('layout')}
                 className={`flex-1 py-2 px-2.5 rounded-xl transition-all flex items-center justify-center gap-1.5 whitespace-nowrap ${
-                  activeCustomizeTab === 'layout' ? 'bg-white text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
+                  activeCustomizeTab === 'layout' ? 'bg-card-pink text-primary-pink shadow-xs' : 'text-gray-custom hover:text-dark'
                 }`}
               >
                 <Layout className="w-3.5 h-3.5" />
@@ -982,10 +982,10 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                 </div>
 
                 {orderedHighlightPhotos.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl p-4">
-                    <Camera className="w-8 h-8 mx-auto mb-2 text-gray-300" />
-                    <p className="text-xs font-bold text-gray-600">Belum ada foto yang dipasang di Galeri Overview.</p>
-                    <p className="text-[11px] text-gray-400 mt-0.5">Gunakan tab <b>Import dari Project</b> atau <b>+ Upload Baru</b> untuk menambah foto.</p>
+                  <div className="text-center py-8 text-gray-custom/70 border-2 border-dashed border-card-pink rounded-2xl p-4">
+                    <Camera className="w-8 h-8 mx-auto mb-2 text-gray-custom" />
+                    <p className="text-xs font-bold text-gray-custom">Belum ada foto yang dipasang di Galeri Overview.</p>
+                    <p className="text-[11px] text-gray-custom/70 mt-0.5">Gunakan tab <b>Import dari Project</b> atau <b>+ Upload Baru</b> untuk menambah foto.</p>
                   </div>
                 ) : (
                   <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
@@ -995,17 +995,17 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                         className={`p-2.5 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
                           index === 0
                             ? 'border-primary-pink bg-rose-50/40 shadow-xs'
-                            : 'border-gray-200 bg-white hover:border-gray-300'
+                            : 'border-card-pink bg-card-pink hover:border-card-pink'
                         }`}
                       >
                         <div className="flex items-center gap-3">
                           <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-black shrink-0 ${
-                            index === 0 ? 'bg-primary-pink text-white' : 'bg-gray-100 text-gray-600'
+                            index === 0 ? 'bg-primary-pink text-white' : 'bg-surface-muted text-gray-custom'
                           }`}>
                             {index + 1}
                           </span>
 
-                          <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-gray-200 bg-gray-100">
+                          <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-card-pink bg-surface-muted">
                             <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
                           </div>
 
@@ -1016,7 +1016,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                                   ⭐ COVER UTAMA
                                 </span>
                               )}
-                              <span className="text-[10px] font-extrabold text-gray-500 uppercase">
+                              <span className="text-[10px] font-extrabold text-gray-custom uppercase">
                                 {photo.category}
                               </span>
                             </div>
@@ -1042,7 +1042,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                           <button
                             disabled={index === 0}
                             onClick={() => handleMovePhoto(index, 'up')}
-                            className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-30"
+                            className="p-1.5 rounded-lg border border-card-pink text-gray-custom hover:bg-surface-muted disabled:opacity-30"
                             title="Naikkan Urutan"
                           >
                             <ArrowUp className="w-3.5 h-3.5" />
@@ -1051,7 +1051,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                           <button
                             disabled={index === orderedHighlightPhotos.length - 1}
                             onClick={() => handleMovePhoto(index, 'down')}
-                            className="p-1.5 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-100 disabled:opacity-30"
+                            className="p-1.5 rounded-lg border border-card-pink text-gray-custom hover:bg-surface-muted disabled:opacity-30"
                             title="Turunkan Urutan"
                           >
                             <ArrowDown className="w-3.5 h-3.5" />
@@ -1090,7 +1090,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                     className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
                       importSourceFilter === 'all'
                         ? 'bg-primary-pink text-white shadow-2xs'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
                     }`}
                   >
                     Semua ({availablePhotos.length})
@@ -1102,7 +1102,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                     className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
                       importSourceFilter === 'place'
                         ? 'bg-primary-pink text-white shadow-2xs'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
                     }`}
                   >
                     Places ({availablePhotos.filter(p => p.sourceType === 'place').length})
@@ -1114,7 +1114,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                     className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
                       importSourceFilter === 'itinerary'
                         ? 'bg-primary-pink text-white shadow-2xs'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
                     }`}
                   >
                     Itinerary ({availablePhotos.filter(p => p.sourceType === 'itinerary').length})
@@ -1126,7 +1126,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                     className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
                       importSourceFilter === 'moodboard'
                         ? 'bg-primary-pink text-white shadow-2xs'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
                     }`}
                   >
                     Moodboard ({availablePhotos.filter(p => p.sourceType === 'moodboard').length})
@@ -1138,7 +1138,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                     className={`px-3 py-1.5 rounded-xl font-bold whitespace-nowrap transition-all ${
                       importSourceFilter === 'booking'
                         ? 'bg-primary-pink text-white shadow-2xs'
-                        : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-surface-muted text-gray-custom hover:bg-surface-muted'
                     }`}
                   >
                     Voucher ({availablePhotos.filter(p => p.sourceType === 'booking' || p.sourceType === 'note').length})
@@ -1147,8 +1147,8 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
 
                 {/* Photos Grid */}
                 {availablePhotos.length === 0 ? (
-                  <div className="text-center py-8 text-gray-400 border-2 border-dashed border-gray-200 rounded-2xl p-4">
-                    <Camera className="w-8 h-8 mx-auto mb-2 text-gray-300" />
+                  <div className="text-center py-8 text-gray-custom/70 border-2 border-dashed border-card-pink rounded-2xl p-4">
+                    <Camera className="w-8 h-8 mx-auto mb-2 text-gray-custom" />
                     <p className="text-xs font-semibold">Belum ada foto tersimpan di Places / Itinerary project ini.</p>
                   </div>
                 ) : (
@@ -1165,11 +1165,11 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                           <div
                             key={photo.id}
                             className={`p-2 rounded-2xl border transition-all flex flex-col justify-between ${
-                              isImported ? 'border-emerald-300 bg-emerald-50/20' : 'border-gray-200 bg-white hover:border-gray-300'
+                              isImported ? 'border-emerald-300 bg-emerald-50/20' : 'border-card-pink bg-card-pink hover:border-card-pink'
                             }`}
                           >
                             <div className="space-y-1.5">
-                              <div className="relative rounded-xl overflow-hidden h-28 bg-gray-100 border border-gray-100">
+                              <div className="relative rounded-xl overflow-hidden h-28 bg-surface-muted border border-card-pink">
                                 <img src={photo.url} alt={photo.title} className="w-full h-full object-cover" />
                                 <span className="absolute top-1.5 left-1.5 text-[9px] font-black bg-black/60 text-white px-2 py-0.5 rounded-md backdrop-blur-xs">
                                   {photo.category}
@@ -1214,7 +1214,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
               <div className="space-y-4">
                 <div className="space-y-2">
                   <label className="block text-xs font-bold text-dark">Pilih / Unggah Gambar dari HP/Laptop</label>
-                  <label className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-gray-300 hover:border-primary-pink cursor-pointer bg-offwhite hover:bg-soft-pink/30 transition-all text-xs font-bold text-gray-600 ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
+                  <label className={`flex flex-col items-center justify-center p-4 rounded-2xl border-2 border-dashed border-card-pink hover:border-primary-pink cursor-pointer bg-surface-muted hover:bg-soft-pink/30 transition-all text-xs font-bold text-gray-custom ${isUploading ? 'opacity-50 pointer-events-none' : ''}`}>
                     <Upload className="w-6 h-6 text-primary-pink mb-1" />
                     <span>{isUploading ? 'Memproses gambar...' : 'Klik untuk Unggah Gambar dari Perangkat'}</span>
                     <input type="file" accept="image/*" onChange={handleFileUpload} className="hidden" />
@@ -1233,7 +1233,7 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                 </div>
 
                 {newPhotoUrl && (
-                  <div className="relative rounded-2xl overflow-hidden border border-gray-200 h-36 bg-gray-100">
+                  <div className="relative rounded-2xl overflow-hidden border border-card-pink h-36 bg-surface-muted">
                     <img src={newPhotoUrl} alt="Preview" className="w-full h-full object-cover" />
                   </div>
                 )}
@@ -1283,18 +1283,18 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                   <div
                     onClick={() => saveLayoutStyle('hero-mosaic')}
                     className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all space-y-2 ${
-                      layoutStyle === 'hero-mosaic' ? 'border-primary-pink bg-rose-50/50 shadow-xs' : 'border-gray-200 hover:border-gray-300 bg-white'
+                      layoutStyle === 'hero-mosaic' ? 'border-primary-pink bg-rose-50/50 shadow-xs' : 'border-card-pink hover:border-card-pink bg-card-pink'
                     }`}
                   >
-                    <div className="h-16 bg-gray-100 rounded-xl grid grid-cols-12 gap-1 p-1">
+                    <div className="h-16 bg-surface-muted rounded-xl grid grid-cols-12 gap-1 p-1">
                       <div className="col-span-7 bg-primary-pink/30 rounded-lg flex items-center justify-center text-[9px] font-black text-primary-pink">
                         HERO
                       </div>
                       <div className="col-span-5 grid grid-cols-2 gap-1">
-                        <div className="bg-gray-300 rounded-md" />
-                        <div className="bg-gray-300 rounded-md" />
-                        <div className="bg-gray-300 rounded-md" />
-                        <div className="bg-gray-300 rounded-md" />
+                        <div className="bg-surface-muted rounded-md" />
+                        <div className="bg-surface-muted rounded-md" />
+                        <div className="bg-surface-muted rounded-md" />
+                        <div className="bg-surface-muted rounded-md" />
                       </div>
                     </div>
                     <div>
@@ -1307,16 +1307,16 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                   <div
                     onClick={() => saveLayoutStyle('equal-grid')}
                     className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all space-y-2 ${
-                      layoutStyle === 'equal-grid' ? 'border-primary-pink bg-rose-50/50 shadow-xs' : 'border-gray-200 hover:border-gray-300 bg-white'
+                      layoutStyle === 'equal-grid' ? 'border-primary-pink bg-rose-50/50 shadow-xs' : 'border-card-pink hover:border-card-pink bg-card-pink'
                     }`}
                   >
-                    <div className="h-16 bg-gray-100 rounded-xl grid grid-cols-3 gap-1 p-1">
+                    <div className="h-16 bg-surface-muted rounded-xl grid grid-cols-3 gap-1 p-1">
                       <div className="bg-primary-pink/30 rounded-md" />
-                      <div className="bg-gray-300 rounded-md" />
-                      <div className="bg-gray-300 rounded-md" />
-                      <div className="bg-gray-300 rounded-md" />
-                      <div className="bg-gray-300 rounded-md" />
-                      <div className="bg-gray-300 rounded-md" />
+                      <div className="bg-surface-muted rounded-md" />
+                      <div className="bg-surface-muted rounded-md" />
+                      <div className="bg-surface-muted rounded-md" />
+                      <div className="bg-surface-muted rounded-md" />
+                      <div className="bg-surface-muted rounded-md" />
                     </div>
                     <div>
                       <h4 className="text-xs font-extrabold text-dark">Equal Uniform Grid</h4>
@@ -1328,18 +1328,18 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
                   <div
                     onClick={() => saveLayoutStyle('banner')}
                     className={`p-3.5 rounded-2xl border-2 cursor-pointer transition-all space-y-2 ${
-                      layoutStyle === 'banner' ? 'border-primary-pink bg-rose-50/50 shadow-xs' : 'border-gray-200 hover:border-gray-300 bg-white'
+                      layoutStyle === 'banner' ? 'border-primary-pink bg-rose-50/50 shadow-xs' : 'border-card-pink hover:border-card-pink bg-card-pink'
                     }`}
                   >
-                    <div className="h-16 bg-gray-100 rounded-xl space-y-1 p-1">
+                    <div className="h-16 bg-surface-muted rounded-xl space-y-1 p-1">
                       <div className="h-9 bg-primary-pink/30 rounded-md flex items-center justify-center text-[9px] font-black text-primary-pink">
                         WIDE BANNER
                       </div>
                       <div className="h-4 grid grid-cols-4 gap-1">
-                        <div className="bg-gray-300 rounded-xs" />
-                        <div className="bg-gray-300 rounded-xs" />
-                        <div className="bg-gray-300 rounded-xs" />
-                        <div className="bg-gray-300 rounded-xs" />
+                        <div className="bg-surface-muted rounded-xs" />
+                        <div className="bg-surface-muted rounded-xs" />
+                        <div className="bg-surface-muted rounded-xs" />
+                        <div className="bg-surface-muted rounded-xs" />
                       </div>
                     </div>
                     <div>
@@ -1351,10 +1351,10 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
               </div>
             )}
 
-            <div className="pt-2 border-t border-gray-100 flex justify-end">
+            <div className="pt-2 border-t border-card-pink flex justify-end">
               <button
                 onClick={() => setIsCustomizeModalOpen(false)}
-                className="px-6 py-2.5 rounded-full bg-dark text-white text-xs font-extrabold hover:bg-gray-800 transition-all shadow-xs"
+                className="px-6 py-2.5 rounded-full bg-primary-pink text-white text-xs font-extrabold hover:bg-gray-800 transition-all shadow-xs"
               >
                 Simpan & Selesai
               </button>
@@ -1384,3 +1384,9 @@ export const TabOverview: React.FC<TabOverviewProps> = ({
     </div>
   );
 };
+
+
+
+
+
+

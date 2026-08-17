@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+﻿import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, User as UserIcon, AlertCircle, CheckCircle2, ArrowRight, Sparkles, Key, Check } from 'lucide-react';
 import { saveCustomSupabaseCredentials, isSupabaseConfigured } from '../services/supabase';
@@ -81,7 +81,7 @@ export const LoginView: React.FC = () => {
       <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-pink-400/20 rounded-full blur-3xl pointer-events-none" />
 
       {/* Main Container Card */}
-      <div className="w-full max-w-md bg-white rounded-3xl border border-[#EAEFF5] shadow-2xl p-6 md:p-8 relative z-10 space-y-5">
+      <div className="w-full max-w-md bg-card-pink rounded-3xl border border-[#EAEFF5] shadow-2xl p-6 md:p-8 relative z-10 space-y-5">
         
         {/* Header Logo & Title */}
         <div className="text-center space-y-2">
@@ -128,7 +128,7 @@ export const LoginView: React.FC = () => {
             type="button"
             onClick={handleGoogleAuth}
             disabled={loading}
-            className="w-full py-3.5 px-4 rounded-2xl bg-white border-2 border-gray-200 hover:border-primary-pink hover:bg-soft-pink/50 text-dark font-extrabold text-xs shadow-xs transition-all flex items-center justify-center gap-3 active:scale-98 group cursor-pointer"
+            className="w-full py-3.5 px-4 rounded-2xl bg-card-pink border-2 border-card-pink hover:border-primary-pink hover:bg-soft-pink/50 text-dark font-extrabold text-xs shadow-xs transition-all flex items-center justify-center gap-3 active:scale-98 group cursor-pointer"
           >
             {/* Official SVG Google Icon */}
             <svg className="w-5 h-5 shrink-0" viewBox="0 0 24 24">
@@ -156,11 +156,11 @@ export const LoginView: React.FC = () => {
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-3">
-            <div className="h-px bg-gray-200 flex-1" />
-            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+            <div className="h-px bg-surface-muted flex-1" />
+            <span className="text-[10px] font-bold text-gray-custom/70 uppercase tracking-wider">
               Atau dengan Email
             </span>
-            <div className="h-px bg-gray-200 flex-1" />
+            <div className="h-px bg-surface-muted flex-1" />
           </div>
 
           {/* SECONDARY ACTION: Email / Password Form */}
@@ -171,13 +171,13 @@ export const LoginView: React.FC = () => {
                   Nama Lengkap
                 </label>
                 <div className="relative">
-                  <UserIcon className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <UserIcon className="w-4 h-4 text-gray-custom/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
                   <input
                     type="text"
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Nama Anda"
-                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-gray-200 bg-soft-pink text-xs font-semibold text-dark focus:outline-none focus:border-primary-pink focus:bg-white transition-all"
+                    className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-card-pink bg-soft-pink text-xs font-semibold text-dark focus:outline-none focus:border-primary-pink focus:bg-card-pink transition-all"
                   />
                 </div>
               </div>
@@ -188,14 +188,14 @@ export const LoginView: React.FC = () => {
                 Alamat Email
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Mail className="w-4 h-4 text-gray-custom/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="nama@email.com"
                   required
-                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-gray-200 bg-soft-pink text-xs font-semibold text-dark focus:outline-none focus:border-primary-pink focus:bg-white transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-card-pink bg-soft-pink text-xs font-semibold text-dark focus:outline-none focus:border-primary-pink focus:bg-card-pink transition-all"
                 />
               </div>
             </div>
@@ -205,7 +205,7 @@ export const LoginView: React.FC = () => {
                 Kata Sandi
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-gray-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-gray-custom/70 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="password"
                   value={password}
@@ -213,7 +213,7 @@ export const LoginView: React.FC = () => {
                   placeholder="••••••••"
                   required
                   minLength={6}
-                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-gray-200 bg-soft-pink text-xs font-semibold text-dark focus:outline-none focus:border-primary-pink focus:bg-white transition-all"
+                  className="w-full pl-10 pr-4 py-2.5 rounded-2xl border border-card-pink bg-soft-pink text-xs font-semibold text-dark focus:outline-none focus:border-primary-pink focus:bg-card-pink transition-all"
                 />
               </div>
             </div>
@@ -245,18 +245,18 @@ export const LoginView: React.FC = () => {
           </div>
 
           {/* Expandable Supabase Keys Settings */}
-          <div className="pt-2 border-t border-gray-100">
+          <div className="pt-2 border-t border-card-pink">
             <button
               type="button"
               onClick={() => setShowConfig(!showConfig)}
-              className="w-full text-[11px] text-gray-400 hover:text-dark font-medium flex items-center justify-center gap-1.5 transition-colors"
+              className="w-full text-[11px] text-gray-custom/70 hover:text-dark font-medium flex items-center justify-center gap-1.5 transition-colors"
             >
               <Key className="w-3 h-3" />
               <span>{showConfig ? 'Tutup Pengaturan Supabase' : '⚙️ Masukkan Kunci Supabase Pribadi (Opsional)'}</span>
             </button>
 
             {showConfig && (
-              <form onSubmit={handleSaveCredentials} className="mt-3 p-3.5 bg-gray-50 rounded-2xl border border-gray-200 space-y-2.5 text-xs animate-fadeIn">
+              <form onSubmit={handleSaveCredentials} className="mt-3 p-3.5 bg-surface-muted rounded-2xl border border-card-pink space-y-2.5 text-xs animate-fadeIn">
                 <div className="text-[11px] font-bold text-dark flex items-center justify-between">
                   <span>Konfigurasi Supabase Project</span>
                   {isSupabaseConfigured && (
@@ -264,30 +264,30 @@ export const LoginView: React.FC = () => {
                   )}
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Project URL</label>
+                  <label className="block text-[10px] font-semibold text-gray-custom mb-0.5">Project URL</label>
                   <input
                     type="url"
                     placeholder="https://xxxx.supabase.co"
                     value={customUrl}
                     onChange={(e) => setCustomUrl(e.target.value)}
                     required
-                    className="w-full px-2.5 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-mono"
+                    className="w-full px-2.5 py-1.5 rounded-xl border border-card-pink bg-card-pink text-xs font-mono"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-semibold text-gray-500 mb-0.5">Anon Public Key</label>
+                  <label className="block text-[10px] font-semibold text-gray-custom mb-0.5">Anon Public Key</label>
                   <input
                     type="text"
                     placeholder="eyJhbGciOi..."
                     value={customKey}
                     onChange={(e) => setCustomKey(e.target.value)}
                     required
-                    className="w-full px-2.5 py-1.5 rounded-xl border border-gray-200 bg-white text-xs font-mono"
+                    className="w-full px-2.5 py-1.5 rounded-xl border border-card-pink bg-card-pink text-xs font-mono"
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full py-2 bg-dark hover:bg-black text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
+                  className="w-full py-2 bg-primary-pink hover:bg-primary-pink/90 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-xs cursor-pointer"
                 >
                   {configSaved ? (
                     <>
@@ -306,3 +306,5 @@ export const LoginView: React.FC = () => {
     </div>
   );
 };
+
+
